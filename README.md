@@ -20,7 +20,7 @@ profiles:
 
 * **profiles** is a list of profile objects
 * **images** is a list of image names (as used by `singleuser_image_spec` option in KubeSpawner)
-* **users** is a list of users allowed to use this profile
+* **users** is a list of users allowed to use this profile, to ignore user filtering, specify `"*"` as a user name, or completely omit the `users` section
 * **env** is an object containing environment variables to be set for a singleuser server
 
 # How to Use
