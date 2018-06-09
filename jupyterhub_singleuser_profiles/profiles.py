@@ -31,12 +31,14 @@ class SingleuserProfiles(object):
         data = yaml.load(fp)
         self.profiles = yaml.load(data["data"][key_name])["profiles"]
 
-  def get_profile_by_image(self, image):
+  def get_profile_by_image(self, image, user=None):
     for profile in self.profiles:
       if profile.get("images") and len(profile.get("images")) > 0:
         if image in profile.get("images"):
-          return profile
+          if not user or not profile.get("users") or "*" in profile.get("users", []):
+            return profile
+          if user in profile.get("users", []):
+            return profile
 
-    return None
-
+    return {}
 
