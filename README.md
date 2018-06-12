@@ -6,6 +6,12 @@ This library helps to manage and configure singleuser JupyterHub servers deploye
 
 ```
 profiles:
+  - name: globals
+    env:
+      THIS_IS_GLOBAL: "This will appear in all singleuser pods"
+    resources:
+      mem_limit: 1Gi
+      cpu_limit: 500m
   - name: Thoth Notebooks
     images:
     - 's2i-thoth-notebook:3.6'
@@ -20,12 +26,6 @@ profiles:
     resources:
       mem_limit: 2Gi
       cpu_limit: 1
-  - name: globals
-    env:
-      THIS_IS_GLOBAL: "This will appear in all singleuser pods"
-    resources:
-      mem_limit: 1Gi
-      cpu_limit: 500m
 ```
 
 * **profiles** is a list of profile objects
@@ -34,7 +34,7 @@ profiles:
 * **env** is an object containing environment variables to be set for a singleuser server. *Keep in mind that all the values need to be strings - i.e. have quotes numbers!*
 * **resources** is an object containing memory and cpu limits (which are then applied to the singleuser pod)
 
-You can omit any section from the configuration. If you remove `images` section, the configration will be matched to all images. If you remove `users` section, it will be matched to all users. This way, you can easily create a globals/default section which will be applied to all users and all images.
+You can omit any section from the configuration. If you remove `images` section, the configration will be matched to all images. If you remove `users` section, it will be matched to all users. This way, you can easily create a globals/default section which will be applied to all users and all images. Do not forget to put `globals first` in the list, otherwise defaults will overwrite other configuration - there is no magic, values from the last matched profile in the list will get applied.
 
 # How to Use
 
