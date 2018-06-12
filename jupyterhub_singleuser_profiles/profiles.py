@@ -2,6 +2,7 @@ import kubernetes
 import os
 import yaml
 import logging
+from kubernetes.client import V1EnvVar
 
 logger = logging.getLogger(__name__)
 
@@ -82,7 +83,18 @@ class SingleuserProfiles(object):
   def apply_pod_profile(self, spawner, pod, profile):
     print(profile)
 
-    if profile.get('resources'):
+    if profile.get('env'):
+      for k, v in profile['env'].items():
+        update = False
+        for e in pod.spec.containers[0].env:
+          if e.name == k:
+            e.value = v
+            update = True
+            break
+        if not update:
+          pod.spec.containers[0].env.append(V1EnvVar(k, v))
+
+    if pod.spec.containers[0].resources and profile.get('resources'):
       if profile['resources'].get('mem_limit'):
         logger.info("Setting a memory limit for %s in %s to %s" % (spawner.user.name, spawner.singleuser_image_spec, profile['resources']['mem_limit']))
         pod.spec.containers[0].resources.limits['memory'] = profile['resources']['mem_limit']
