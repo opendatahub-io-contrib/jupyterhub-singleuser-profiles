@@ -38,9 +38,9 @@ You can omit any section from the configuration. If you remove `images` section,
 
 # How to Use
 
-The method `load_profiles` can download a given ConfigMap from OpenShift/Kubernetes and extract the configuration from `data` section. This allows for dynamic changes to how (with what environment variables) singleuser servers are deployed - by updating the configuration in the ConfigMap, changes can be automatically pulled on singleuser server (re)start. This approach requires KubeSpawner to be extended - example implementation can be found [here](https://github.com/AICoE/jupyterhub-ocp-oauth/blob/59d09091d725e6bc1349ffb1117d9c4cfaf6ef81/.jupyter/jupyterhub_config.py#L192-L202).
+The method `load_profiles` can download a given ConfigMap from OpenShift/Kubernetes and extract the configuration from `data` section. This allows for dynamic changes to how (with what environment variables) singleuser servers are deployed - by updating the configuration in the ConfigMap, changes can be automatically pulled on singleuser server (re)start.
 
-To be able to use `resources` section, you will need to add `c.KubeSpawner.modify_pod_hook` option to your JupyterHub Config and call `SingleuserProfiles.apply_pod_profile(spawner, pod, profile)` from there to get pod manifest updated with the given resource limits.
+This approach requires `c.KubeSpawner.modify_pod_hook` option to point to a function similar to [this](https://github.com/AICoE/jupyterhub-ocp-oauth/blob/master/.jupyter/jupyterhub_config.py#L192) - it simply calls out to `SingleuserProfiles.apply_pod_profile` which takes a pod and updates its configuration based on the profile and returns new pod manifest.
 
 The profiles library can also read configuration from file - although this feature is more for testing purposes (to not require OpenShift/Kubernetes for developlment), it is possible to use file as a source of configuration in production.
 
