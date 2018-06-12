@@ -62,7 +62,11 @@ class SingleuserProfiles(object):
       "name": "",
       "users": [],
       "images": [],
-      "env": {}
+      "env": {},
+      "resources": {
+        "mem_limit": None,
+        "cpu_limit": None
+      },
     }
 
   @classmethod
@@ -71,4 +75,18 @@ class SingleuserProfiles(object):
     profile1["images"] = list(set(profile1.get("images", []) + profile2.get("images", [])))
     profile1["users"] = list(set(profile1.get("users", []) + profile2.get("users", [])))
     profile1["env"] = {**profile1.get('env', {}), **profile2.get('env', {})}
+    profile1["resources"] = {**profile1.get('resources', {}), **profile2.get('resources', {})}
     return profile1
+
+  @classmethod
+  def apply_pod_profile(self, spawner, pod, profile):
+    print(profile)
+
+    if profile.get('resources'):
+      if profile['resources'].get('mem_limit'):
+        logger.info("Setting a memory limit for %s in %s to %s" % (spawner.user.name, spawner.singleuser_image_spec, profile['resources']['mem_limit']))
+        pod.spec.containers[0].resources.limits['memory'] = profile['resources']['mem_limit']
+      if profile['resources'].get('cpu_limit'):
+        logger.info("Setting a cpu limit for %s in %s to %s" % (spawner.user.name, spawner.singleuser_image_spec, profile['resources']['cpu_limit']))
+        pod.spec.containers[0].resources.limits['cpu'] = profile['resources']['cpu_limit']
+    return pod
