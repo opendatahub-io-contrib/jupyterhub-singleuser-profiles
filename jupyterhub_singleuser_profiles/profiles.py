@@ -34,18 +34,22 @@ class SingleuserProfiles(object):
         data = yaml.load(fp)
         self.profiles = yaml.load(data["data"][key_name])["profiles"]
 
+  def filter_by_username(self, profile, user):
+    if not user or not profile.get("users") or "*" in profile.get("users", []):
+      return profile
+    if user in profile.get("users", []):
+      logger.info("Found profile '%s' for user %s" % (profile.get("name"), user))
+      return profile
+    return {}
+
   def get_profile_by_image(self, image, user=None):
     for profile in self.profiles:
       if profile.get("images") and len(profile.get("images")) > 0:
         if image in profile.get("images"):
-          if not user or not profile.get("users") or "*" in profile.get("users", []):
-            logger.info("Found profile for image %s, not filtering by user" % image)
-            yield profile
-          if user in profile.get("users", []):
-            logger.info("Found profile '%s' for image %s, filtering by user %s" % (profile.get("name"), image, user))
-            yield profile
+          logger.info("Found profile for image %s" % image)
+          yield self.filter_by_username(profile, user)
       else:
-        yield profile
+        yield self.filter_by_username(profile, user)
 
     return iter(())
 
