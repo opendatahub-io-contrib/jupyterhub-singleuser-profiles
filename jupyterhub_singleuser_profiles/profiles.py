@@ -28,11 +28,19 @@ class SingleuserProfiles(object):
       api_client = kubernetes.client.CoreV1Api()
 
       config_map = api_client.read_namespaced_config_map(secret_name, namespace)
-      self.profiles = yaml.load(config_map.data[key_name])["profiles"]
+      config_map_yaml = yaml.load(config_map.data[key_name])
+      if config_map_yaml:
+        self.profiles = config_map_yaml.get(["profiles"], [self.empty_profile()])
+      else:
+        self.profiles = [self.empty_profile()]
     else:
       with open(filename) as fp:
         data = yaml.load(fp)
-        self.profiles = yaml.load(data["data"][key_name])["profiles"]
+        if len(data["data"][key_name]) > 0:
+          self.profiles = yaml.load(data["data"][key_name]).get(["profiles"], [self.empty_profile()])
+        else:
+          self.profiles = [self.empty_profile()]
+
 
   def filter_by_username(self, profile, user):
     if not user or not profile.get("users") or "*" in profile.get("users", []):
