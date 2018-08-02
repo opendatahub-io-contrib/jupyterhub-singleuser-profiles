@@ -26,6 +26,20 @@ profiles:
     resources:
       mem_limit: 2Gi
       cpu_limit: 1
+  - name: Spark Notebook
+    images:
+    - 's2i-spark-notebook:3.6'
+    services:
+      spark:
+        template: jupyterhub-spark-operator-configmap
+        parameters:
+          WORKER_NODES: 2
+          MASTER_NODES: 1
+          MEMORY: 2Gi
+          CPU: 2
+          SPARK_IMAGE: jkremser/openshift-spark:2.3-latest
+        return:
+          SPARK_CLUSTER: ".metadata.name"
 ```
 
 * **profiles** is a list of profile objects
@@ -33,8 +47,33 @@ profiles:
 * **users** is a list of users allowed to use this profile, to ignore user filtering, specify `"*"` as a user name, or completely omit the `users` section
 * **env** is an object containing environment variables to be set for a singleuser server. *Keep in mind that all the values need to be strings - i.e. have quotes numbers!*
 * **resources** is an object containing memory and cpu limits (which are then applied to the singleuser pod)
+* **services** is an object of objects describing services which should be run with the Jupyter Single User Server. See details below
 
 You can omit any section from the configuration. If you remove `images` section, the configration will be matched to all images. If you remove `users` section, it will be matched to all users. This way, you can easily create a globals/default section which will be applied to all users and all images. Do not forget to put `globals first` in the list, otherwise defaults will overwrite other configuration - there is no magic, values from the last matched profile in the list will get applied.
+
+## Services
+
+Sometimes you need a service to be available alongside your Jupyter server. In this example such service would be Spark ephemeral cluster - that means a cluster living only as long as the user's JupyterHub single user server lives.
+
+A service is described by 
+
+* **template** - a name of a template imported in OpenShift which describes how to deploy the service
+* **parameters** - an object containing key-value pairs to be processed into the template
+* **return** - an object containing key-value pairs where value is a JSON Path walkable in the uploaded ConfigMap/CustomResource and key is a name of environment variable under which the value will be available in Jupyterhub Singleuser server
+
+A `USERNAME` parameter is automatically added based on user's name to separate services by user.
+
+```
+template: jupyterhub-spark-operator-configmap
+parameters:
+  WORKER_NODES: 2
+  MASTER_NODES: 1
+  MEMORY: 2Gi
+  CPU: 2
+  SPARK_IMAGE: jkremser/openshift-spark:2.3-latest
+```
+
+With this Spark example we rely on the Spark Operator which only requires a ConfigMap to be pushed to OpenShift to configure and spawn new cluster. That said, JuypterHub Singleuser Profiles would find the ConfigMap template based on the `template` field, ask OpenShift to process it with given `parameters` and then upload it to OpenShift which would result in a new Spark cluster to be created.
 
 # How to Use
 

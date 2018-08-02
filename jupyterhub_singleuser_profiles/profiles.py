@@ -3,12 +3,14 @@ import os
 import yaml
 import logging
 from kubernetes.client import V1EnvVar
+from .service import Service
 
-logger = logging.getLogger(__name__)
+_LOGGER = logging.getLogger(__name__)
 
 class SingleuserProfiles(object):
-  def __init__(self):
+  def __init__(self, server_url, token, namespace=None, verify_ssl=True):
     self.profiles = {}
+    self.service = Service(server_url, token, namespace, verify_ssl)
     
   def load_profiles(self, secret_name=None, filename=None, key_name="jupyterhub-singleuser-profiles.yaml"):
     load_from_api = True
@@ -46,7 +48,7 @@ class SingleuserProfiles(object):
     if not user or not profile.get("users") or "*" in profile.get("users", []):
       return profile
     if user in profile.get("users", []):
-      logger.info("Found profile '%s' for user %s" % (profile.get("name"), user))
+      _LOGGER.info("Found profile '%s' for user %s" % (profile.get("name"), user))
       return profile
     return {}
 
@@ -54,7 +56,7 @@ class SingleuserProfiles(object):
     for profile in self.profiles:
       if profile.get("images") and len(profile.get("images")) > 0:
         if image in profile.get("images"):
-          logger.info("Found profile for image %s" % image)
+          _LOGGER.info("Found profile for image %s" % image)
           yield self.filter_by_username(profile, user)
       else:
         yield self.filter_by_username(profile, user)
@@ -69,6 +71,20 @@ class SingleuserProfiles(object):
 
     return res
 
+  def setup_services(self, spawner, image, user):
+    profile = self.get_merged_profile(image, user)
+    if profile.get("services"):
+      for key, service in profile.get("services").items():
+        template = self.service.get_template(service["template"])
+        resource = self.service.process_template(user, template, **service.get("parameters", {}))
+        envs = self.service.submit_resource(resource, service.get("return", {}))
+        spawner.environment = {**spawner.environment, **envs}
+        spawner.single_user_services.append(resource.get("metadata").get("name"))
+
+  def clean_services(self, spawner, user):
+    self.service.delete_resource_by_service_label(user)
+
+
   @classmethod
   def empty_profile(self):
     return {
@@ -80,6 +96,7 @@ class SingleuserProfiles(object):
         "mem_limit": None,
         "cpu_limit": None
       },
+      "services": {}
     }
 
   @classmethod
@@ -89,6 +106,7 @@ class SingleuserProfiles(object):
     profile1["users"] = list(set(profile1.get("users", []) + profile2.get("users", [])))
     profile1["env"] = {**profile1.get('env', {}), **profile2.get('env', {})}
     profile1["resources"] = {**profile1.get('resources', {}), **profile2.get('resources', {})}
+    profile1["services"] = {**profile1.get('services', {}), **profile2.get('services', {})}
     return profile1
 
   @classmethod
@@ -108,9 +126,9 @@ class SingleuserProfiles(object):
 
     if pod.spec.containers[0].resources and profile.get('resources'):
       if profile['resources'].get('mem_limit'):
-        logger.info("Setting a memory limit for %s in %s to %s" % (spawner.user.name, spawner.singleuser_image_spec, profile['resources']['mem_limit']))
+        _LOGGER.info("Setting a memory limit for %s in %s to %s" % (spawner.user.name, spawner.singleuser_image_spec, profile['resources']['mem_limit']))
         pod.spec.containers[0].resources.limits['memory'] = profile['resources']['mem_limit']
       if profile['resources'].get('cpu_limit'):
-        logger.info("Setting a cpu limit for %s in %s to %s" % (spawner.user.name, spawner.singleuser_image_spec, profile['resources']['cpu_limit']))
+        _LOGGER.info("Setting a cpu limit for %s in %s to %s" % (spawner.user.name, spawner.singleuser_image_spec, profile['resources']['cpu_limit']))
         pod.spec.containers[0].resources.limits['cpu'] = profile['resources']['cpu_limit']
     return pod
