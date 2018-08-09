@@ -39,7 +39,7 @@ profiles:
           CPU: 2
           SPARK_IMAGE: jkremser/openshift-spark:2.3-latest
         return:
-          SPARK_CLUSTER: ".metadata.name"
+          SPARK_CLUSTER: "metadata.name"
 ```
 
 * **profiles** is a list of profile objects
@@ -59,7 +59,7 @@ A service is described by
 
 * **template** - a name of a template imported in OpenShift which describes how to deploy the service
 * **parameters** - an object containing key-value pairs to be processed into the template
-* **return** - an object containing key-value pairs where value is a JSON Path walkable in the uploaded ConfigMap/CustomResource and key is a name of environment variable under which the value will be available in Jupyterhub Singleuser server
+* **return** - an object containing key-value pairs where value is a [JSON Path](https://github.com/kennknowles/python-jsonpath-rw) walkable in the uploaded ConfigMap/CustomResource and key is a name of environment variable under which the value will be available in Jupyterhub Singleuser server
 
 A `USERNAME` parameter is automatically added based on user's name to separate services by user.
 
@@ -71,6 +71,8 @@ parameters:
   MEMORY: 2Gi
   CPU: 2
   SPARK_IMAGE: jkremser/openshift-spark:2.3-latest
+return:
+  SPARK_CLUSTER: "metadata.name"
 ```
 
 With this Spark example we rely on the Spark Operator which only requires a ConfigMap to be pushed to OpenShift to configure and spawn new cluster. That said, JuypterHub Singleuser Profiles would find the ConfigMap template based on the `template` field, ask OpenShift to process it with given `parameters` and then upload it to OpenShift which would result in a new Spark cluster to be created.

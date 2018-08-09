@@ -114,19 +114,17 @@ class Service():
         print("Exception when calling CoreV1Api->delete_namespaced_config_map: %s\n" % e)
 
   def _get_data_from_response(self, response, return_paths):
+    import jsonpath_rw
     result = {}
+    data = response.to_dict()
     for key, json_path in return_paths.items():
-      json_path_list = json_path.split(".")
-      if json_path_list[0] != "":
-        _LOGGER.warning("JSON Path must start with '.', skipping")
-        continue
-      else:
-        json_path_list = json_path_list[1:]
       
-      data = response.to_dict()
-      for item in json_path_list:
-        data = data.get(item)
-      result[key] = data
+      jsonpath_expr = jsonpath_rw.parse(json_path)
+      matches = jsonpath_expr.find(data)
+      if len(matches) == 1:
+        result[key] = str(matches[0].value)
+      else:
+        result[key] = ",".join([str(match.value) for match in matches])
     return result
 
   def _set_template_parameters(self, template, **parameters):

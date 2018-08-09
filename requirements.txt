@@ -1,3 +1,4 @@
 openshift
 PyYAML
 requests
+jsonpath-rw
