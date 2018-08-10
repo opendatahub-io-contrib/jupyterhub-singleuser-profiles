@@ -84,7 +84,6 @@ class SingleuserProfiles(object):
   def clean_services(self, spawner, user):
     self.service.delete_resource_by_service_label(user)
 
-
   @classmethod
   def empty_profile(self):
     return {

@@ -46,9 +46,10 @@ class Service():
     return template
 
   def process_template(self, user, template, **parameters):
+
     self._set_template_parameters(
       template,
-      USERNAME=user,
+      USERNAME=self._escape(user),
       **parameters
     )
     template["apiVersion"] = "template.openshift.io/v1"
@@ -82,7 +83,7 @@ class Service():
     if not configMap["metadata"].get("labels"):
       configMap["metadata"]["labels"] = {}
 
-    configMap["metadata"]["labels"][_SERVICE_LABEL] = user
+    configMap["metadata"]["labels"][_SERVICE_LABEL] = self._escape(user)
 
     return configMap
 
@@ -106,7 +107,7 @@ class Service():
           print("Exception when calling CoreV1Api->create_namespaced_config_map: %s\n" % e2)
 
   def delete_resource_by_service_label(self, label_value):
-    api_response = self.k8s_api_instance.list_namespaced_config_map(self.namespace, label_selector="%s=%s" % (_SERVICE_LABEL, label_value))
+    api_response = self.k8s_api_instance.list_namespaced_config_map(self.namespace, label_selector="%s=%s" % (_SERVICE_LABEL, self._escape(label_value)))
     for item in api_response.to_dict()['items']:
       try:
         self.k8s_api_instance.delete_namespaced_config_map(item["metadata"]["name"], self.namespace, client.V1DeleteOptions())
@@ -145,3 +146,7 @@ class Service():
                 'name': parameter_name,
                 'value': str(parameter_value)
             })
+
+  def _escape(self, text):
+    import re
+    return re.sub("[^a-zA-Z0-9]+", "-", text)
