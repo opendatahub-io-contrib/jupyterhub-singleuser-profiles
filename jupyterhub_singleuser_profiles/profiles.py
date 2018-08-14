@@ -7,6 +7,8 @@ from .service import Service
 
 _LOGGER = logging.getLogger(__name__)
 
+_JUPYTERHUB_USER_NAME_ENV = "JUPYTERHUB_USER_NAME"
+
 class SingleuserProfiles(object):
   def __init__(self, server_url, token, namespace=None, verify_ssl=True):
     self.profiles = {}
@@ -130,4 +132,26 @@ class SingleuserProfiles(object):
       if profile['resources'].get('cpu_limit'):
         _LOGGER.info("Setting a cpu limit for %s in %s to %s" % (spawner.user.name, spawner.singleuser_image_spec, profile['resources']['cpu_limit']))
         pod.spec.containers[0].resources.limits['cpu'] = profile['resources']['cpu_limit']
-    return pod
+
+    for c in pod.spec.containers:
+      update = False
+      if type(c) is dict:
+        env = c['env']
+      else:
+        env = c.env
+      for e in env:
+        if type(e) is dict:
+          if e['name'] == _JUPYTERHUB_USER_NAME_ENV:
+            e['value'] = spawner.user.name
+            update = True
+            break
+        else:
+          if e.name == _JUPYTERHUB_USER_NAME_ENV:
+            e.value = spawner.user.name
+            update = True
+            break
+
+      if not update:
+        env.append(V1EnvVar(_JUPYTERHUB_USER_NAME_ENV, spawner.user.name))
+
+    return pod  

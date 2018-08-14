@@ -147,6 +147,7 @@ class Service():
                 'value': str(parameter_value)
             })
 
+  #TODO use proper escaping
   def _escape(self, text):
     import re
     return re.sub("[^a-zA-Z0-9]+", "-", text)
