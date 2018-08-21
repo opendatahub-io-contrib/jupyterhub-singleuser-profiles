@@ -2,7 +2,7 @@ import kubernetes
 import os
 import yaml
 import logging
-from kubernetes.client import V1EnvVar
+from kubernetes.client import V1EnvVar, V1ConfigMap, V1ObjectMeta
 from kubernetes.client.rest import ApiException
 from .service import Service
 from .utils import escape
@@ -27,17 +27,37 @@ class SingleuserProfiles(object):
       self.api_client = kubernetes.client.CoreV1Api()
 
   def read_config_map(self, config_map_name, key_name="profiles"):
-    print("Loading configMap %s, key %s" % (config_map_name, key_name))
     try:
       config_map = self.api_client.read_namespaced_config_map(config_map_name, self.namespace)
     except ApiException as e:
       if e.status != 404:
         _LOGGER.error(e)
+        print(e)
       return {}
       
     config_map_yaml = yaml.load(config_map.data[key_name])
-    print(config_map_yaml)
     return config_map_yaml
+
+  def write_config_map(self, config_map_name, key_name, data):
+    cm = V1ConfigMap()
+    cm.metadata = V1ObjectMeta(name=config_map_name, labels={'app': 'jupyterhub'})
+    cm.data = {key_name: yaml.dump(data, default_flow_style=False)}
+    try: 
+      api_response = self.api_client.replace_namespaced_config_map(config_map_name, self.namespace, cm)
+    except ApiException as e:
+      if e.status == 404:
+        try: 
+          api_response = self.api_client.create_namespaced_config_map(self.namespace, cm)
+        except ApiException as e:
+          _LOGGER.error("Exception when calling CoreV1Api->create_namespaced_config_map: %s\n" % e)
+      else:
+        raise
+
+  def update_user_profile_cm(self, username, data):
+    self.write_config_map(_USER_CONFIG_MAP_TEMPLATE % escape(username), "profile", {"env": data})
+
+  def get_user_profile_cm(self, username):
+    return self.read_config_map(_USER_CONFIG_MAP_TEMPLATE % escape(username), "profile")
     
   def load_profiles(self, secret_name="jupyter-singleuser-profiles", filename=None, key_name="jupyterhub-singleuser-profiles.yaml", username=None):
     self.profiles = []
