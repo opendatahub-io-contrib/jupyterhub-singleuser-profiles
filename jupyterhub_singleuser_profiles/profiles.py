@@ -2,49 +2,86 @@ import kubernetes
 import os
 import yaml
 import logging
-from kubernetes.client import V1EnvVar
+from kubernetes.client import V1EnvVar, V1ConfigMap, V1ObjectMeta
+from kubernetes.client.rest import ApiException
 from .service import Service
+from .utils import escape
 
 _LOGGER = logging.getLogger(__name__)
 
 _JUPYTERHUB_USER_NAME_ENV = "JUPYTERHUB_USER_NAME"
+_USER_CONFIG_MAP_TEMPLATE="jupyterhub-singleuser-profile-%s"
 
 class SingleuserProfiles(object):
   def __init__(self, server_url, token, namespace=None, verify_ssl=True):
-    self.profiles = {}
+    self.profiles = []
     self.service = Service(server_url, token, namespace, verify_ssl)
-    
-  def load_profiles(self, secret_name=None, filename=None, key_name="jupyterhub-singleuser-profiles.yaml"):
-    load_from_api = True
-    if filename and not secret_name:
-      load_from_api = False
-    if not secret_name:
-      secret_name = "jupyter-singleuser-profiles"
+    self.api_client = None
+    self.namespace = namespace #TODO why do I need to pass namespace?
 
-    if load_from_api:
-      service_account_path = '/var/run/secrets/kubernetes.io/serviceaccount'
-
+    service_account_path = '/var/run/secrets/kubernetes.io/serviceaccount'
+    if os.path.exists(service_account_path):
       with open(os.path.join(service_account_path, 'namespace')) as fp:
-          namespace = fp.read().strip()
-
+          self.namespace = fp.read().strip()
       kubernetes.config.load_incluster_config()
+      self.api_client = kubernetes.client.CoreV1Api()
 
-      api_client = kubernetes.client.CoreV1Api()
+  def read_config_map(self, config_map_name, key_name="profiles"):
+    try:
+      config_map = self.api_client.read_namespaced_config_map(config_map_name, self.namespace)
+    except ApiException as e:
+      if e.status != 404:
+        _LOGGER.error(e)
+        print(e)
+      return {}
+      
+    config_map_yaml = yaml.load(config_map.data[key_name])
+    return config_map_yaml
 
-      config_map = api_client.read_namespaced_config_map(secret_name, namespace)
-      config_map_yaml = yaml.load(config_map.data[key_name])
-      if config_map_yaml:
-        self.profiles = config_map_yaml.get("profiles", [self.empty_profile()])
+  def write_config_map(self, config_map_name, key_name, data):
+    cm = V1ConfigMap()
+    cm.metadata = V1ObjectMeta(name=config_map_name, labels={'app': 'jupyterhub'})
+    cm.data = {key_name: yaml.dump(data, default_flow_style=False)}
+    try: 
+      api_response = self.api_client.replace_namespaced_config_map(config_map_name, self.namespace, cm)
+    except ApiException as e:
+      if e.status == 404:
+        try: 
+          api_response = self.api_client.create_namespaced_config_map(self.namespace, cm)
+        except ApiException as e:
+          _LOGGER.error("Exception when calling CoreV1Api->create_namespaced_config_map: %s\n" % e)
       else:
-        self.profiles = [self.empty_profile()]
+        raise
+
+  def update_user_profile_cm(self, username, data):
+    self.write_config_map(_USER_CONFIG_MAP_TEMPLATE % escape(username), "profile", {"env": data})
+
+  def get_user_profile_cm(self, username):
+    return self.read_config_map(_USER_CONFIG_MAP_TEMPLATE % escape(username), "profile")
+    
+  def load_profiles(self, secret_name="jupyter-singleuser-profiles", filename=None, key_name="jupyterhub-singleuser-profiles.yaml", username=None):
+    self.profiles = []
+    if self.api_client:
+      config_map_yaml = self.read_config_map(secret_name, key_name)
+      if config_map_yaml:
+        self.profiles.extend(config_map_yaml.get("profiles", [self.empty_profile()]))
+      else:
+        print("Could not find config map %s" % config_map_name)
+      if len(self.profiles) == 0:
+        self.profiles.append(self.empty_profile())
+      if username:
+        config_map_yaml = self.read_config_map(_USER_CONFIG_MAP_TEMPLATE % escape(username), "profile")
+        if config_map_yaml:
+          self.profiles.append(config_map_yaml)
+
+      print(self.profiles)
     else:
       with open(filename) as fp:
         data = yaml.load(fp)
         if len(data["data"][key_name]) > 0:
-          self.profiles = yaml.load(data["data"][key_name]).get("profiles", [self.empty_profile()])
+          self.profiles.extend(yaml.load(data["data"][key_name]).get("profiles", [self.empty_profile()]))
         else:
-          self.profiles = [self.empty_profile()]
-
+          self.profiles.append(self.empty_profile())
 
   def filter_by_username(self, profile, user):
     if not user or not profile.get("users") or "*" in profile.get("users", []):

@@ -5,6 +5,7 @@ import yaml
 import logging
 import requests
 from kubernetes.client.rest import ApiException
+from .utils import escape
 
 
 _LOGGER = logging.getLogger(__name__)
@@ -49,7 +50,7 @@ class Service():
 
     self._set_template_parameters(
       template,
-      USERNAME=self._escape(user),
+      USERNAME=escape(user),
       **parameters
     )
     template["apiVersion"] = "template.openshift.io/v1"
@@ -83,7 +84,7 @@ class Service():
     if not configMap["metadata"].get("labels"):
       configMap["metadata"]["labels"] = {}
 
-    configMap["metadata"]["labels"][_SERVICE_LABEL] = self._escape(user)
+    configMap["metadata"]["labels"][_SERVICE_LABEL] = escape(user)
 
     return configMap
 
@@ -107,7 +108,7 @@ class Service():
           print("Exception when calling CoreV1Api->create_namespaced_config_map: %s\n" % e2)
 
   def delete_resource_by_service_label(self, label_value):
-    api_response = self.k8s_api_instance.list_namespaced_config_map(self.namespace, label_selector="%s=%s" % (_SERVICE_LABEL, self._escape(label_value)))
+    api_response = self.k8s_api_instance.list_namespaced_config_map(self.namespace, label_selector="%s=%s" % (_SERVICE_LABEL, escape(label_value)))
     for item in api_response.to_dict()['items']:
       try:
         self.k8s_api_instance.delete_namespaced_config_map(item["metadata"]["name"], self.namespace, client.V1DeleteOptions())
@@ -146,8 +147,3 @@ class Service():
                 'name': parameter_name,
                 'value': str(parameter_value)
             })
-
-  #TODO use proper escaping
-  def _escape(self, text):
-    import re
-    return re.sub("[^a-zA-Z0-9]+", "-", text)
