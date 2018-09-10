@@ -53,8 +53,15 @@ class SingleuserProfiles(object):
       else:
         raise
 
-  def update_user_profile_cm(self, username, data):
-    self.write_config_map(_USER_CONFIG_MAP_TEMPLATE % escape(username), "profile", {"env": data})
+  def update_user_profile_cm(self, username, data={}, key=None, value=None):
+    cm_name = _USER_CONFIG_MAP_TEMPLATE % escape(username)
+    cm_key_name = "profile"
+    cm_data = data
+    if not data.get('env'):
+      cm_data = {'env': data}
+    if key and value:
+      cm_data[key] = value
+    self.write_config_map(cm_name, cm_key_name, cm_data)
 
   def get_user_profile_cm(self, username):
     return self.read_config_map(_USER_CONFIG_MAP_TEMPLATE % escape(username), "profile")
