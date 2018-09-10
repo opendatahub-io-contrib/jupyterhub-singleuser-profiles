@@ -57,7 +57,7 @@ class SingleuserProfiles(object):
     cm_name = _USER_CONFIG_MAP_TEMPLATE % escape(username)
     cm_key_name = "profile"
     cm_data = data
-    if not data.get('env'):
+    if len(data) > 0 and 'env' not in data:
       cm_data = {'env': data}
     if key and value:
       cm_data[key] = value
