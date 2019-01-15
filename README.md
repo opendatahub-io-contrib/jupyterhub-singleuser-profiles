@@ -40,6 +40,19 @@ profiles:
           SPARK_IMAGE: jkremser/openshift-spark:2.3-latest
         return:
           SPARK_CLUSTER: "metadata.name"
+sizes:
+  - name: Small
+    resources:
+      mem_limit: 2Gi
+      cpu_limit: 2
+  - name: Medium
+    resources:
+      mem_limit: 4Gi
+      cpu_limit: 4
+  - name: Large
+    resources:
+      mem_limit: 8Gi
+      cpu_limit: 8
 ```
 
 * **profiles** is a list of profile objects
@@ -76,6 +89,10 @@ return:
 ```
 
 With this Spark example we rely on the Spark Operator which only requires a ConfigMap to be pushed to OpenShift to configure and spawn new cluster. That said, JuypterHub Singleuser Profiles would find the ConfigMap template based on the `template` field, ask OpenShift to process it with given `parameters` and then upload it to OpenShift which would result in a new Spark cluster to be created.
+
+## Sizes
+
+Similarly to what we are used to from cloud providers and platforms like Open Stack, we want to be able to choose from a list of predefined sizes for our Jupyter notebook container. The `sizes` section allows you to define a list of these sizes which a user can choose from. A `Default` size is listed as well which automatically derives the resource limits from a user profile.
 
 # How to Use
 
