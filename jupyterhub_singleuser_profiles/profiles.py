@@ -6,11 +6,13 @@ from kubernetes.client import V1EnvVar, V1ConfigMap, V1ObjectMeta
 from kubernetes.client.rest import ApiException
 from .service import Service
 from .utils import escape
+from .sizes import Sizes
 
 _LOGGER = logging.getLogger(__name__)
 
 _JUPYTERHUB_USER_NAME_ENV = "JUPYTERHUB_USER_NAME"
-_USER_CONFIG_MAP_TEMPLATE="jupyterhub-singleuser-profile-%s"
+_USER_CONFIG_MAP_TEMPLATE = "jupyterhub-singleuser-profile-%s"
+_USER_CONFIG_PROFILE_NAME = "@singleuser@"
 
 class SingleuserProfiles(object):
   def __init__(self, server_url, token, namespace=None, verify_ssl=True):
@@ -68,9 +70,11 @@ class SingleuserProfiles(object):
     
   def load_profiles(self, secret_name="jupyter-singleuser-profiles", filename=None, key_name="jupyterhub-singleuser-profiles.yaml", username=None):
     self.profiles = []
+    self.sizes = []
     if self.api_client:
       config_map_yaml = self.read_config_map(secret_name, key_name)
       if config_map_yaml:
+        self.sizes.extend(config_map_yaml.get("sizes", [self.empty_profile()]))
         self.profiles.extend(config_map_yaml.get("profiles", [self.empty_profile()]))
       else:
         print("Could not find config map %s" % config_map_name)
@@ -79,6 +83,8 @@ class SingleuserProfiles(object):
       if username:
         config_map_yaml = self.read_config_map(_USER_CONFIG_MAP_TEMPLATE % escape(username), "profile")
         if config_map_yaml:
+          if not config_map_yaml.get('name'):
+            config_map_yaml['name'] = _USER_CONFIG_PROFILE_NAME
           self.profiles.append(config_map_yaml)
 
       print(self.profiles)
@@ -109,13 +115,26 @@ class SingleuserProfiles(object):
 
     return iter(())
 
-  def get_merged_profile(self, image, user=None):
+  def get_merged_profile(self, image, user=None, size=None):
     profile = self.get_profile_by_image(image, user)
     res = self.empty_profile()
     for p in profile:
       res = self.merge_profiles(res, p)
 
+    if size:
+      s = Sizes(self.sizes)
+      loaded_size = s.get_size(size)
+      if loaded_size:
+        res = self.merge_profiles(res, loaded_size)
+
     return res
+
+  def get_profile_by_name(self, name):
+    for profile in self.profiles:
+      if profile.get("name") == name:
+        return profile
+
+    return {}
 
   def setup_services(self, spawner, image, user):
     profile = self.get_merged_profile(image, user)
@@ -129,6 +148,12 @@ class SingleuserProfiles(object):
 
   def clean_services(self, spawner, user):
     self.service.delete_resource_by_service_label(user)
+
+  def get_sizes_form(self, username=None):
+    if not self.profiles:
+      self.load_profiles(username=username)
+    s = Sizes(self.sizes)
+    return s.get_form(self.get_profile_by_name(_USER_CONFIG_PROFILE_NAME).get('last_selected_size'))
 
   @classmethod
   def empty_profile(self):
