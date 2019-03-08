@@ -2,7 +2,7 @@ import kubernetes
 import os
 import yaml
 import logging
-from kubernetes.client import V1EnvVar, V1ConfigMap, V1ObjectMeta
+from kubernetes.client import V1EnvVar, V1ConfigMap, V1ObjectMeta, V1SecurityContext, V1Capabilities, V1SELinuxOptions
 from kubernetes.client.rest import ApiException
 from .service import Service
 from .utils import escape
@@ -222,5 +222,9 @@ class SingleuserProfiles(object):
 
       if not update:
         env.append(V1EnvVar(_JUPYTERHUB_USER_NAME_ENV, spawner.user.name))
+
+      if spawner.extra_resource_limits and "nvidia.com/gpu" in spawner.extra_resource_limits and not spawner.gpu_privileged:
+          pod.spec.security_context.capabilities = V1Capabilities(drop=['ALL'])
+          pod.spec.security_context.se_linux_options = V1SELinuxOptions(type='nvidia_container_t')
 
     return pod  
