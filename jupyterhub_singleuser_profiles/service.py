@@ -38,7 +38,7 @@ class Service():
     self.os_client = DynamicClient(k8s_client)
 
   def get_template(self, name):
-    response = self.os_client.resources.get(api_version='v1', kind='Template').get(
+    response = self.os_client.resources.get(api_version='template.openshift.io/v1', kind='Template').get(
         namespace=self.namespace,
         name=name
     )
