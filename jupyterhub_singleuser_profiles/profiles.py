@@ -34,7 +34,6 @@ class SingleuserProfiles(object):
     except ApiException as e:
       if e.status != 404:
         _LOGGER.error(e)
-        print(e)
       return {}
       
     config_map_yaml = yaml.load(config_map.data[key_name])
@@ -77,7 +76,7 @@ class SingleuserProfiles(object):
         self.sizes.extend(config_map_yaml.get("sizes", [self.empty_profile()]))
         self.profiles.extend(config_map_yaml.get("profiles", [self.empty_profile()]))
       else:
-        print("Could not find config map %s" % config_map_name)
+        _LOGGER.error("Could not find config map %s" % config_map_name)
       if len(self.profiles) == 0:
         self.profiles.append(self.empty_profile())
       if username:
@@ -86,8 +85,6 @@ class SingleuserProfiles(object):
           if not config_map_yaml.get('name'):
             config_map_yaml['name'] = _USER_CONFIG_PROFILE_NAME
           self.profiles.append(config_map_yaml)
-
-      print(self.profiles)
     else:
       with open(filename) as fp:
         data = yaml.load(fp)
@@ -141,6 +138,9 @@ class SingleuserProfiles(object):
     if profile.get("services"):
       for key, service in profile.get("services").items():
         template = self.service.get_template(service["template"])
+        if not template:
+          _LOGGER.warning("Could not load the template %s. Skipping setting up the service %s" % (service["template"], key))
+          continue
         resource = self.service.process_template(user, template, **service.get("parameters", {}))
         envs = self.service.submit_resource(resource, service.get("return", {}))
         spawner.environment = {**spawner.environment, **envs}
@@ -181,8 +181,6 @@ class SingleuserProfiles(object):
 
   @classmethod
   def apply_pod_profile(self, spawner, pod, profile):
-    print(profile)
-
     if profile.get('env'):
       for k, v in profile['env'].items():
         update = False

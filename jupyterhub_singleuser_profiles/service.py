@@ -38,12 +38,20 @@ class Service():
     self.os_client = DynamicClient(k8s_client)
 
   def get_template(self, name):
-    response = self.os_client.resources.get(api_version='template.openshift.io/v1', kind='Template').get(
-        namespace=self.namespace,
-        name=name
-    )
-    template = response.to_dict()
-    
+    tmplt = self.os_client.resources.get(api_version='template.openshift.io/v1', kind='Template')
+    if isinstance(tmplt, list):
+      tmplt = tmplt[0] # Openshift returns list of 2 resource types, we want template.openshift.io/v1/processedtemplates
+
+    try:
+      response = tmplt.get(
+          namespace=self.namespace,
+          name=name
+      )
+      template = response.to_dict()
+    except Exception as e:
+      _LOGGER.error("Error: %s %s" % (name, e))
+      template = None
+
     return template
 
   def process_template(self, user, template, **parameters):
@@ -102,10 +110,10 @@ class Service():
             result = self._get_data_from_response(api_response, return_paths)
             return result
           else:
-            print("Exception when calling CoreV1Api->replace_namespaced_config_map: %s\n" % e)
+            _LOGGER.error("Exception when calling CoreV1Api->replace_namespaced_config_map: %s\n" % e)
             raise
         except ApiException as e2:
-          print("Exception when calling CoreV1Api->create_namespaced_config_map: %s\n" % e2)
+          _LOGGER.error("Exception when calling CoreV1Api->create_namespaced_config_map: %s\n" % e2)
 
   def delete_resource_by_service_label(self, label_value):
     api_response = self.k8s_api_instance.list_namespaced_config_map(self.namespace, label_selector="%s=%s" % (_SERVICE_LABEL, escape(label_value)))
@@ -113,7 +121,7 @@ class Service():
       try:
         self.k8s_api_instance.delete_namespaced_config_map(item["metadata"]["name"], self.namespace, client.V1DeleteOptions())
       except ApiException as e:
-        print("Exception when calling CoreV1Api->delete_namespaced_config_map: %s\n" % e)
+        _LOGGER.error("Exception when calling CoreV1Api->delete_namespaced_config_map: %s\n" % e)
 
   def _get_data_from_response(self, response, return_paths):
     import jsonpath_rw
@@ -133,7 +141,6 @@ class Service():
     """Set parameters in the template - replace existing ones or append to parameter list if not exist.
     >>> _set_template_parameters(template, THOTH_LOG_ADVISER='DEBUG')
     """
-    print(parameters)
     if 'parameters' not in template:
         template['parameters'] = []
 
