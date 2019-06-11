@@ -57,11 +57,9 @@ class SingleuserProfiles(object):
   def update_user_profile_cm(self, username, data={}, key=None, value=None):
     cm_name = _USER_CONFIG_MAP_TEMPLATE % escape(username)
     cm_key_name = "profile"
-    cm_data = data
-    if len(data) > 0 and 'env' not in data:
-      cm_data = {'env': data}
-    if key and value:
-      cm_data[key] = value
+    cm_data = self.get_user_profile_cm(username)
+    cm_data = self.merge_profiles(cm_data, data)
+
     self.write_config_map(cm_name, cm_key_name, cm_data)
 
   def get_user_profile_cm(self, username):
@@ -171,13 +169,49 @@ class SingleuserProfiles(object):
 
   @classmethod
   def merge_profiles(self, profile1, profile2):
-    profile1["name"] =  ", ".join(filter(None, [profile1.get("name", ""), profile2.get("name", "")]))
-    profile1["images"] = list(set(profile1.get("images", []) + profile2.get("images", [])))
-    profile1["users"] = list(set(profile1.get("users", []) + profile2.get("users", [])))
-    profile1["env"] = {**profile1.get('env', {}), **profile2.get('env', {})}
-    profile1["resources"] = {**profile1.get('resources', {}), **profile2.get('resources', {})}
-    profile1["services"] = {**profile1.get('services', {}), **profile2.get('services', {})}
-    return profile1
+    name = ", ".join(filter(None, [profile1.get("name", ""), profile2.get("name", "")]))
+    result = {}
+    for k, v in profile1.items():
+      result[k] = self._profile_data_merge(v, profile2.get(k, type(v)()))
+
+    result["name"] = name
+    return result
+
+  @classmethod
+  def _profile_data_merge(self, a, b):
+    """merges b into a and return merged result
+
+    NOTE: tuples and arbitrary objects are not handled as it is totally ambiguous what should happen"""
+    key = None
+    # ## debug output
+    # sys.stderr.write("DEBUG: %s to %s\n" %(b,a))
+    try:
+        if a is None or isinstance(a, str) or isinstance(a, int) or isinstance(a, float):
+            # border case for first run or if a is a primitive
+            a = b
+        elif isinstance(a, list):
+            # lists can be only appended
+            if isinstance(b, list):
+                # merge lists
+                a = list(set(a + b))
+            else:
+                # append to list
+                a.append(b)
+        elif isinstance(a, dict):
+            # dicts must be merged
+            if isinstance(b, dict):
+                for key in b:
+                    if key in a:
+                        a[key] = self._profile_data_merge(a[key], b[key])
+                    else:
+                        a[key] = b[key]
+            else:
+                raise Exception('Cannot merge non-dict "%s" into dict "%s"' % (b, a))
+        else:
+            raise Exception('NOT IMPLEMENTED "%s" into "%s"' % (b, a))
+    except TypeError as e:
+        raise Exception('TypeError "%s" in key "%s" when merging "%s" into "%s"' % (e, key, b, a))
+    return a
 
   @classmethod
   def apply_pod_profile(self, spawner, pod, profile):
