@@ -15,11 +15,14 @@ _USER_CONFIG_MAP_TEMPLATE = "jupyterhub-singleuser-profile-%s"
 _USER_CONFIG_PROFILE_NAME = "@singleuser@"
 
 class SingleuserProfiles(object):
-  def __init__(self, server_url, token, namespace=None, verify_ssl=True):
+  GPU_MODE_SELINUX = "selinux"
+  GPU_MODE_PRIVILEGED = "privileged"
+  def __init__(self, server_url, token, namespace=None, verify_ssl=True, gpu_mode=None):
     self.profiles = []
     self.service = Service(server_url, token, namespace, verify_ssl)
     self.api_client = None
     self.namespace = namespace #TODO why do I need to pass namespace?
+    self.gpu_mode = gpu_mode
 
     service_account_path = '/var/run/secrets/kubernetes.io/serviceaccount'
     if os.path.exists(service_account_path):
@@ -27,6 +30,19 @@ class SingleuserProfiles(object):
           self.namespace = fp.read().strip()
       kubernetes.config.load_incluster_config()
       self.api_client = kubernetes.client.CoreV1Api()
+
+  @property
+  def gpu_mode(self):
+    return self._gpu_mode
+
+  @gpu_mode.setter
+  def gpu_mode(self, value):
+    if value == self.GPU_MODE_PRIVILEGED:
+      self._gpu_mode = self.GPU_MODE_PRIVILEGED
+    elif value == self.GPU_MODE_SELINUX:
+      self._gpu_mode = self.GPU_MODE_SELINUX
+    else:
+      self._gpu_mode = None
 
   def read_config_map(self, config_map_name, key_name="profiles"):
     try:
@@ -221,7 +237,8 @@ class SingleuserProfiles(object):
       if not update:
         env.append(V1EnvVar(_JUPYTERHUB_USER_NAME_ENV, spawner.user.name))
 
-      if spawner.extra_resource_limits and "nvidia.com/gpu" in spawner.extra_resource_limits and not spawner.gpu_privileged:
+      #FIXME classmethod, so no self.gpu_mode
+      if spawner.gpu_mode and spawner.gpu_mode == self.GPU_MODE_SELINUX and spawner.extra_resource_limits and "nvidia.com/gpu" in spawner.extra_resource_limits:
           pod.spec.security_context.capabilities = V1Capabilities(drop=['ALL'])
           pod.spec.security_context.se_linux_options = V1SELinuxOptions(type='nvidia_container_t')
 
