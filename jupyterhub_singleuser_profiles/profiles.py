@@ -54,6 +54,8 @@ class SingleuserProfiles(object):
       return config_maps_list
     for cm in config_maps.items:
       config_maps_list.append(cm.metadata.name)
+
+    _LOGGER.info("Found these additional Config Maps: %s" % config_maps_list)
     return config_maps_list
 
   def read_config_map(self, config_map_name, key_name="profiles"):
@@ -99,10 +101,10 @@ class SingleuserProfiles(object):
     self.profiles = []
     self.sizes = []
     if self.api_client:
-      profiles_config_maps = ['secret_name']
+      profiles_config_maps = [secret_name]
       profiles_config_maps.extend(sorted(self.get_config_maps_matching_label()))
       for cm_name in profiles_config_maps:
-        config_map_yaml = self.read_config_map(secret_name, key_name)
+        config_map_yaml = self.read_config_map(cm_name, key_name)
         if config_map_yaml:
           self.sizes.extend(config_map_yaml.get("sizes", [self.empty_profile()]))
           self.profiles.extend(config_map_yaml.get("profiles", [self.empty_profile()]))
