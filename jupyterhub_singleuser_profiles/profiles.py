@@ -44,6 +44,20 @@ class SingleuserProfiles(object):
     else:
       self._gpu_mode = None
 
+  def get_config_maps_matching_label(self, target_label='jupyterhub=singleuser-profiles'):
+    config_maps_list = []
+    try:
+      config_maps = self.api_client.list_namespaced_config_map(self.namespace, label_selector=target_label)
+    except ApiException as e:
+      if e.status != 404:
+        _LOGGER.error(e)
+      return config_maps_list
+    for cm in config_maps.items:
+      config_maps_list.append(cm.metadata.name)
+
+    _LOGGER.info("Found these additional Config Maps: %s" % config_maps_list)
+    return config_maps_list
+
   def read_config_map(self, config_map_name, key_name="profiles"):
     try:
       config_map = self.api_client.read_namespaced_config_map(config_map_name, self.namespace)
@@ -87,12 +101,15 @@ class SingleuserProfiles(object):
     self.profiles = []
     self.sizes = []
     if self.api_client:
-      config_map_yaml = self.read_config_map(secret_name, key_name)
-      if config_map_yaml:
-        self.sizes.extend(config_map_yaml.get("sizes", [self.empty_profile()]))
-        self.profiles.extend(config_map_yaml.get("profiles", [self.empty_profile()]))
-      else:
-        _LOGGER.error("Could not find config map %s" % config_map_name)
+      profiles_config_maps = [secret_name]
+      profiles_config_maps.extend(sorted(self.get_config_maps_matching_label()))
+      for cm_name in profiles_config_maps:
+        config_map_yaml = self.read_config_map(cm_name, key_name)
+        if config_map_yaml:
+          self.sizes.extend(config_map_yaml.get("sizes", [self.empty_profile()]))
+          self.profiles.extend(config_map_yaml.get("profiles", [self.empty_profile()]))
+        else:
+          _LOGGER.error("Could not find config map %s" % config_map_name)
       if len(self.profiles) == 0:
         self.profiles.append(self.empty_profile())
       if username:
