@@ -195,6 +195,8 @@ class SingleuserProfiles(object):
       "users": [],
       "images": [],
       "env": {},
+      "node_tolerations": [],
+      "node_affinity": {},
       "resources": {
         "mem_limit": None,
         "cpu_limit": None
@@ -210,6 +212,8 @@ class SingleuserProfiles(object):
     profile1["env"] = {**profile1.get('env', {}), **profile2.get('env', {})}
     profile1["resources"] = {**profile1.get('resources', {}), **profile2.get('resources', {})}
     profile1["services"] = {**profile1.get('services', {}), **profile2.get('services', {})}
+    profile1["node_tolerations"] = profile1.get("node_tolerations", []) + profile2.get("node_tolerations", [])
+    profile1["node_affinity"] = {**profile1.get('node_affinity', {}), **profile2.get('node_affinity', {})}
     return profile1
 
   @classmethod
@@ -232,6 +236,14 @@ class SingleuserProfiles(object):
       if profile['resources'].get('cpu_limit'):
         _LOGGER.info("Setting a cpu limit for %s in %s to %s" % (spawner.user.name, spawner.singleuser_image_spec, profile['resources']['cpu_limit']))
         pod.spec.containers[0].resources.limits['cpu'] = profile['resources']['cpu_limit']
+
+    if profile.get('node_tolerations'):
+        pod.spec.tolerations = profile.get('node_tolerations')
+
+    if profile.get('node_affinity'):
+        if not pod.spec.affinity:
+            pod.spec.affinity = {}
+        pod.spec.affinity['nodeAffinity'] = profile.get('node_affinity')
 
     for c in pod.spec.containers:
       update = False
