@@ -1,6 +1,7 @@
 import kubernetes
 import os
 import yaml
+import json
 import logging
 from kubernetes.client import V1EnvVar, V1ConfigMap, V1ObjectMeta, V1SecurityContext, V1Capabilities, V1SELinuxOptions
 from kubernetes.client.rest import ApiException
@@ -203,27 +204,55 @@ class SingleuserProfiles(object):
     }
 
   @classmethod
+  def env_dict_to_list(self, env_data):
+    result = []
+    
+    for k, v in env_data.items():
+      result.append({"name": k, "value": v})
+
+    return result
+
+
+  @classmethod
   def merge_profiles(self, profile1, profile2):
+
+    if isinstance(profile1.get('env'), dict):
+      profile1['env'] = self.env_dict_to_list(profile1['env'])
+    if isinstance(profile2.get('env'), dict):
+      profile2['env'] = self.env_dict_to_list(profile2['env'])
+
     profile1["name"] =  ", ".join(filter(None, [profile1.get("name", ""), profile2.get("name", "")]))
     profile1["images"] = list(set(profile1.get("images", []) + profile2.get("images", [])))
     profile1["users"] = list(set(profile1.get("users", []) + profile2.get("users", [])))
-    profile1["env"] = {**profile1.get('env', {}), **profile2.get('env', {})}
+    profile1["env"] = profile1.get('env', []) + profile2.get('env', [])
     profile1["resources"] = {**profile1.get('resources', {}), **profile2.get('resources', {})}
     profile1["services"] = {**profile1.get('services', {}), **profile2.get('services', {})}
     return profile1
 
   @classmethod
   def apply_pod_profile(self, spawner, pod, profile):
-    if profile.get('env'):
-      for k, v in profile['env'].items():
-        update = False
-        for e in pod.spec.containers[0].env:
-          if e.name == k:
-            e.value = v
-            update = True
-            break
-        if not update:
-          pod.spec.containers[0].env.append(V1EnvVar(k, v))
+    api_client = kubernetes.client.ApiClient()
+
+    profile_enviroment = profile.get('env')
+
+    if profile_enviroment:
+      if isinstance(profile_enviroment, dict):
+        for k, v in profile['env'].items():
+          update = False
+          for e in pod.spec.containers[0].env:
+            if e.name == k:
+              e.value = v
+              update = True
+              break
+          if not update:
+            pod.spec.containers[0].env.append(V1EnvVar(k, v))
+      elif isinstance(profile_enviroment, list):
+        for i in profile_enviroment:
+          r = type("Response", (), {})
+          r.data = json.dumps(i)
+          env_var = api_client.deserialize(r, V1EnvVar)
+          pod.spec.containers[0].env.append(env_var)
+          
 
     if pod.spec.containers[0].resources and profile.get('resources'):
       if profile['resources'].get('mem_limit'):
