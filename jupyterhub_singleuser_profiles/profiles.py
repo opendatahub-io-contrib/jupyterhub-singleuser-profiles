@@ -235,8 +235,9 @@ class SingleuserProfiles(object):
 
     profile_environment = profile.get('env')
 
-    # Kept for backwards compatibility with simplified env var definitions
     if profile_environment:
+
+      # Kept for backwards compatibility with simplified env var definitions
       if isinstance(profile_environment, dict):
         for k, v in profile['env'].items():
           update = False
@@ -247,6 +248,7 @@ class SingleuserProfiles(object):
               break
           if not update:
             pod.spec.containers[0].env.append(V1EnvVar(k, v))
+            
       elif isinstance(profile_environment, list):
         for i in profile_environment:
           r = type("Response", (), {})
