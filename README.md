@@ -15,6 +15,11 @@ profiles:
         secretKeyRef:
           key: SECRET_TOKEN
           name: testing-secret-token
+    - name: MY_CONFIGMAP_VALUE
+          valueFrom:
+            configMapKeyRef:
+              name: myconfigmap
+              key: mykey
     resources:
       mem_limit: 1Gi
       cpu_limit: 500m
