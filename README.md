@@ -4,14 +4,32 @@ This library helps to manage and configure singleuser JupyterHub servers deploye
 
 # Configuration
 
-```
-profiles:
+``` profiles:
   - name: globals
     env:
       THIS_IS_GLOBAL: "This will appear in all singleuser pods"
     resources:
       mem_limit: 1Gi
       cpu_limit: 500m
+  - name: Special Nodes
+    users:
+    - acorvin
+    # Set OpenShift node tolerations for a notebook pod. See https://kubernetes.io/docs/concepts/configuration/taint-and-toleration/ for more information.
+    node_tolerations:
+      - key: some_node_label
+        operator: Equal
+        value: label_target_value
+        effect: NoSchedule
+    # Set OpenShift node affinity for a notebook pod. See https://kubernetes.io/docs/concepts/configuration/assign-pod-node/ for more information.
+    node_affinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        nodeSelectorTerms:
+          - matchExpressions:
+            - key: some_node_label
+              operator: In
+              values:
+              - label_target_value_1
+              - label_target_value_2
   - name: Thoth Notebooks
     images:
     - 's2i-thoth-notebook:3.6'
@@ -59,6 +77,8 @@ sizes:
 * **images** is a list of image names (as used by `singleuser_image_spec` option in KubeSpawner)
 * **users** is a list of users allowed to use this profile, to ignore user filtering, specify `"*"` as a user name, or completely omit the `users` section
 * **env** is an object containing environment variables to be set for a singleuser server. *Keep in mind that all the values need to be strings - i.e. have quotes numbers!*
+* **node_tolerations** is a list of OpenShift node tolerations to be applied to the singleuser pod. See https://kubernetes.io/docs/concepts/configuration/taint-and-toleration/ for more information.
+* **node_affinity** is an object containing node affinity definitions to be applied to the singleuser pod. See https://kubernetes.io/docs/concepts/configuration/assign-pod-node/ for more information.
 * **resources** is an object containing memory and cpu limits (which are then applied to the singleuser pod)
 * **services** is an object of objects describing services which should be run with the Jupyter Single User Server. See details below
 
