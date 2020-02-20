@@ -229,7 +229,15 @@ class SingleuserProfiles(object):
               selected = "selected=selected"
           result.append("<option value='%s' %s>%s</option>" % (image, selected, image))
 
-    return result
+    response = """
+    <h3>JupyterHub Server Image</h3>
+    <label for="custom_image">Select desired notebook image</label>
+    <select class="form-control" name="custom_image" size="1">
+    %s
+    </select>
+    \n
+    """ % "\n".join(result)
+    return response
 
   @classmethod
   def merge_profiles(self, profile1, profile2):
