@@ -7,7 +7,18 @@ This library helps to manage and configure singleuser JupyterHub servers deploye
 ``` profiles:
   - name: globals
     env:
-      THIS_IS_GLOBAL: "This will appear in all singleuser pods"
+    - name: THIS_IS_GLOBAL
+      value: "This will appear in all singleuser pods"
+    - name: MYAPP_SECRET_TOKEN
+      valueFrom:
+        secretKeyRef:
+          key: SECRET_TOKEN
+          name: testing-secret-token
+    - name: MY_CONFIGMAP_VALUE
+      valueFrom:
+        configMapKeyRef:
+          name: myconfigmap
+          key: mykey
     resources:
       mem_limit: 1Gi
       cpu_limit: 500m
@@ -37,10 +48,14 @@ This library helps to manage and configure singleuser JupyterHub servers deploye
     - vpavlin
     - fpokorny
     env:
-      THOTH_DEPLOYMENT_NAME: thoth-test-core
-      THOTH_CEPH_BUCKET: DH-DEV-DATA
-      THOTH_CEPH_BUCKET_PREFIX: data/thoth
-      THOTH_JANUSGRAPH_PORT: '80'
+    - name: THOTH_DEPLOYMENT_NAME
+      value: thoth-test-core
+    - name: THOTH_CEPH_BUCKET
+      value: DH-DEV-DATA
+    - name: THOTH_CEPH_BUCKET_PREFIX
+      value: data/thoth
+    - name: THOTH_JANUSGRAPH_PORT
+      value: '80'
     resources:
       mem_limit: 2Gi
       cpu_limit: 1
@@ -76,7 +91,7 @@ sizes:
 * **profiles** is a list of profile objects
 * **images** is a list of image names (as used by `singleuser_image_spec` option in KubeSpawner)
 * **users** is a list of users allowed to use this profile, to ignore user filtering, specify `"*"` as a user name, or completely omit the `users` section
-* **env** is an object containing environment variables to be set for a singleuser server. *Keep in mind that all the values need to be strings - i.e. have quotes numbers!*
+* **env** env is a list containing environment variables to be set for a singleuser server. It follows the structure defined by Kubernetes for environment variables in containers by [value](https://kubernetes.io/docs/tasks/inject-data-application/define-environment-variable-container/) and [by reference](https://kubernetes.io/docs/concepts/configuration/secret/#using-secrets-as-environment-variables)
 * **node_tolerations** is a list of OpenShift node tolerations to be applied to the singleuser pod. See https://kubernetes.io/docs/concepts/configuration/taint-and-toleration/ for more information.
 * **node_affinity** is an object containing node affinity definitions to be applied to the singleuser pod. See https://kubernetes.io/docs/concepts/configuration/assign-pod-node/ for more information.
 * **resources** is an object containing memory and cpu limits (which are then applied to the singleuser pod)
