@@ -214,6 +214,22 @@ class SingleuserProfiles(object):
 
     return result
 
+  @classmethod
+  def get_image_list(self, imagestream_list, last_image):
+    result = []
+    for i in imagestream_list.items:
+      if "-notebook" in i.metadata.name:
+        name = i.metadata.name
+        if not i.status.tags:
+            continue
+        for tag in i.status.tags:
+          selected = ""
+          image = "%s:%s" % (name, tag.tag)
+          if image == last_image:
+              selected = "selected=selected"
+          result.append("<option value='%s' %s>%s</option>" % (image, selected, image))
+
+    return result
 
   @classmethod
   def merge_profiles(self, profile1, profile2):
