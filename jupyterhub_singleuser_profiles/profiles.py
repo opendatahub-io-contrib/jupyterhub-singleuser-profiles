@@ -28,18 +28,18 @@ class SingleuserProfiles(object):
     self.gpu_mode = gpu_mode
     self.oapi_client = None
 
-    configuration = kubernetes.client.Configuration()
-    configuration.verify_ssl = False
-    self.oapi_client = DynamicClient(
-      kubernetes.client.ApiClient(configuration=configuration)
-    )
-
     service_account_path = '/var/run/secrets/kubernetes.io/serviceaccount'
     if os.path.exists(service_account_path):
       with open(os.path.join(service_account_path, 'namespace')) as fp:
           self.namespace = fp.read().strip()
       kubernetes.config.load_incluster_config()
       self.api_client = kubernetes.client.CoreV1Api()
+    
+    configuration = kubernetes.client.Configuration()
+    configuration.verify_ssl = False
+    self.oapi_client = DynamicClient(
+      kubernetes.client.ApiClient(configuration=configuration)
+    )
 
   @property
   def gpu_mode(self):
