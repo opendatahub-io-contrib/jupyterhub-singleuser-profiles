@@ -5,9 +5,11 @@ import json
 import logging
 from kubernetes.client import V1EnvVar, V1ConfigMap, V1ObjectMeta, V1SecurityContext, V1Capabilities, V1SELinuxOptions
 from kubernetes.client.rest import ApiException
+from openshift.dynamic import DynamicClient
 from .service import Service
 from .utils import escape
 from .sizes import Sizes
+from .images import Images
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -24,6 +26,7 @@ class SingleuserProfiles(object):
     self.api_client = None
     self.namespace = namespace #TODO why do I need to pass namespace?
     self.gpu_mode = gpu_mode
+    self.oapi_client = None
 
     service_account_path = '/var/run/secrets/kubernetes.io/serviceaccount'
     if os.path.exists(service_account_path):
@@ -31,6 +34,12 @@ class SingleuserProfiles(object):
           self.namespace = fp.read().strip()
       kubernetes.config.load_incluster_config()
       self.api_client = kubernetes.client.CoreV1Api()
+    
+      configuration = kubernetes.client.Configuration()
+      configuration.verify_ssl = False
+      self.oapi_client = DynamicClient(
+        kubernetes.client.ApiClient(configuration=configuration)
+      )
 
   @property
   def gpu_mode(self):
@@ -189,6 +198,14 @@ class SingleuserProfiles(object):
     s = Sizes(self.sizes)
     return s.get_form(self.get_profile_by_name(_USER_CONFIG_PROFILE_NAME).get('last_selected_size'))
 
+  def get_image_list_form(self, username=None):
+
+    if not self.profiles:
+      self.load_profiles(username=username)
+
+    i = Images(self.oapi_client, self.namespace)
+    return i.get_form(self.get_profile_by_name(_USER_CONFIG_PROFILE_NAME).get('last_selected_image'))
+
   @classmethod
   def empty_profile(self):
     return {
@@ -213,7 +230,6 @@ class SingleuserProfiles(object):
       result.append({"name": k, "value": v})
 
     return result
-
 
   @classmethod
   def merge_profiles(self, profile1, profile2):
