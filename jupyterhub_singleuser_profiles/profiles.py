@@ -5,6 +5,7 @@ import json
 import logging
 from kubernetes.client import V1EnvVar, V1ConfigMap, V1ObjectMeta, V1SecurityContext, V1Capabilities, V1SELinuxOptions
 from kubernetes.client.rest import ApiException
+from openshift.dynamic import DynamicClient
 from .service import Service
 from .utils import escape
 from .sizes import Sizes
@@ -25,6 +26,13 @@ class SingleuserProfiles(object):
     self.api_client = None
     self.namespace = namespace #TODO why do I need to pass namespace?
     self.gpu_mode = gpu_mode
+    self.oapi_client = None
+
+    configuration = kubernetes.client.Configuration()
+    configuration.verify_ssl = False
+    self.oapi_client = DynamicClient(
+      kubernetes.client.ApiClient(configuration=configuration)
+    )
 
     service_account_path = '/var/run/secrets/kubernetes.io/serviceaccount'
     if os.path.exists(service_account_path):
@@ -195,7 +203,7 @@ class SingleuserProfiles(object):
     if not self.profiles:
       self.load_profiles(username=username)
 
-    i = Images(self.api_client, self.namespace)
+    i = Images(self.oapi_client, self.namespace)
     return i.get_form(self.get_profile_by_name(_USER_CONFIG_PROFILE_NAME).get('last_selected_image'))
 
   @classmethod
