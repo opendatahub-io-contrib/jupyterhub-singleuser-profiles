@@ -215,7 +215,7 @@ class SingleuserProfiles(object):
     return result
 
   @classmethod
-  def get_image_list(self, imagestream_list, last_image):
+  def get_image_list_form(self, imagestream_list, last_image):
     result = []
     for i in imagestream_list.items:
       if "-notebook" in i.metadata.name:
