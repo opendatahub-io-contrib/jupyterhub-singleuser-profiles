@@ -35,11 +35,11 @@ class SingleuserProfiles(object):
       kubernetes.config.load_incluster_config()
       self.api_client = kubernetes.client.CoreV1Api()
     
-    configuration = kubernetes.client.Configuration()
-    configuration.verify_ssl = False
-    self.oapi_client = DynamicClient(
-      kubernetes.client.ApiClient(configuration=configuration)
-    )
+      configuration = kubernetes.client.Configuration()
+      configuration.verify_ssl = False
+      self.oapi_client = DynamicClient(
+        kubernetes.client.ApiClient(configuration=configuration)
+      )
 
   @property
   def gpu_mode(self):
