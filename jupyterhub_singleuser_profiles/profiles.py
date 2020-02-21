@@ -190,7 +190,7 @@ class SingleuserProfiles(object):
     s = Sizes(self.sizes)
     return s.get_form(self.get_profile_by_name(_USER_CONFIG_PROFILE_NAME).get('last_selected_size'))
 
-  def get_image_list_form(self, oapi_client, username=None):
+  def get_image_list_form(self, username=None):
 
     if not self.profiles:
       self.load_profiles(username=username)
