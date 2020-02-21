@@ -8,6 +8,7 @@ from kubernetes.client.rest import ApiException
 from .service import Service
 from .utils import escape
 from .sizes import Sizes
+from .images import Images
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -189,6 +190,14 @@ class SingleuserProfiles(object):
     s = Sizes(self.sizes)
     return s.get_form(self.get_profile_by_name(_USER_CONFIG_PROFILE_NAME).get('last_selected_size'))
 
+  def get_image_list_form(self, oapi_client, username=None):
+
+    if not self.profiles:
+      self.load_profiles(username=username)
+
+    i = Images(self.api_client, self.namespace)
+    return i.get_form(self.get_profile_by_name(_USER_CONFIG_PROFILE_NAME).get('last_selected_image'))
+
   @classmethod
   def empty_profile(self):
     return {
@@ -213,31 +222,6 @@ class SingleuserProfiles(object):
       result.append({"name": k, "value": v})
 
     return result
-
-  @classmethod
-  def get_image_list_form(self, imagestream_list, last_image):
-    result = []
-    for i in imagestream_list.items:
-      if "-notebook" in i.metadata.name:
-        name = i.metadata.name
-        if not i.status.tags:
-            continue
-        for tag in i.status.tags:
-          selected = ""
-          image = "%s:%s" % (name, tag.tag)
-          if image == last_image:
-              selected = "selected=selected"
-          result.append("<option value='%s' %s>%s</option>" % (image, selected, image))
-
-    response = """
-    <h3>JupyterHub Server Image</h3>
-    <label for="custom_image">Select desired notebook image</label>
-    <select class="form-control" name="custom_image" size="1">
-    %s
-    </select>
-    \n
-    """ % "\n".join(result)
-    return response
 
   @classmethod
   def merge_profiles(self, profile1, profile2):
