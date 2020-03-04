@@ -19,16 +19,12 @@ class Images(object):
 
         return imagestream_list
 
-    def get_images_legacy(self):
+    def get_images_legacy(self, result, last_image):
         """Kept for backwards compatibility"""
-
-        result = []
 
         for i in self.get_images().items:
             if '-notebook' in i.metadata.name:
-                result.append(i)
-        
-        return result
+                self.append_option(i, result, last_image)
 
     def append_option(self, image, result, last_image):
         name = image.metadata.name
@@ -48,9 +44,7 @@ class Images(object):
         imagestream_list = self.get_images(IMAGE_LABEL+'=true')
 
         if len(imagestream_list.items) == 0:
-            imagestream_list = self.get_images_legacy()
-            for i in imagestream_list:
-                self.append_option(i, result, last_image)
+            self.get_images_legacy(result, last_image)
         else:
             for i in imagestream_list.items:
                 self.append_option(i, result, last_image)
