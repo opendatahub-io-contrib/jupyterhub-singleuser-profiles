@@ -3,6 +3,7 @@ import yaml
 import logging
 
 _LOGGER = logging.getLogger(__name__)
+IMAGE_LABEL = 'opendatahub.io/notebook-image'
 
 class Images(object):
     def __init__(self, oapi_client, namespace):
@@ -11,32 +12,43 @@ class Images(object):
 
         
     
-    def get_images(self):
+    def get_images(self, label=None):
 
         imagestreams = self.oapi_client.resources.get(kind='ImageStream', api_version='image.openshift.io/v1')
-        imagestream_list = imagestreams.get(namespace=self.namespace)
+        imagestream_list = imagestreams.get(namespace=self.namespace, label_selector=label)
 
         return imagestream_list
 
-    
+    def get_images_legacy(self, result, last_image):
+        """Kept for backwards compatibility"""
+
+        for i in self.get_images().items:
+            if '-notebook' in i.metadata.name:
+                self.append_option(i, result, last_image)
+
+    def append_option(self, image, result, last_image):
+        name = image.metadata.name
+        if not image.status.tags:
+            return
+        for tag in image.status.tags:
+            selected = ""
+            image_tag = "%s:%s" % (name, tag.tag)
+            if image_tag == last_image:
+                selected = "selected=selected"
+            result.append("<option value='%s' %s>%s</option>" % (image_tag, selected, image_tag))
+
+
     def get_form(self, last_image=None):
 
         result = []
+        imagestream_list = self.get_images(IMAGE_LABEL+'=true')
 
-
-        for i in self.get_images().items:
-            if "-notebook" in i.metadata.name:
-                name = i.metadata.name
-                if not i.status.tags:
-                    continue
-                for tag in i.status.tags:
-                    selected = ""
-                    image = "%s:%s" % (name, tag.tag)
-                    if image == last_image:
-                        selected = "selected=selected"
-                    result.append("<option value='%s' %s>%s</option>" % (image, selected, image))
-                    
-
+        if len(imagestream_list.items) == 0:
+            self.get_images_legacy(result, last_image)
+        else:
+            for i in imagestream_list.items:
+                self.append_option(i, result, last_image)
+     
         response = """
         <h3>JupyterHub Server Image</h3>
         <label for="custom_image">Select desired notebook image</label>
