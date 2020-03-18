@@ -26,7 +26,7 @@ class Sizes(object):
         """
 
         options = ["<option value='None'>Default (resources will be set based on profiles configured by administrator)</option>"]
-        for size in self.sizes:
+        for size in self.sizes: 
             selected = ""
             if size['name'] == last_size:
                 selected = "selected=selected"
@@ -34,6 +34,11 @@ class Sizes(object):
                 # Kept for backwards compatibility
                 options.append("<option value='%s' %s>%s</option>" % (size['name'], selected, "%s (Memory: %s, CPU: %s)" % (size['name'], size['resources']['mem_limit'], size['resources']['cpu_limit'])))
             else:
+                if size['resources'].get('requests') is None:
+                    size['resources']['requests'] = size['resources']['limits']
+                elif size['resources'].get('limits') is None:
+                    size['resources']['limits'] = size['resources']['requests']
+
                 req_mem = size['resources']['requests']['memory']
                 req_cpu = size['resources']['requests']['cpu']
                 lim_mem = size['resources']['limits']['memory']

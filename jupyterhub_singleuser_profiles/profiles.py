@@ -302,6 +302,10 @@ class SingleuserProfiles(object):
 
       elif resource_var:
         pod.spec.containers[0].resources = resource_var
+        if pod.spec.containers[0].resources.limits is None:
+          pod.spec.containers[0].resources.limits = pod.spec.containers[0].requests
+        elif pod.spec.containers[0].resources.requests is None:
+          pod.spec.containers[0].resources.requests = pod.spec.containers[0].limits
       
     if profile.get('node_tolerations'):
         pod.spec.tolerations = profile.get('node_tolerations')
