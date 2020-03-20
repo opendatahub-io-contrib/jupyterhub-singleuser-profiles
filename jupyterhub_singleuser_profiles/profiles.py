@@ -179,18 +179,15 @@ class SingleuserProfiles(object):
   def setup_services(self, spawner, image, user):
     profile = self.get_merged_profile(image, user)
     if profile.get("services"):
-      for key, service in profile.get("services").items():
-        template = self.service.get_template(service["template"])
-        if not template:
-          _LOGGER.warning("Could not load the template %s. Skipping setting up the service %s" % (service["template"], key))
-          continue
-        resource = self.service.process_template(user, template, **service.get("parameters", {}))
-        envs = self.service.submit_resource(resource, service.get("return", {}))
+      deployed_services, env_groups = self.service.deploy_services(profile.get("services"), user)
+      for envs in env_groups:
         spawner.environment = {**spawner.environment, **envs}
-        spawner.single_user_services.append(resource.get("metadata").get("name"))
+      for deployed_service in deployed_services:
+        spawner.single_user_services.append(deployed_service.get("metadata").get("name"))  
+
 
   def clean_services(self, spawner, user):
-    self.service.delete_resource_by_service_label(user)
+    self.service.delete_reference_cm(user)
 
   def get_sizes_form(self, username=None):
     if not self.profiles:
