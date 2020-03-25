@@ -129,6 +129,14 @@ With this Spark example we rely on the Spark Operator which only requires a Conf
 
 Similarly to what we are used to from cloud providers and platforms like Open Stack, we want to be able to choose from a list of predefined sizes for our Jupyter notebook container. The `sizes` section allows you to define a list of these sizes which a user can choose from. A `Default` size is listed as well which automatically derives the resource limits from a user profile.
 
+## Notebook images
+
+When you want to be able to choose a specific notebook image from which to run the notebook, you can add it as an 'ImageStream' to the openshift cluster. 
+
+The list of the available notebook images is then gathered by searching through the available 'ImageStream's and using the 'ImageStream's labeled with the label 'opendatahub.io/notebook-image: true'.
+
+You can then choose the image you want to use from a drop down menu in the spawner interface.
+
 # How to Use
 
 ## ConfigMap Method
