@@ -3,7 +3,7 @@ import os
 import yaml
 import json
 import logging
-from kubernetes.client import V1EnvVar, V1ConfigMap, V1ObjectMeta, V1SecurityContext, V1Capabilities, V1SELinuxOptions
+from kubernetes.client import V1EnvVar, V1ResourceRequirements, V1ConfigMap, V1ObjectMeta, V1SecurityContext, V1Capabilities, V1SELinuxOptions
 from kubernetes.client.rest import ApiException
 from openshift.dynamic import DynamicClient
 from .service import Service
@@ -216,6 +216,14 @@ class SingleuserProfiles(object):
       "node_tolerations": [],
       "node_affinity": {},
       "resources": {
+        "requests": {
+          "memory": None,
+          "cpu": None
+        },
+        "limits": {
+          "memory": None,
+          "cpu": None
+        },
         "mem_limit": None,
         "cpu_limit": None
       },
@@ -275,16 +283,30 @@ class SingleuserProfiles(object):
           r.data = json.dumps(i)
           env_var = api_client.deserialize(r, V1EnvVar)
           pod.spec.containers[0].env.append(env_var)
-          
+    
+    resource_var = None
+    resource_json = type("Response", (), {})
+    resource_json.data = json.dumps(profile.get('resources'))
+    resource_var = api_client.deserialize(resource_json, V1ResourceRequirements)
 
     if pod.spec.containers[0].resources and profile.get('resources'):
-      if profile['resources'].get('mem_limit'):
-        _LOGGER.info("Setting a memory limit for %s in %s to %s" % (spawner.user.name, spawner.singleuser_image_spec, profile['resources']['mem_limit']))
-        pod.spec.containers[0].resources.limits['memory'] = profile['resources']['mem_limit']
-      if profile['resources'].get('cpu_limit'):
-        _LOGGER.info("Setting a cpu limit for %s in %s to %s" % (spawner.user.name, spawner.singleuser_image_spec, profile['resources']['cpu_limit']))
-        pod.spec.containers[0].resources.limits['cpu'] = profile['resources']['cpu_limit']
 
+      if profile['resources'].get('mem_limit') or profile['resources'].get('cpu_limit'):
+        # Kept for backwards compatibility
+        if profile['resources'].get('mem_limit'):
+          _LOGGER.info("Setting a memory limit for %s in %s to %s" % (spawner.user.name, spawner.singleuser_image_spec, profile['resources']['mem_limit']))
+          pod.spec.containers[0].resources.limits['memory'] = profile['resources']['mem_limit']
+        if profile['resources'].get('cpu_limit'):
+          _LOGGER.info("Setting a cpu limit for %s in %s to %s" % (spawner.user.name, spawner.singleuser_image_spec, profile['resources']['cpu_limit']))
+          pod.spec.containers[0].resources.limits['cpu'] = profile['resources']['cpu_limit']
+
+      elif resource_var:
+        pod.spec.containers[0].resources = resource_var
+        if pod.spec.containers[0].resources.limits is None:
+          pod.spec.containers[0].resources.limits = pod.spec.containers[0].requests
+        elif pod.spec.containers[0].resources.requests is None:
+          pod.spec.containers[0].resources.requests = pod.spec.containers[0].limits
+      
     if profile.get('node_tolerations'):
         pod.spec.tolerations = profile.get('node_tolerations')
 

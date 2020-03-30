@@ -20,8 +20,12 @@ This library helps to manage and configure singleuser JupyterHub servers deploye
           name: myconfigmap
           key: mykey
     resources:
-      mem_limit: 1Gi
-      cpu_limit: 500m
+      requests:
+        memory: "500Mi"
+        cpu: "250m"
+      limits:
+        memory: "1Gi"
+        cpu: "500m"
   - name: Special Nodes
     users:
     - acorvin
@@ -57,8 +61,12 @@ This library helps to manage and configure singleuser JupyterHub servers deploye
     - name: THOTH_JANUSGRAPH_PORT
       value: '80'
     resources:
-      mem_limit: 2Gi
-      cpu_limit: 1
+      requests:
+        memory: "1Gi"
+        cpu: "500m"
+      limits:
+        memory: "2Gi"
+        cpu: "1"
   - name: Spark Notebook
     images:
     - 's2i-spark-notebook:3.6'
@@ -76,16 +84,28 @@ This library helps to manage and configure singleuser JupyterHub servers deploye
 sizes:
   - name: Small
     resources:
-      mem_limit: 2Gi
-      cpu_limit: 2
+      requests:
+        memory: "1Gi"
+        cpu: "1"
+      limits:
+        memory: "2Gi"
+        cpu: "2"
   - name: Medium
     resources:
-      mem_limit: 4Gi
-      cpu_limit: 4
+      requests:
+        memory: "2Gi"
+        cpu: "2"
+      limits:
+        memory: "4Gi"
+        cpu: "4"
   - name: Large
     resources:
-      mem_limit: 8Gi
-      cpu_limit: 8
+      requests:
+        memory: "4Gi"
+        cpu: "4"
+      limits:
+        memory: "8Gi"
+        cpu: "8"
 ```
 
 * **profiles** is a list of profile objects
@@ -94,10 +114,10 @@ sizes:
 * **env** env is a list containing environment variables to be set for a singleuser server. It follows the structure defined by Kubernetes for environment variables in containers by [value](https://kubernetes.io/docs/tasks/inject-data-application/define-environment-variable-container/) and [by reference](https://kubernetes.io/docs/concepts/configuration/secret/#using-secrets-as-environment-variables)
 * **node_tolerations** is a list of OpenShift node tolerations to be applied to the singleuser pod. See https://kubernetes.io/docs/concepts/configuration/taint-and-toleration/ for more information.
 * **node_affinity** is an object containing node affinity definitions to be applied to the singleuser pod. See https://kubernetes.io/docs/concepts/configuration/assign-pod-node/ for more information.
-* **resources** is an object containing memory and cpu limits (which are then applied to the singleuser pod)
+* **resources** is an object containing the memory and cpu requests and limits. Based on kubernetes structure. See: https://kubernetes.io/docs/concepts/configuration/manage-compute-resources-container/ (which are then applied to the singleuser pod)
 * **services** is an object of objects describing services which should be run with the Jupyter Single User Server. See details below
 
-You can omit any section from the configuration. If you remove `images` section, the configration will be matched to all images. If you remove `users` section, it will be matched to all users. This way, you can easily create a globals/default section which will be applied to all users and all images. Do not forget to put `globals first` in the list, otherwise defaults will overwrite other configuration - there is no magic, values from the last matched profile in the list will get applied.
+You can omit any section from the configuration. If you remove `images` section, the configuration will be matched to all images. If you remove `users` section, it will be matched to all users. This way, you can easily create a globals/default section which will be applied to all users and all images. Do not forget to put `globals first` in the list, otherwise defaults will overwrite other configuration - there is no magic, values from the last matched profile in the list will get applied.
 
 ## Services
 
