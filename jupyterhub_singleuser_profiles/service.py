@@ -101,6 +101,7 @@ class Service():
   def deploy_services(self, services, user):
     deployed_services = []
     envs = []
+    owner_references = self.get_owner_references(user)
     for service_name, service in services.items():
       for resource in service.get("resources"):
         if resource.get("name") is not None:
@@ -110,12 +111,11 @@ class Service():
           continue
         processed_template = self.process_template(user, service_name, template, service.get("configuration", {}), service.get("labels", {}))
         deployed_services.append(processed_template)
-        envs.append(self.submit_resource(processed_template, service.get("return", {}), user))
+        envs.append(self.submit_resource(processed_template, service.get("return", {}), owner_references, user))
     return deployed_services, envs
 
-  def submit_resource(self, processed_template, return_paths, user):
+  def submit_resource(self, processed_template, return_paths, owner_references, user):
     client_wrapper = self.os_client.resources.get(api_version=processed_template['apiVersion'], kind=processed_template['kind'])
-    owner_references = self.get_owner_references(user)
     try:
 
       processed_template['metadata']['ownerReferences'] = owner_references
