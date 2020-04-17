@@ -8,6 +8,7 @@ import requests
 from kubernetes.client.rest import ApiException
 from .utils import escape
 import jinja2
+import re
 
 
 _LOGGER = logging.getLogger(__name__)
@@ -78,6 +79,7 @@ class Service():
   def process_template(self, user, service_name, template, configuration, labels=None):
 
     tmp = jinja2.Template(json.dumps(template))
+    configuration['user'] = user
     result = tmp.render(configuration)
     result = json.loads(result)
     if not result.get('metadata'):
@@ -85,7 +87,7 @@ class Service():
     if labels:
       result['metadata']['labels'].update(labels)
     if (result['metadata']['name'].find(user) == -1):
-      result['metadata']['name'] +='-' + user
+      result['metadata']['name'] = re.sub("-+", "-", "%s-%s" %(result['metadata']['name'], user))
 
     return result
 
