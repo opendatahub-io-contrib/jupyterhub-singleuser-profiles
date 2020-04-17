@@ -286,23 +286,8 @@ class SingleuserProfiles(object):
     resource_json.data = json.dumps(profile.get('resources'))
     resource_var = api_client.deserialize(resource_json, V1ResourceRequirements)
 
-    if pod.spec.containers[0].resources and profile.get('resources'):
-
-      if profile['resources'].get('mem_limit') or profile['resources'].get('cpu_limit'):
-        # Kept for backwards compatibility
-        if profile['resources'].get('mem_limit'):
-          _LOGGER.info("Setting a memory limit for %s in %s to %s" % (spawner.user.name, spawner.singleuser_image_spec, profile['resources']['mem_limit']))
-          pod.spec.containers[0].resources.limits['memory'] = profile['resources']['mem_limit']
-        if profile['resources'].get('cpu_limit'):
-          _LOGGER.info("Setting a cpu limit for %s in %s to %s" % (spawner.user.name, spawner.singleuser_image_spec, profile['resources']['cpu_limit']))
-          pod.spec.containers[0].resources.limits['cpu'] = profile['resources']['cpu_limit']
-
-      elif resource_var:
-        pod.spec.containers[0].resources = resource_var
-        if pod.spec.containers[0].resources.limits is None:
-          pod.spec.containers[0].resources.limits = pod.spec.containers[0].requests
-        elif pod.spec.containers[0].resources.requests is None:
-          pod.spec.containers[0].resources.requests = pod.spec.containers[0].limits
+    if resource_var:
+      pod.spec.containers[0].resources = resource_var
       
     if profile.get('node_tolerations'):
         pod.spec.tolerations = profile.get('node_tolerations')
