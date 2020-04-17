@@ -131,11 +131,15 @@ Similarly to what we are used to from cloud providers and platforms like Open St
 
 ## Notebook images
 
-When you want to be able to choose a specific notebook image from which to run the notebook, you can add it as an 'ImageStream' to the openshift cluster. 
+This project allows JupyterHub to provide a list of images suitable to be run as a singleuser notebook server. Each image can provide different set of preinstalled dependencies and be bound to a different profile - thus use different configuration and compute resources.
 
-The list of the available notebook images is then gathered by searching through the available 'ImageStream's and using the 'ImageStream's labeled with the label 'opendatahub.io/notebook-image: true'.
+The list of images is presented to user in a dropdown list in the spawner UI.
 
-You can then choose the image you want to use from a drop down menu in the spawner interface.
+Images are loaded from OpenShift `ImageStream` resource based on label
+```opendatahub.io/notebook-image: true```
+You can list images in your cluster by running
+```oc get imagestreams -l "opendatahub.io/notebook-image=true"```
+To add images to the list, simply create `ImageStream` using the above mentioned label
 
 # How to Use
 
