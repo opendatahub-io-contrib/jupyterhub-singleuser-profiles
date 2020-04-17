@@ -72,15 +72,23 @@ This library helps to manage and configure singleuser JupyterHub servers deploye
     - 's2i-spark-notebook:3.6'
     services:
       spark:
-        template: jupyterhub-spark-operator-configmap
-        parameters:
-          WORKER_NODES: 2
-          MASTER_NODES: 1
-          MEMORY: 2Gi
-          CPU: 2
-          SPARK_IMAGE: jkremser/openshift-spark:2.3-latest
+        resources:
+        - name: spark-cluster-template
+          path: sparkClusterTemplate
+        configuration:
+          worker_instances: 1
+          worker_memory_limit: 4Gi
+          master_memory_limit: 1Gi
+        labels:
+          opendatahub.io/component: jupyterhub
         return:
-          SPARK_CLUSTER: "metadata.name"
+          SPARK_CLUSTER: 'metadata.name'
+      airflow:
+        resources:
+        - name: jupyter-services-template
+          path: airflowCluster
+        - name: jupyter-services-template
+          path: airflowBase
 sizes:
   - name: Small
     resources:
@@ -125,25 +133,50 @@ Sometimes you need a service to be available alongside your Jupyter server. In t
 
 A service is described by 
 
-* **template** - a name of a template imported in OpenShift which describes how to deploy the service
-* **parameters** - an object containing key-value pairs to be processed into the template
+* **resources** - these are the names of configMaps which contain various templates. For each resource there can be a different configMap with a different path. Or we can use a single configMap containing all templates and these are simply taken by using the correct path.
+* **configuration** - an object containing key-value pairs to be processed into the template
+* **labels** - object containing labels that will be added into the template
 * **return** - an object containing key-value pairs where value is a [JSON Path](https://github.com/kennknowles/python-jsonpath-rw) walkable in the uploaded ConfigMap/CustomResource and key is a name of environment variable under which the value will be available in Jupyterhub Singleuser server
 
 A `USERNAME` parameter is automatically added based on user's name to separate services by user.
 
-```
-template: jupyterhub-spark-operator-configmap
-parameters:
-  WORKER_NODES: 2
-  MASTER_NODES: 1
-  MEMORY: 2Gi
-  CPU: 2
-  SPARK_IMAGE: jkremser/openshift-spark:2.3-latest
-return:
-  SPARK_CLUSTER: "metadata.name"
-```
+As long as the resource is correctly defined in the template and there is a custom resource definition on the cluster, the template can be used to create any custom resource, or a configMap.
 
-With this Spark example we rely on the Spark Operator which only requires a ConfigMap to be pushed to OpenShift to configure and spawn new cluster. That said, JuypterHub Singleuser Profiles would find the ConfigMap template based on the `template` field, ask OpenShift to process it with given `parameters` and then upload it to OpenShift which would result in a new Spark cluster to be created.
+The following example shows a ConfigMap containing `sparkClusterTemplate` object which can be used as a `path` reference in the `service` definition.
+```
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: spark-cluster-template
+data:
+  sparkClusterTemplate: |
+    kind: SparkCluster
+    apiVersion: radanalytics.io/v1
+    metadata:
+      name: spark-cluster-{{ user }}
+    spec:
+      worker:
+        instances: "{{ worker_instances }}"
+        memoryLimit: "{{ worker_memory_limit }}"
+      master:
+        memoryLimit: "{{ master_memory_limit }}"
+
+```
+The parameters get filled with values in the `configuration` object and a new custom resource is submited to OpenShift, creating a spark cluster. Any labels are added as well.
+```
+apiVersion: radanalytics.io/v1
+kind: SparkCluster
+metadata:
+  labels:
+    opendatahub.io/component: jupyterhub
+  name: spark-cluster-[USERNAME]
+spec:
+  worker:
+    instances: "1"
+    memoryLimit: "4Gi"
+  master:
+    memoryLimit: "1Gi"
+```  
 
 ## Sizes
 
@@ -169,4 +202,4 @@ JupyterHub deployed on OpenShift is not very flexible regarding configuration of
 
 Obviously anything else you need/can share in environment variables is a good fit - endpoint URLs, team wide configuration etc.
 
-You can imagine different workflows will require different resources - submitting a spark job will not be as resource heavy as running actual analysis on data - for that, you can use combination of `images` and `resources` section to set specific resource quotas for specific image(s).
+You can imagine different workflows will require different resources - submitting a Spark job will not be as resource heavy as running actual analysis on data - for that, you can use combination of `images` and `resources` section to set specific resource quotas for specific image(s).

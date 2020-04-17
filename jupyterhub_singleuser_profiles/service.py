@@ -1,4 +1,5 @@
 import os
+import json
 from kubernetes import config, client
 from openshift.dynamic import DynamicClient
 import yaml
@@ -6,11 +7,14 @@ import logging
 import requests
 from kubernetes.client.rest import ApiException
 from .utils import escape
+import jinja2
+import re
 
 
 _LOGGER = logging.getLogger(__name__)
 
 _SERVICE_LABEL="jupyterhub-singluser-service"
+_REFERENCE_CM_NAME = "singleuser-service-ref-%s"
 
 class Service():
   def __init__(self, server_url, token, namespace=None, verify_ssl=True):
@@ -37,91 +41,115 @@ class Service():
     self.k8s_api_instance = client.CoreV1Api(k8s_client)
     self.os_client = DynamicClient(k8s_client)
 
-  def get_template(self, name):
-    tmplt = self.os_client.resources.get(api_version='template.openshift.io/v1', kind='Template')
-    if isinstance(tmplt, list):
-      tmplt = tmplt[0] # Openshift returns list of 2 resource types, we want template.openshift.io/v1/processedtemplates
-
+  def get_service_reference_config_map (self, user):
+    config_map_wrapper = self.os_client.resources.get(api_version='v1', kind='ConfigMap')
     try:
-      response = tmplt.get(
+      body = {
+          'kind': 'ConfigMap',
+          'apiVersion': 'v1',
+          'metadata': {'name': _REFERENCE_CM_NAME %(escape(user))},
+          'data': {}
+        }
+      config_map_wrapper.create(body=body, namespace=self.namespace)
+
+    except ApiException as e:
+      if e.status != 409:
+        _LOGGER.error("Error creating reference ConfigMap in %s for %s: %s\n" % (self.namespace, escape(user), e))
+        raise
+
+    result = config_map_wrapper.get(namespace=self.namespace, name=_REFERENCE_CM_NAME %(escape(user)))
+    return result
+
+
+  def get_template(self, name, path):
+    cm_wrapper = self.os_client.resources.get(api_version='v1', kind='ConfigMap')
+    try:
+      response = cm_wrapper.get(
           namespace=self.namespace,
           name=name
       )
-      template = response.to_dict()
+      cm = response.to_dict()
     except Exception as e:
       _LOGGER.error("Error: %s %s" % (name, e))
       template = None
+    template = yaml.load(cm['data'].get(path))
 
     return template
 
-  def process_template(self, user, template, **parameters):
+  def process_template(self, user, service_name, template, configuration, labels=None):
 
-    self._set_template_parameters(
-      template,
-      USERNAME=escape(user),
-      **parameters
-    )
-    template["apiVersion"] = "template.openshift.io/v1"
+    tmp = jinja2.Template(json.dumps(template))
+    configuration['user'] = user
+    result = tmp.render(configuration)
+    result = json.loads(result)
+    if not result.get('metadata'):
+      result['metadata'] = {}
+    if labels:
+      result['metadata']['labels'].update(labels)
+    if (result['metadata']['name'].find(user) == -1):
+      result['metadata']['name'] = re.sub("-+", "-", "%s-%s" %(result['metadata']['name'], user))
 
-    endpoint = "{}/apis/template.openshift.io/v1/namespaces/{}/processedtemplates".format(
-        self.server_url,
-        self.namespace
-    )
-    response = requests.post(
-        endpoint,
-        json=template,
-        headers={
-            'Authorization': 'Bearer {}'.format(self.token),
-            'Content-Type': 'application/json'
-        },
-        verify=False #FIXME?
-    )
-    _LOGGER.debug("OpenShift master response template (%d): %r", response.status_code, response.text)
+    return result
 
+  def get_owner_references(self, user):
+    ref_cm = self.get_service_reference_config_map(user)
+    return [{
+            'kind' : ref_cm['kind'],
+            'apiVersion' : ref_cm['apiVersion'],
+            'name' : ref_cm['metadata']['name'],
+            'uid' : ref_cm['metadata']['uid']
+          }]
+
+  def deploy_services(self, services, user):
+    deployed_services = []
+    envs = []
+    owner_references = self.get_owner_references(user)
+    for service_name, service in services.items():
+      for resource in service.get("resources"):
+        if resource.get("name") is not None:
+          template = self.get_template(resource.get("name"), resource.get("path"))
+        if not template:
+          _LOGGER.warning("Could not find specified template ConfigMap %s, Skipping setting up service %s" % (resource['name'], service_name))
+          continue
+        processed_template = self.process_template(user, service_name, template, service.get("configuration", {}), service.get("labels", {}))
+        deployed_services.append(processed_template)
+        envs.append(self.submit_resource(processed_template, service.get("return", {}), owner_references, user))
+    return deployed_services, envs
+
+  def submit_resource(self, processed_template, return_paths, owner_references, user):
+    client_wrapper = self.os_client.resources.get(api_version=processed_template['apiVersion'], kind=processed_template['kind'])
     try:
-        response.raise_for_status()
-    except Exception:
-        _LOGGER.error("Failed to process template: %s", response.text)
-        raise
 
-    processed = response.json()
-    if len(processed["objects"]) != 1:
-      raise Exception("Template must contain a single ConfigMap or CustomResource")
-
-    configMap = processed["objects"][0]
-    if not configMap["metadata"].get("labels"):
-      configMap["metadata"]["labels"] = {}
-
-    configMap["metadata"]["labels"][_SERVICE_LABEL] = escape(user)
-
-    return configMap
-
-  def submit_resource(self, resource, return_paths):
-    if resource["kind"] == "ConfigMap":
-      name = resource["metadata"]["name"]
-      try: 
-        api_response = self.k8s_api_instance.replace_namespaced_config_map(name, self.namespace, resource, pretty="true", )
-        result = self._get_data_from_response(api_response, return_paths)
-        return result
-      except ApiException as e:
-        try:
-          if e.status == 404:
-            api_response = self.k8s_api_instance.create_namespaced_config_map(self.namespace, resource, pretty="true")
-            result = self._get_data_from_response(api_response, return_paths)
-            return result
-          else:
-            _LOGGER.error("Exception when calling CoreV1Api->replace_namespaced_config_map: %s\n" % e)
-            raise
-        except ApiException as e2:
-          _LOGGER.error("Exception when calling CoreV1Api->create_namespaced_config_map: %s\n" % e2)
-
-  def delete_resource_by_service_label(self, label_value):
-    api_response = self.k8s_api_instance.list_namespaced_config_map(self.namespace, label_selector="%s=%s" % (_SERVICE_LABEL, escape(label_value)))
-    for item in api_response.to_dict()['items']:
+      processed_template['metadata']['ownerReferences'] = owner_references
+      response = client_wrapper.create(body=processed_template, namespace=self.namespace)
+      result = self._get_data_from_response(response, return_paths)
+      return result
+    except ApiException as e:
       try:
-        self.k8s_api_instance.delete_namespaced_config_map(item["metadata"]["name"], self.namespace, client.V1DeleteOptions())
-      except ApiException as e:
-        _LOGGER.error("Exception when calling CoreV1Api->delete_namespaced_config_map: %s\n" % e)
+        if e.status == 409:
+          original_resource = client_wrapper.get(name=processed_template['metadata']['name'], namespace=self.namespace)
+          original_dict = original_resource.to_dict()
+
+          # Added because of https://github.com/kubernetes/kubernetes/issues/70674#issuecomment-438569688
+          processed_template['metadata']['resourceVersion'] = original_dict['metadata']['resourceVersion']
+          # Necessary for deletion purposes using garbage collection
+          processed_template['metadata']['ownerReferences'] = owner_references
+
+          response = client_wrapper.replace(body=processed_template, namespace=self.namespace)
+          result = self._get_data_from_response(response, return_paths)
+          return result
+        else:
+          _LOGGER.error("Error when trying to submit resource %s: %s\n" % (processed_template['metadata']['name'], e))
+          raise
+      except ApiException as e2:
+        _LOGGER.error("Error when trying to submit resource %s: %s\n" % (processed_template['metadata']['name'], e2))
+
+  def delete_reference_cm(self, user):
+    try:
+      wrapper = self.os_client.resources.get(api_version='v1', kind='ConfigMap')
+      wrapper.delete(namespace=self.namespace, name=_REFERENCE_CM_NAME %(user))
+    except ApiException as e:
+      _LOGGER.error("Error when trying to delete the service reference ConfigMap of %s: %s\n" % (user, e))
 
   def _get_data_from_response(self, response, return_paths):
     import jsonpath_rw
