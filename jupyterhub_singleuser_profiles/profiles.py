@@ -258,6 +258,8 @@ class SingleuserProfiles(object):
   def apply_pod_profile(self, spawner, pod, profile):
     api_client = kubernetes.client.ApiClient()
 
+    pod.metadata.labels['jupyterhub.opendatahub.io/user'] = spawner.user.name
+
     profile_environment = profile.get('env')
 
     if profile_environment:
