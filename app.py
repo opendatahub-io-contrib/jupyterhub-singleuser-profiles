@@ -21,6 +21,7 @@ def get_user_cm(user):
     return _PROFILES.get_user_profile_cm(user)
 
 
+start_singleuser_profiles()
 app = connexion.App(__name__, specification_dir='.', server='tornado', options={'swagger_ui':True})
 app.add_api('swagger.yaml')
 app.run(port=8080)
