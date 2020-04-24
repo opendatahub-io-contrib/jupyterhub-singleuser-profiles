@@ -4,3 +4,4 @@ requests
 jsonpath-rw
 connexion[swagger-ui]
 connexion
+tornado
