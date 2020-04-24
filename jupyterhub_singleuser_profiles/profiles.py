@@ -22,7 +22,6 @@ class SingleuserProfiles(object):
   GPU_MODE_PRIVILEGED = "privileged"
   def __init__(self, server_url, token, namespace=None, verify_ssl=True, gpu_mode=None):
     self.profiles = []
-    self.service = Service(server_url, token, namespace, verify_ssl)
     self.api_client = None
     self.namespace = namespace #TODO why do I need to pass namespace?
     self.gpu_mode = gpu_mode
@@ -40,6 +39,8 @@ class SingleuserProfiles(object):
       self.oapi_client = DynamicClient(
         kubernetes.client.ApiClient(configuration=configuration)
       )
+    
+    self.service = Service(self.oapi_client)
 
   @property
   def gpu_mode(self):

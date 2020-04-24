@@ -17,30 +17,8 @@ _SERVICE_LABEL="jupyterhub-singluser-service"
 _REFERENCE_CM_NAME = "singleuser-service-ref-%s"
 
 class Service():
-  def __init__(self, server_url, token, namespace=None, verify_ssl=True):
-    self.server_url = server_url
-    self.token = token
-    service_account_path = '/var/run/secrets/kubernetes.io/serviceaccount'
-
-    if namespace:
-      self.namespace = namespace
-    else:
-      with open(os.path.join(service_account_path, 'namespace')) as fp:
-          self.namespace = fp.read().strip()
-
-    self.verify_ssl = verify_ssl
-
-    configuration = client.Configuration()
-    configuration.verify_ssl = self.verify_ssl
-    try:
-      config.load_incluster_config()
-    except Exception as e:
-      print("EXCEPTION", e)
-      config.load_kube_config(client_configuration=configuration)
-
-    k8s_client = client.ApiClient(configuration=configuration)
-    self.k8s_api_instance = client.CoreV1Api(k8s_client)
-    self.os_client = DynamicClient(k8s_client)
+  def __init__(self, os_client):
+    self.os_client = os_client
 
   def get_service_reference_config_map (self, user):
     config_map_wrapper = self.os_client.resources.get(api_version='v1', kind='ConfigMap')

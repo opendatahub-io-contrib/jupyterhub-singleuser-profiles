@@ -1,4 +1,4 @@
-openshift==0.8.6
+openshift
 PyYAML
 requests
 jsonpath-rw
