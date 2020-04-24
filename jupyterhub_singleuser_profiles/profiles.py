@@ -13,20 +13,30 @@ from .images import Images
 
 _LOGGER = logging.getLogger(__name__)
 
+_MAIN_CONFIG_MAP_NAME = "jupyter-singleuser-profiles"
+_PROFILE_CONFIG_MAP_KEY = "jupyterhub-singleuser-profiles.yaml"
 _JUPYTERHUB_USER_NAME_ENV = "JUPYTERHUB_USER_NAME"
 _USER_CONFIG_MAP_TEMPLATE = "jupyterhub-singleuser-profile-%s"
 _USER_CONFIG_PROFILE_NAME = "@singleuser@"
+_JSP_CONFIG_MAP_LABEL_NAME = "jupyterhub.opendatahub.io/profile-type"
+_USER_CONFIG_MAP_LABEL_VALUE = "user"
+_PROFILE_CONFIG_MAP_LABEL_VALUE = "profile"
+_JSP_USER_LABEL_NAME = "jupyterhub.opendatahub.io/user"
+
+_SINGLE_USER_PROFILE_CM_LABEL = "%s=%s" % (_JSP_CONFIG_MAP_LABEL_NAME, _PROFILE_CONFIG_MAP_LABEL_VALUE)
 
 class SingleuserProfiles(object):
   GPU_MODE_SELINUX = "selinux"
   GPU_MODE_PRIVILEGED = "privileged"
-  def __init__(self, server_url, token, namespace=None, verify_ssl=True, gpu_mode=None):
+  def __init__(self, server_url, token, namespace=None, verify_ssl=True, gpu_mode=None, cm_profile_label = None):
     self.profiles = []
     self.service = Service(server_url, token, namespace, verify_ssl)
     self.api_client = None
     self.namespace = namespace #TODO why do I need to pass namespace?
     self.gpu_mode = gpu_mode
     self.oapi_client = None
+    if profile_label:
+      _SINGLE_USER_PROFILE_CM_LABEL = cm_profile_label
 
     service_account_path = '/var/run/secrets/kubernetes.io/serviceaccount'
     if os.path.exists(service_account_path):
@@ -54,7 +64,7 @@ class SingleuserProfiles(object):
     else:
       self._gpu_mode = None
 
-  def get_config_maps_matching_label(self, target_label='jupyterhub=singleuser-profiles'):
+  def get_config_maps_matching_label(self, target_label=_SINGLE_USER_PROFILE_CM_LABEL):
     config_maps_list = []
     try:
       config_maps = self.api_client.list_namespaced_config_map(self.namespace, label_selector=target_label)
@@ -79,9 +89,9 @@ class SingleuserProfiles(object):
     config_map_yaml = yaml.load(config_map.data[key_name])
     return config_map_yaml
 
-  def write_config_map(self, config_map_name, key_name, data):
+  def write_config_map(self, config_map_name, key_name, data, labels={}):
     cm = V1ConfigMap()
-    cm.metadata = V1ObjectMeta(name=config_map_name, labels={'app': 'jupyterhub'})
+    cm.metadata = V1ObjectMeta(name=config_map_name, labels={**{'app': 'jupyterhub'}, **labels})
     cm.data = {key_name: yaml.dump(data, default_flow_style=False)}
     try: 
       api_response = self.api_client.replace_namespaced_config_map(config_map_name, self.namespace, cm)
@@ -102,12 +112,16 @@ class SingleuserProfiles(object):
       cm_data = {'env': data}
     if key and value:
       cm_data[key] = value
-    self.write_config_map(cm_name, cm_key_name, cm_data)
+    labels = {
+        _USER_CONFIG_MAP_LABEL_NAME: _USER_CONFIG_MAP_LABEL_VALUE,
+        _JSP_USER_LABEL_NAME: username
+        }
+    self.write_config_map(cm_name, cm_key_name, cm_data, labels)
 
   def get_user_profile_cm(self, username):
     return self.read_config_map(_USER_CONFIG_MAP_TEMPLATE % escape(username), "profile")
     
-  def load_profiles(self, secret_name="jupyter-singleuser-profiles", filename=None, key_name="jupyterhub-singleuser-profiles.yaml", username=None):
+  def load_profiles(self, secret_name=_MAIN_CONFIG_MAP_NAME, filename=None, key_name=_PROFILE_CONFIG_MAP_KEY, username=None):
     self.profiles = []
     self.sizes = []
     if self.api_client:
@@ -258,7 +272,7 @@ class SingleuserProfiles(object):
   def apply_pod_profile(self, spawner, pod, profile):
     api_client = kubernetes.client.ApiClient()
 
-    pod.metadata.labels['jupyterhub.opendatahub.io/user'] = spawner.user.name
+    pod.metadata.labels[_JSP_USER_LABEL_NAME] = spawner.user.name
 
     profile_environment = profile.get('env')
 
