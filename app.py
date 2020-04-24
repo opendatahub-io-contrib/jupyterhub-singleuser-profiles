@@ -5,6 +5,8 @@ from jupyterhub_singleuser_profiles.profiles import SingleuserProfiles
 _PROFILES = None
 
 def start_singleuser_profiles():
+    global _PROFILES
+
     server_url = "https://openshift.default.svc.cluster.local"
     service_account_path = '/var/run/secrets/kubernetes.io/serviceaccount'
 
@@ -20,8 +22,11 @@ def hello_world():
 def get_user_cm(user):
     return _PROFILES.get_user_profile_cm(user)
 
+def get_user_profile(user):
+    return _PROFILES.get_merged_profile("", user)
 
-start_singleuser_profiles()
+
 app = connexion.App(__name__, specification_dir='.', server='tornado', options={'swagger_ui':True})
 app.add_api('swagger.yaml')
+start_singleuser_profiles()
 app.run(port=8080)

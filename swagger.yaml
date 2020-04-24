@@ -26,4 +26,18 @@ paths:
           description: OK
         '404':
           description: ConfigMap not found
-    
+  /profile/{user}:
+    get:
+      operationId: app.get_user_profile
+      parameters:
+        - name: user
+          description: The username for which to get the ConfigMap
+          in: path
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: OK
+        '404':
+          description: ConfigMap not found
