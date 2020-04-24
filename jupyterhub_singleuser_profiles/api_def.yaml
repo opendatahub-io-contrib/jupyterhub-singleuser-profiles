@@ -1,0 +1,15 @@
+openapi: 3.0.0
+info:
+  title: JupyterHub API
+  description: API for the Spawner UI of JupyterHub
+  version: 0.1.0
+
+paths:
+  /images:
+    get:
+      operationId: api.get_sizes
+      responses:
+        '200':
+          description: OK
+
+    
