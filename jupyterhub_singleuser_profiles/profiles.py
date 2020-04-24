@@ -16,6 +16,7 @@ _LOGGER = logging.getLogger(__name__)
 _JUPYTERHUB_USER_NAME_ENV = "JUPYTERHUB_USER_NAME"
 _USER_CONFIG_MAP_TEMPLATE = "jupyterhub-singleuser-profile-%s"
 _USER_CONFIG_PROFILE_NAME = "@singleuser@"
+_USER_POD_LABEL_NAME = "jupyterhub.opendatahub.io/user"
 
 class SingleuserProfiles(object):
   GPU_MODE_SELINUX = "selinux"
@@ -258,7 +259,7 @@ class SingleuserProfiles(object):
   def apply_pod_profile(self, spawner, pod, profile):
     api_client = kubernetes.client.ApiClient()
 
-    pod.metadata.labels['jupyterhub.opendatahub.io/user'] = spawner.user.name
+    pod.metadata.labels[_USER_POD_LABEL_NAME] = spawner.user.name
 
     profile_environment = profile.get('env')
 
