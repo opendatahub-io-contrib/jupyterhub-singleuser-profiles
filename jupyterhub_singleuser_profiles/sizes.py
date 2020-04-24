@@ -16,9 +16,6 @@ class Sizes(object):
 
         return {}
 
-    def get_sizes(self):
-        return self.sizes
-
     def get_form(self, last_size=None):
         template = """
         <h3>Deployment sizes</h3>

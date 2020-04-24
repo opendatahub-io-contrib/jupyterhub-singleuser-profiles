@@ -5,9 +5,9 @@ info:
   version: 0.1.0
 
 paths:
-  /images:
-    get:
-      operationId: api.get_sizes
+  /test:
+    post:
+      operationId: api.hello_world
       responses:
         '200':
           description: OK
