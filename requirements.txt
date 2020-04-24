@@ -3,3 +3,6 @@ PyYAML
 requests
 jsonpath-rw
 jinja2
+connexion[swagger-ui]
+connexion
+tornado

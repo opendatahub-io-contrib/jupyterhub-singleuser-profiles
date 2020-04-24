@@ -1,0 +1,28 @@
+openapi: 3.0.0
+info:
+  title: JupyterHub API
+  description: API for the Spawner UI of JupyterHub
+  version: 0.1.0
+
+paths:
+  /test:
+    post:
+      operationId: app.hello_world
+      responses:
+        '200':
+          description: OK
+  /get_user_cm:
+    get:
+      operationId: app.get_user_cm
+      parameters:
+        - name: user
+          description: The username for which to get the ConfigMap
+          in: query
+          type: string
+          required: true
+      responses:
+        '200':
+          description: OK
+        '404':
+          description: ConfigMap not found
+    

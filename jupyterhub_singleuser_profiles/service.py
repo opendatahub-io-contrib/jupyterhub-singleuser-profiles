@@ -35,6 +35,7 @@ class Service():
     try:
       config.load_incluster_config()
     except Exception as e:
+      print("EXCEPTION", e)
       config.load_kube_config(client_configuration=configuration)
 
     k8s_client = client.ApiClient(configuration=configuration)
