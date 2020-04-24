@@ -1,0 +1,176 @@
+openapi: 3.0.0
+info:
+  title: JupyterHub API
+  description: API for the Spawner UI of JupyterHub
+  version: 0.1.0
+
+paths:
+  /:
+    get:
+      operationId: app.index
+      responses:
+        '200':
+          description: OK
+          content:
+            text/html:
+              schema:
+                type: string
+  
+  /{path}:
+    get:
+      operationId: app.handle_local_file
+      parameters:
+        - name: path
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: string
+  
+  /static/js/{path}:
+    get:
+      operationId: app.handle_js
+      parameters:
+        - name: path
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            text/javascript:
+              schema:
+                type: string
+  
+  /static/css/{path}:
+    get:
+      operationId: app.handle_css
+      parameters:
+        - name: path
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            text/css:
+              schema:
+                type: string
+
+  /api/user/{user}/configmap:
+    get:
+      operationId: app.get_user_cm
+      summary: Get a ConfigMap
+      parameters:
+        - name: user
+          in: path
+          required: true
+          description: User for which to get configmap
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/configmap'
+        '404':
+          description: ConfigMap not found
+    post:
+      operationId: app.update_user_cm
+      summary: Updates user cm with json data and returns it as response
+      parameters:
+        - name: user
+          in: path
+          required: true
+          description:  User for which to get configmap
+          schema:
+            type: string 
+      requestBody:
+        content:
+          text/plain:
+            schema:
+              type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/configmap'
+
+  /api/images:
+    get:
+      operationId: app.get_images
+      summary: Get an array of strings of image names (not capable of returning pure json)
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - type: array
+                    items:
+                      type: string
+                  - type: string
+
+  /api/sizes:
+    get:
+      operationId: app.get_sizes
+      summary: Get an array strings of size names or a pure json with all parameters
+      parameters:
+        - name: pure_json
+          in: query
+          required: false
+          description: Returns a full json if true
+          schema:
+            type: boolean
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - type: array
+                    items:
+                      type: string
+                  - type: string
+  
+  /api/size/{sizeName}:
+    get:
+      operationId: app.get_size_by_name
+      summary: Get a single size by name
+      parameters:
+        - name: sizeName
+          in: path
+          required: true
+          description: Name of the size
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: string
+        '404':
+          description: Size not found
+
+components:
+  schemas:
+    configmap:
+      type: string
