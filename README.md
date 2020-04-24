@@ -182,6 +182,20 @@ spec:
 
 Similarly to what we are used to from cloud providers and platforms like Open Stack, we want to be able to choose from a list of predefined sizes for our Jupyter notebook container. The `sizes` section allows you to define a list of these sizes which a user can choose from. A `Default` size is listed as well which automatically derives the resource limits from a user profile.
 
+## Notebook images
+
+This project allows JupyterHub to provide a list of images suitable to be run as a singleuser notebook server. Each image can provide different set of preinstalled dependencies and be bound to a different profile - thus use different configuration and compute resources.
+
+The list of images is presented to user in a dropdown list in the spawner UI.
+
+Images are loaded from OpenShift `ImageStream` resource based on label
+```opendatahub.io/notebook-image: true```
+
+You can list images in your cluster by running
+```oc get imagestreams -l "opendatahub.io/notebook-image=true"```
+
+To add images to the list, simply create `ImageStream` using the above mentioned label
+
 # How to Use
 
 ## ConfigMap Method
