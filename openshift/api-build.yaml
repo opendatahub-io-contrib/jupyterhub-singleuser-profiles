@@ -23,7 +23,7 @@ spec:
     type: Git
     git:
       uri: 'https://github.com/mroman-redhat/jupyterhub-singleuser-profiles.git'
-      ref: Issue-30
+      ref: feature/API
   triggers:
     - type: ImageChange
     - type: ConfigChange

@@ -1,0 +1,23 @@
+.SizesForm {
+    margin-top: .5rem;
+    min-width: 320px;
+    color: #495057;
+    background-color: white;
+    text-align: left;
+    vertical-align: middle;
+}
+
+.SizesMenu {
+    min-width: 320px;
+}
+
+.DropdownRight {
+    position: relative;
+    text-align: right;
+    margin-bottom: 0;
+}
+
+.SizeGrid {
+    display: grid;
+    grid-template-columns: auto auto;
+}

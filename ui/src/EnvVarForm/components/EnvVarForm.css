@@ -1,0 +1,12 @@
+.EnvVarForm {
+    min-width: 650px;
+    color: black;
+}
+
+.InnerGap {
+    margin-bottom: .5rem;
+}
+
+.RowGap {
+    margin-bottom: 1rem;
+}

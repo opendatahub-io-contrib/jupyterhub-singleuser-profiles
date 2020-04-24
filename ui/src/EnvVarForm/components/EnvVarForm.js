@@ -1,0 +1,139 @@
+import React from 'react'
+import './EnvVarForm.css';
+import Accordion from 'react-bootstrap/Accordion'
+import Card from 'react-bootstrap/Card'
+import Form from 'react-bootstrap/Form'
+import FormGroup from 'react-bootstrap/FormGroup'
+import Button from 'react-bootstrap/Button'
+import FormControl from 'react-bootstrap/FormControl'
+
+class EnvVarForm extends React.Component {
+
+    constructor(props) {
+        super(props)
+        this.state = {
+            envvars: {},
+            items: [],
+        }
+    }
+
+    updateVars() {
+        fetch('/api/user/'+this.props.username+'/configmap', {method:'GET'})
+            .then(response => {
+                if (response.ok) {
+                    return response.json();
+                } 
+                else {
+                    throw new Error('Failed to fetch user cm');
+                }
+            })
+            .then(data => {
+                this.setState({envvars: data['env']})
+                this.renderForms()
+            }) 
+    }
+
+    componentDidMount() {
+        this.updateVars()
+    }
+
+    onBlur(e) {
+        var container = document.getElementById('container')
+        var vars = {}
+        var formgroup = container.children
+        for (var i = 0; i < formgroup.length; i++) {
+            var children = formgroup[i].children
+            var key = children[0]
+            if (key.value) {
+                if (key.nextSibling.value){
+                    vars[key.value] = key.nextSibling.value
+                }
+                else {
+                    vars[key.value] = key.nextSibling.placeholder
+                }
+            }
+            else {
+                if (key.nextSibling.value){
+                    vars[key.placeholder] = key.nextSibling.value
+                }
+                else {
+                    vars[key.placeholder] = key.nextSibling.placeholder
+                }
+                
+            }
+            
+        }
+        this.setState({envvars: vars}, function() {this.sendVars()}) 
+    }
+
+    removeForm(e) {
+        var parent = e.target.parentElement
+        parent.remove()
+        this.onBlur()
+    }
+
+    addForm(e){
+        const newItem = [
+            <FormControl className="InnerGap" name='key' type="text" placeholder='key' onBlur={(e) => this.onBlur(e)}/>,
+            <FormControl className="InnerGap" type="text" placeholder='value' onBlur={(e) => this.onBlur(e)}/>,
+            <Button className="InnerGap" variant='danger' onClick={(e) => this.removeForm(e)}>
+                Remove
+            </Button>
+            ]
+        this.setState(previousState => ({
+            items: [...previousState.items, newItem]
+        }));
+    }
+
+    renderForms() {
+        console.log('Logging envvars:', this.state.envvars)
+        for (const [key, value] of Object.entries(this.state.envvars)) {
+            const newItem = [
+                    <FormControl className="InnerGap" name='key' type="text" placeholder={key} onBlur={(e) => this.onBlur(e)}/>,
+                    <FormControl className="InnerGap" type="text" placeholder={value} onBlur={(e) => this.onBlur(e)}/>,
+                    <Button className="InnerGap" variant='danger' onClick={(e) => this.removeForm(e)}>
+                        Remove
+                    </Button>
+                    ]
+            this.setState(previousState => ({
+                items: [...previousState.items, newItem]
+            }));
+        }
+    }
+
+    sendVars(){
+        var json = JSON.stringify({env: this.state.envvars})
+        //var json_string = '{"env":'+ JSON.stringify(this.state.envvars) +'}'
+        fetch('/api/user/'+this.props.username+'/configmap', {method: 'POST', body: json, headers:{'Content-Type': 'application/json',}})
+        console.log('Sent EnvVars:', json)
+    }
+
+    render () {
+        return (
+            <Accordion defaultActiveKey="0">
+                <Card>
+                    <Accordion.Toggle className="EnvVarForm" as={Card.Header} eventKey="0">
+                        Environment Variables:
+                    </Accordion.Toggle>
+                    <Accordion.Collapse eventKey="0">
+                        <Card.Body>
+                            <Form>
+                                <FormGroup id='container'>
+                                    {this.state.items.map(item => (
+                                            <Form.Row className="RowGap">{item}</Form.Row>
+                                    ))}
+                                </FormGroup>
+                                <Button variant='primary' onClick={(e) => this.addForm(e)}>
+                                    Add
+                                </Button>
+                            </Form>
+                        </Card.Body>
+                    </Accordion.Collapse>
+                </Card>
+            </Accordion>
+        )
+    }
+
+}
+
+export default EnvVarForm

@@ -99,9 +99,9 @@ paths:
             type: string 
       requestBody:
         content:
-          text/plain:
+          application/json:
             schema:
-              type: string
+              $ref: '#/components/schemas/configmap'
       responses:
         '200':
           description: OK
@@ -173,4 +173,13 @@ paths:
 components:
   schemas:
     configmap:
-      type: string
+      type: object
+      properties:
+        env:
+          type: object
+        gpu:
+          type: integer
+        last_selected_image:
+          type: string
+        last_selected_size:
+          type: string
