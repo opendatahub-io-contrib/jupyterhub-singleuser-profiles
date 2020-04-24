@@ -7,7 +7,7 @@ info:
 paths:
   /test:
     post:
-      operationId: api.hello_world
+      operationId: app.hello_world
       responses:
         '200':
           description: OK

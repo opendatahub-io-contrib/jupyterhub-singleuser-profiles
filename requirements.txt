@@ -3,4 +3,3 @@ PyYAML
 requests
 jsonpath-rw
 connexion
-connexion[swagger-ui]
