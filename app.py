@@ -11,7 +11,7 @@ def start_singleuser_profiles():
     with open(os.path.join(service_account_path, 'token')) as fp:
         client_secret = fp.read().strip()
 
-    _PROFILES = SingleuserProfiles(server_url, client_secret)
+    _PROFILES = SingleuserProfiles(server_url, client_secret, verify_ssl=False)
     _PROFILES.load_profiles()
 
 def hello_world():
