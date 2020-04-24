@@ -3,4 +3,4 @@ PyYAML
 requests
 jsonpath-rw
 connexion
-gevent
+connexion[swagger-ui]
