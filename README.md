@@ -137,8 +137,10 @@ The list of images is presented to user in a dropdown list in the spawner UI.
 
 Images are loaded from OpenShift `ImageStream` resource based on label
 ```opendatahub.io/notebook-image: true```
+
 You can list images in your cluster by running
 ```oc get imagestreams -l "opendatahub.io/notebook-image=true"```
+
 To add images to the list, simply create `ImageStream` using the above mentioned label
 
 # How to Use
