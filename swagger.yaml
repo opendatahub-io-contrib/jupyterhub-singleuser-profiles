@@ -18,7 +18,8 @@ paths:
         - name: user
           description: The username for which to get the ConfigMap
           in: query
-          type: string
+          schema:
+            type: string
           required: true
       responses:
         '200':
