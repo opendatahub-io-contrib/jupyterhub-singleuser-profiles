@@ -258,7 +258,7 @@ class SingleuserProfiles(object):
   def apply_pod_profile(self, spawner, pod, profile):
     api_client = kubernetes.client.ApiClient()
 
-    pod.metadata.labels['jupyterhub.opendatahub.io/user'] = spawner.user.name
+    pod.metadata.labels['jupyterhub.opendatahub.io/user'] = escape(spawner.user.name)
 
     profile_environment = profile.get('env')
 

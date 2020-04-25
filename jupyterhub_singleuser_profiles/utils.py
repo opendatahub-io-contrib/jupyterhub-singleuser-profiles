@@ -1,6 +1,9 @@
-import re
+import escapism
+import string
 
-#TODO use proper escaping
 def escape(text):
-  import re
-  return re.sub("[^a-zA-Z0-9]+", "-", text)
+  # Make sure text match the restrictions for DNS labels
+  # Note: '-' is not in safe_chars, as it is being used as escape character
+  safe_chars = set(string.ascii_lowercase + string.digits)
+
+  return escapism.escape(text, safe=safe_chars, escape_char='-').lower()
