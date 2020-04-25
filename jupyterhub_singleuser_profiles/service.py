@@ -77,17 +77,17 @@ class Service():
     return template
 
   def process_template(self, user, service_name, template, configuration, labels=None):
-
+    user_e = escape(user)
     tmp = jinja2.Template(json.dumps(template))
-    configuration['user'] = user
+    configuration['user'] = user_e
     result = tmp.render(configuration)
     result = json.loads(result)
     if not result.get('metadata'):
       result['metadata'] = {}
     if labels:
       result['metadata']['labels'].update(labels)
-    if (result['metadata']['name'].find(user) == -1):
-      result['metadata']['name'] = re.sub("-+", "-", "%s-%s" %(result['metadata']['name'], user))
+    if (result['metadata']['name'].find(user_e) == -1):
+      result['metadata']['name'] = re.sub("-+", "-", "%s-%s" %(result['metadata']['name'], user_e))
 
     return result
 
@@ -147,7 +147,7 @@ class Service():
   def delete_reference_cm(self, user):
     try:
       wrapper = self.os_client.resources.get(api_version='v1', kind='ConfigMap')
-      wrapper.delete(namespace=self.namespace, name=_REFERENCE_CM_NAME %(user))
+      wrapper.delete(namespace=self.namespace, name=_REFERENCE_CM_NAME % escape(user))
     except ApiException as e:
       _LOGGER.error("Error when trying to delete the service reference ConfigMap of %s: %s\n" % (user, e))
 
@@ -164,21 +164,3 @@ class Service():
       else:
         result[key] = ",".join([str(match.value) for match in matches])
     return result
-
-  def _set_template_parameters(self, template, **parameters):
-    """Set parameters in the template - replace existing ones or append to parameter list if not exist.
-    >>> _set_template_parameters(template, THOTH_LOG_ADVISER='DEBUG')
-    """
-    if 'parameters' not in template:
-        template['parameters'] = []
-
-    for parameter_name, parameter_value in parameters.items():
-        for entry in template['parameters']:
-            if entry['name'] == parameter_name:
-                entry['value'] = str(parameter_value)
-                break
-        else:
-            template['parameters'].append({
-                'name': parameter_name,
-                'value': str(parameter_value)
-            })

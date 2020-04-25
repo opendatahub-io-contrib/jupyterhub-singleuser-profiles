@@ -3,3 +3,4 @@ PyYAML
 requests
 jsonpath-rw
 jinja2
+escapism
