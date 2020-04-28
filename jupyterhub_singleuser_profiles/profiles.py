@@ -16,6 +16,7 @@ _LOGGER = logging.getLogger(__name__)
 _JUPYTERHUB_USER_NAME_ENV = "JUPYTERHUB_USER_NAME"
 _USER_CONFIG_MAP_TEMPLATE = "jupyterhub-singleuser-profile-%s"
 _USER_CONFIG_PROFILE_NAME = "@singleuser@"
+_GPU_KEY = "nvidia.com/gpu"
 
 class SingleuserProfiles(object):
   GPU_MODE_SELINUX = "selinux"
@@ -255,6 +256,22 @@ class SingleuserProfiles(object):
     return profile1
 
   @classmethod
+  def apply_gpu_config(self, gpu_mode, gpu_count, pod):
+    if int(gpu_count) > 0:
+      pod.spec.containers[0].resources.limits[_GPU_KEY] = str(gpu_count)
+      pod.spec.containers[0].resources.requests[_GPU_KEY] = str(gpu_count)
+
+      if gpu_mode:
+        if gpu_mode == self.GPU_MODE_SELINUX:
+          pod.spec.security_context.capabilities = V1Capabilities(drop=['ALL'])
+          pod.spec.security_context.se_linux_options = V1SELinuxOptions(type='nvidia_container_t')
+
+        if gpu_mode == self.GPU_MODE_PRIVILEGED:
+          pod.spec.security_context.privileged = True
+
+    return pod
+
+  @classmethod
   def apply_pod_profile(self, spawner, pod, profile):
     api_client = kubernetes.client.ApiClient()
 
@@ -320,9 +337,6 @@ class SingleuserProfiles(object):
       if not update:
         env.append(V1EnvVar(_JUPYTERHUB_USER_NAME_ENV, spawner.user.name))
 
-      #FIXME classmethod, so no self.gpu_mode
-      if spawner.gpu_mode and spawner.gpu_mode == self.GPU_MODE_SELINUX and spawner.extra_resource_limits and "nvidia.com/gpu" in spawner.extra_resource_limits:
-          pod.spec.security_context.capabilities = V1Capabilities(drop=['ALL'])
-          pod.spec.security_context.se_linux_options = V1SELinuxOptions(type='nvidia_container_t')
+    self.apply_gpu_config(spawner.gpu_mode, spawner.gpu_count, pod)
 
     return pod  
