@@ -7,7 +7,7 @@ from kubernetes.client import V1EnvVar, V1ResourceRequirements, V1ConfigMap, V1O
 from kubernetes.client.rest import ApiException
 from openshift.dynamic import DynamicClient
 from .service import Service
-from .utils import escape
+from .utils import escape, parse_resources
 from .sizes import Sizes
 from .images import Images
 
@@ -252,6 +252,9 @@ class SingleuserProfiles(object):
     profile1["services"] = {**profile1.get('services', {}), **profile2.get('services', {})}
     profile1["node_tolerations"] = profile1.get("node_tolerations", []) + profile2.get("node_tolerations", [])
     profile1["node_affinity"] = {**profile1.get('node_affinity', {}), **profile2.get('node_affinity', {})}
+
+    profile1['resources'] = parse_resources(profile1['resources'])
+
     return profile1
 
   @classmethod

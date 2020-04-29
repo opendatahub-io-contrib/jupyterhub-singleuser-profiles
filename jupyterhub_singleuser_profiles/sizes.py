@@ -1,6 +1,7 @@
 import os
 import yaml
 import logging
+from .utils import parse_resources
 
 
 _LOGGER = logging.getLogger(__name__)
@@ -27,34 +28,14 @@ class Sizes(object):
         if 'resources' not in size or not size.get('resources'):
             return None
 
-        resources = size['resources']
+        resources = parse_resources(size['resources'])
 
-        # Kept for backwards compatibility
-        if resources.get('mem_limit') or resources.get('cpu_limit'):
-            return {
-                'name': size['name'],
-                'resources': {
-                    'requests': {
-                        'memory': resources.get('mem_limit'),
-                        'cpu': resources.get('cpu_limit')
-                    },
-                     'limits': {
-                        'memory': resources.get('mem_limit'),
-                        'cpu': resources.get('cpu_limit')
-                    }
-                }                    
-            }
+        if resources:
+            size['resources'] = resources
+        else:
+            size = None
 
-        if not resources.get('requests') and not resources.get('limits'):
-            return None
-
-        if 'limits' not in resources and 'requests' in resources:
-            resources['limits'] = resources['requests']
-
-        if 'requests' not in resources and 'limits' in resources:
-            resources['requests'] = resources['limits']        
-
-        return size    
+        return size
 
     def get_form(self, last_size=None):
         template = """
