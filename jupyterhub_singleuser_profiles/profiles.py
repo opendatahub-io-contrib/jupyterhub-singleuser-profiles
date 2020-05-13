@@ -20,26 +20,26 @@ _USER_CONFIG_PROFILE_NAME = "@singleuser@"
 class SingleuserProfiles(object):
   GPU_MODE_SELINUX = "selinux"
   GPU_MODE_PRIVILEGED = "privileged"
-  def __init__(self, server_url, token, namespace=None, verify_ssl=True, gpu_mode=None):
+  def __init__(self, namespace=None, verify_ssl=True, gpu_mode=None, service_account_path='/var/run/secrets/kubernetes.io/serviceaccount'):
     self.profiles = []
-    self.service = Service(server_url, token, namespace, verify_ssl)
     self.api_client = None
     self.namespace = namespace #TODO why do I need to pass namespace?
     self.gpu_mode = gpu_mode
     self.oapi_client = None
 
-    service_account_path = '/var/run/secrets/kubernetes.io/serviceaccount'
-    if os.path.exists(service_account_path):
+    if not self.namespace:
       with open(os.path.join(service_account_path, 'namespace')) as fp:
           self.namespace = fp.read().strip()
-      kubernetes.config.load_incluster_config()
-      self.api_client = kubernetes.client.CoreV1Api()
-    
-      configuration = kubernetes.client.Configuration()
-      configuration.verify_ssl = False
-      self.oapi_client = DynamicClient(
-        kubernetes.client.ApiClient(configuration=configuration)
-      )
+    kubernetes.config.load_incluster_config()
+    self.api_client = kubernetes.client.CoreV1Api()
+
+    configuration = kubernetes.client.Configuration()
+    configuration.verify_ssl = verify_ssl
+    self.oapi_client = DynamicClient(
+      kubernetes.client.ApiClient(configuration=configuration)
+    )
+
+    self.service = Service(self.namespace, verify_ssl)
 
   @property
   def gpu_mode(self):
@@ -181,9 +181,11 @@ class SingleuserProfiles(object):
     if profile.get("services"):
       deployed_services, env_groups = self.service.deploy_services(profile.get("services"), user)
       for envs in env_groups:
+        if not envs:
+          continue
         spawner.environment = {**spawner.environment, **envs}
       for deployed_service in deployed_services:
-        spawner.single_user_services.append(deployed_service.get("metadata").get("name"))  
+        spawner.single_user_services.append(deployed_service.get("metadata", {}).get("name"))
 
 
   def clean_services(self, spawner, user):
