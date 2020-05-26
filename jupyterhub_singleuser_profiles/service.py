@@ -116,7 +116,7 @@ class Service():
         if submit_result:
           envs.append(submit_result)
         else:
-          _LOGGER.error("Failed to submit resource %s" % process_template['metadata']['name'])
+          _LOGGER.error("Failed to submit resource %s" % processed_template['metadata']['name'])
     return deployed_services, envs
 
   def submit_resource(self, processed_template, return_paths, owner_references, user):
