@@ -1,6 +1,11 @@
-openshift==0.8.6
+openshift
 PyYAML
 requests
 jsonpath-rw
+connexion[swagger-ui]
+connexion
+gevent
 jinja2
 escapism
+tornado
+npm
