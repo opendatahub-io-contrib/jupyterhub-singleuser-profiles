@@ -3,6 +3,9 @@ info:
   title: JupyterHub API
   description: API for the Spawner UI of JupyterHub
   version: 0.1.0
+servers:
+  - url: /services/jsp-api
+    description: To enable JH routing
 
 paths:
   /:

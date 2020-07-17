@@ -48,8 +48,13 @@ setup(
     author_email='vasek@redhat.com',
     license='GPLv3+',
     packages=[
-        'jupyterhub_singleuser_profiles'
+        'jupyterhub_singleuser_profiles',
+        'api',
+        'ui'
     ],
+    package_data= {
+        '': ['*.yaml', '*.json', '*.css', '*.txt', '*.html', '*.js']
+    },
     zip_safe=False,
     install_requires=get_install_requires(),
     tests_require=get_test_requires(),

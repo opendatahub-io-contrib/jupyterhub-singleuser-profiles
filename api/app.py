@@ -7,22 +7,22 @@ _PROFILES = SingleuserProfiles(verify_ssl=False)
 _PROFILES.load_profiles()
 
 def index():
-    with open('./ui/build/index.html', 'r') as f:
+    with open('../ui/build/index.html', 'r') as f:
         page = f.read()
     return page
 
 def handle_local_file(path):
-    with open('./ui/' + path, 'r') as f:
+    with open('../ui/' + path, 'r') as f:
         page = f.read()
     return page
 
 def handle_js(path):
-    with open('./ui/build/static/js/' + path) as f:
+    with open('../ui/build/static/js/' + path) as f:
         page = f.read()
     return page
 
 def handle_css(path):
-    with open('./ui/build/static/css/' + path) as f:
+    with open('../ui/build/static/css/' + path) as f:
         page = f.read()
     return page
 
@@ -55,4 +55,4 @@ def get_size_by_name(sizeName):
 
 app = connexion.App(__name__, specification_dir='.', server='tornado', options={'swagger_ui':True})
 app.add_api('swagger.yaml')
-app.run(port=8080)
+app.run(port=8181)
