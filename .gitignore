@@ -4,4 +4,4 @@
 /ui/node_modules
 
 # production
-#/ui/build
+/ui/build

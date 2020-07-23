@@ -6,27 +6,28 @@ from jupyterhub_singleuser_profiles.profiles import SingleuserProfiles
 
 _PROFILES = SingleuserProfiles(verify_ssl=False)
 _PROFILES.load_profiles()
+_PATH = "/opt/app-root/lib64/python3.6/site-packages"
 
 _LOGGER = logging.getLogger(__name__)
 
 def index():
     _LOGGER.info(os. getcwd())
-    with open('../ui/build/index.html', 'r') as f:
+    with open(_PATH + '/ui/build/index.html', 'r') as f:
         page = f.read()
     return page
 
 def handle_local_file(path):
-    with open('../ui/' + path, 'r') as f:
+    with open(_PATH + '/ui/' + path, 'r') as f:
         page = f.read()
     return page
 
 def handle_js(path):
-    with open('../ui/build/static/js/' + path) as f:
+    with open(_PATH + '/ui/build/static/js/' + path) as f:
         page = f.read()
     return page
 
 def handle_css(path):
-    with open('../ui/build/static/css/' + path) as f:
+    with open(_PATH + '/ui/build/static/css/' + path) as f:
         page = f.read()
     return page
 
