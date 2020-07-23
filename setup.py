@@ -2,7 +2,14 @@ import os
 import sys
 from setuptools import setup
 from setuptools.command.test import test as TestCommand
+from setuptools.command.install import install
 
+def copy_dir():
+    dir_path = 'ui'
+    base_dir = os.path.join('', dir_path)
+    for (dirpath, dirnames, files) in os.walk(base_dir):
+        for f in files:
+            yield os.path.join(dirpath.split('/', 1)[1], f)
 
 def get_install_requires():
     with open('requirements.txt', 'r') as requirements_file:
@@ -18,7 +25,6 @@ def get_test_requires():
         return [req.split(' ', maxsplit=1)[0] for req in res if req]
   else:
     return []
-
 
 class Test(TestCommand):
     user_options = [
@@ -50,10 +56,10 @@ setup(
     packages=[
         'jupyterhub_singleuser_profiles',
         'api',
-        'ui'
+        'ui',
     ],
     package_data= {
-        '': ['*.yaml', '*.json', '*.css', '*.txt', '*.html', '*.js']
+        '': ['*.yaml', '*.json', '*.css', '*.txt', '*.html', '*.js'] + [f for f in copy_dir()],
     },
     zip_safe=False,
     install_requires=get_install_requires(),
