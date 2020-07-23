@@ -3,13 +3,19 @@ import sys
 from setuptools import setup
 from setuptools.command.test import test as TestCommand
 from setuptools.command.install import install
+import distutils.log
+distutils.log.set_verbosity(-1) # Disable logging in disutils
+distutils.log.set_verbosity(distutils.log.DEBUG) # Set DEBUG level
 
 def copy_dir():
     dir_path = 'ui'
     base_dir = os.path.join('', dir_path)
     for (dirpath, dirnames, files) in os.walk(base_dir):
         for f in files:
-            yield os.path.join(dirpath.split('/', 1)[1], f)
+            try:
+                yield os.path.join(dirpath.split('/', 1)[1], f)
+            except Exception:
+                print(dirpath, f)
 
 def get_install_requires():
     with open('requirements.txt', 'r') as requirements_file:
@@ -44,6 +50,18 @@ class Test(TestCommand):
         import pytest
         sys.exit(pytest.main(self.pytest_args))
 
+class InstallUI(install):
+    def run(self):
+        cwd = os.getcwd()
+        os.chdir('ui/')
+        if not os.path.exists("node_modules"):
+            os.system("npm install")
+        os.system("npm run build") 
+        os.system("cp ui/build build/lib/ui/")
+        os.system("cp ui/node_modules build/lib/ui/")
+        os.chdir(cwd)
+        super().run() 
+
 
 setup(
     name='jupyterhub-singleuser-profiles',
@@ -59,10 +77,10 @@ setup(
         'ui',
     ],
     package_data= {
-        '': ['*.yaml', '*.json', '*.css', '*.txt', '*.html', '*.js'] + [f for f in copy_dir()],
+        '': [f for f in copy_dir()] + ['*.json', '*.yaml', '*.txt']
     },
     zip_safe=False,
     install_requires=get_install_requires(),
     tests_require=get_test_requires(),
-    cmdclass={'test': Test},
+    cmdclass={'test': Test, 'install': InstallUI},
 )
