@@ -50,19 +50,6 @@ class Test(TestCommand):
         import pytest
         sys.exit(pytest.main(self.pytest_args))
 
-class InstallUI(install):
-    def run(self):
-        cwd = os.getcwd()
-        os.chdir('ui/')
-        if not os.path.exists("node_modules"):
-            os.system("npm install")
-        os.system("npm run build") 
-        os.system("cp ui/build build/lib/ui/")
-        os.system("cp ui/node_modules build/lib/ui/")
-        os.chdir(cwd)
-        super().run() 
-
-
 setup(
     name='jupyterhub-singleuser-profiles',
     version="0.0.1",
@@ -82,5 +69,5 @@ setup(
     zip_safe=False,
     install_requires=get_install_requires(),
     tests_require=get_test_requires(),
-    cmdclass={'test': Test, 'install': InstallUI},
+    cmdclass={'test': Test},
 )

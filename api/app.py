@@ -1,12 +1,16 @@
 import connexion
 import os
 import json
+import logging
 from jupyterhub_singleuser_profiles.profiles import SingleuserProfiles
 
 _PROFILES = SingleuserProfiles(verify_ssl=False)
 _PROFILES.load_profiles()
 
+_LOGGER = logging.getLogger(__name__)
+
 def index():
+    _LOGGER.info(os. getcwd())
     with open('../ui/build/index.html', 'r') as f:
         page = f.read()
     return page
