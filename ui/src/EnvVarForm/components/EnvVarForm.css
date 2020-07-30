@@ -10,3 +10,8 @@
 .RowGap {
     margin-bottom: 1rem;
 }
+
+.FormDropdown {
+    margin-bottom: 1rem;
+    min-width: 650px;
+}

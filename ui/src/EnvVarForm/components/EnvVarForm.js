@@ -6,6 +6,8 @@ import Form from 'react-bootstrap/Form'
 import FormGroup from 'react-bootstrap/FormGroup'
 import Button from 'react-bootstrap/Button'
 import FormControl from 'react-bootstrap/FormControl'
+import Dropdown from 'react-bootstrap/Dropdown'
+import ButtonGroup from 'react-bootstrap/ButtonGroup'
 
 class EnvVarForm extends React.Component {
 
@@ -44,20 +46,20 @@ class EnvVarForm extends React.Component {
         for (var i = 0; i < formgroup.length; i++) {
             var children = formgroup[i].children
             var key = children[0]
-            if (key.value) {
+            if (key.children[0].value) {
                 if (key.nextSibling.value){
-                    vars[key.value] = key.nextSibling.value
+                    vars[key.children[0].value] = key.nextSibling.value
                 }
                 else {
-                    vars[key.value] = key.nextSibling.placeholder
+                    vars[key.children[0].value] = key.nextSibling.placeholder
                 }
             }
             else {
                 if (key.nextSibling.value){
-                    vars[key.placeholder] = key.nextSibling.value
+                    vars[key.children[0].placeholder] = key.nextSibling.value
                 }
                 else {
-                    vars[key.placeholder] = key.nextSibling.placeholder
+                    vars[key.children[0].placeholder] = key.nextSibling.placeholder
                 }
                 
             }
@@ -74,7 +76,14 @@ class EnvVarForm extends React.Component {
 
     addForm(e){
         const newItem = [
-            <FormControl className="InnerGap" name='key' type="text" placeholder='key' onBlur={(e) => this.onBlur(e)}/>,
+            <Dropdown className="FormDropdown" as={ButtonGroup}>
+                <FormControl name='key' type="text" placeholder='key' onBlur={(e) => this.onBlur(e)}/>
+                <Dropdown.Toggle split variant="outline-secondary" id="dropdown-envvar" />
+                <Dropdown.Menu>
+                    <Dropdown.Item eventKey="1">AWS_ACCESS_KEY_ID</Dropdown.Item>
+                    <Dropdown.Item eventKey="2">AWS_SECRET_ACCESS_KEY</Dropdown.Item>
+                </Dropdown.Menu>
+            </Dropdown>,
             <FormControl className="InnerGap" type="text" placeholder='value' onBlur={(e) => this.onBlur(e)}/>,
             <Button className="InnerGap" variant='danger' onClick={(e) => this.removeForm(e)}>
                 Remove
