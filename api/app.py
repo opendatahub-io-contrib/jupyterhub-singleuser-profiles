@@ -10,7 +10,7 @@ _PATH = "/opt/app-root/lib64/python3.6/site-packages"
 
 _LOGGER = logging.getLogger(__name__)
 
-def index():
+"""def index():
     _LOGGER.info(os. getcwd())
     with open(_PATH + '/ui/build/index.html', 'r') as f:
         page = f.read()
@@ -29,7 +29,7 @@ def handle_js(path):
 def handle_css(path):
     with open(_PATH + '/ui/build/static/css/' + path) as f:
         page = f.read()
-    return page
+    return page"""
 
 def get_user_cm(user):
     cm = _PROFILES.get_user_profile_cm(user)
