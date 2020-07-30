@@ -1,7 +1,0 @@
-#!/bin/bash
-
-/usr/libexec/s2i/assemble
-cd ui
-npm install
-npm run build
-fix-permissions /opt/app-root/src/

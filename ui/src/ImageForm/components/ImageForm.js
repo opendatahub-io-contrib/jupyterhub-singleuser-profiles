@@ -17,7 +17,7 @@ class ImageForm extends React.Component {
     }
 
     updateConfigmap() {
-        fetch('/api/user/'+this.props.username+'/configmap', {method:'GET'})
+        fetch('/services/jsp-api/api/user/'+this.props.username+'/configmap', {method:'GET'})
             .then(response => {
                 if (response.ok) {
                     return response.json();
@@ -32,7 +32,7 @@ class ImageForm extends React.Component {
     }
 
     updateImages(){
-        fetch('/api/images', {method: 'GET'})
+        fetch('/services/jsp-api/api/images', {method: 'GET'})
             .then(response => {
                 if (response.ok) {
                     return response.json();
@@ -60,7 +60,7 @@ class ImageForm extends React.Component {
     postChange(event) {
         var json = JSON.stringify({last_selected_image: event.target.text})
         //var json_string = '{"last_selected_image":"'+event.target.text+'"}'
-        fetch('/api/user/'+this.props.username+'/configmap', {method: 'POST', body: json, headers:{'Content-Type': 'application/json',}})  //TODO: Make username a variable!
+        fetch('/services/jsp-api/api/user/'+this.props.username+'/configmap', {method: 'POST', body: json, headers:{'Content-Type': 'application/json',}})  //TODO: Make username a variable!
         console.log("Sent chosen image:", json); // Event target value is current (using this.state.selectedValue returned the previous value)
         this.updateConfigmap()
     }

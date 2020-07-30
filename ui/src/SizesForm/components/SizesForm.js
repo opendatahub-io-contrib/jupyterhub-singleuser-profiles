@@ -21,7 +21,7 @@ class SizesForm extends React.Component {
     }
 
     updateConfigmap() {
-        fetch('/api/user/'+this.props.username+'/configmap', {method:'GET'})
+        fetch('/services/jsp-api/api/user/'+this.props.username+'/configmap', {method:'GET'})
             .then(response => {
                 if (response.ok) {
                     return response.json();
@@ -36,7 +36,7 @@ class SizesForm extends React.Component {
     }
 
     updateSizes() {
-        fetch('/api/sizes', {method: 'GET'})
+        fetch('/services/jsp-api/api/sizes', {method: 'GET'})
             .then(response => {
                 if (response.ok) {
                     return response.json();
@@ -54,7 +54,7 @@ class SizesForm extends React.Component {
         var value = event.target.text
         var json_data = {}
         var result = ''
-        fetch('api/size/'+ value, {method: 'GET'})
+        fetch('/services/jsp-api/api/size/'+ value, {method: 'GET'})
         .then(response => {
             if (response.ok) {
                 return response.json();
@@ -94,7 +94,7 @@ class SizesForm extends React.Component {
     postChange(event) {
         var json = JSON.stringify({last_selected_size: event.target.text})
         //var json_string = '{"last_selected_size":"'+event.target.text+'"}'
-        fetch('/api/user/'+this.props.username+'/configmap', {method: 'POST', body: json, headers:{'Content-Type': 'application/json',}})
+        fetch('/services/jsp-api/api/user/'+this.props.username+'/configmap', {method: 'POST', body: json, headers:{'Content-Type': 'application/json',}})
         console.log('Size sent: ', json)
         this.updateConfigmap()
     }
