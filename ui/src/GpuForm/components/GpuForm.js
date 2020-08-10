@@ -39,8 +39,15 @@ class GpuForm extends React.Component {
             gpu: parseInt(event.target.value)
         }
         const json = JSON.stringify(obj)
-        //var json_string = '{"gpu":"'+event.target.value+'"}'
-        fetch('/services/jsp-api/api/user/'+this.props.username+'/configmap', {method: 'POST', body: json, headers:{'Content-Type': 'application/json',}})
+        fetch('/services/jsp-api/api/user/'+this.props.username+'/configmap',
+            {
+                method: 'POST',
+                body: json,
+                headers:{
+                      'Content-Type': 'application/json',
+                }
+            }
+            )
         console.log('GPU value sent:', json)
     }
 

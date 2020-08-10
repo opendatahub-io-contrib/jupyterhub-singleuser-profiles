@@ -8,7 +8,7 @@ import GpuForm from './GpuForm';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import Navbar from 'react-bootstrap/Navbar';
 
-globals._USERNAME = 'mroman'
+globals._USERNAME = window.jhdata.user
 globals._IMAGE = ''
 
 function App() {

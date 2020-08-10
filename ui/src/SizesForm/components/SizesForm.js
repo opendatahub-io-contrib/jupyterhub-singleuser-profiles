@@ -87,14 +87,17 @@ class SizesForm extends React.Component {
         this.updateSizes()
     }
 
-    componentDidUpdate() {
-        this.updateSizes()
-    }
-
     postChange(event) {
         var json = JSON.stringify({last_selected_size: event.target.text})
-        //var json_string = '{"last_selected_size":"'+event.target.text+'"}'
-        fetch('/services/jsp-api/api/user/'+this.props.username+'/configmap', {method: 'POST', body: json, headers:{'Content-Type': 'application/json',}})
+        fetch('/services/jsp-api/api/user/'+this.props.username+'/configmap',
+            {
+                method: 'POST',
+                body: json,
+                headers:{
+                    'Content-Type': 'application/json',
+                }
+            }
+            )
         console.log('Size sent: ', json)
         this.updateConfigmap()
     }
@@ -132,7 +135,7 @@ class SizesForm extends React.Component {
                 <Form>
                     <FormGroup>
                         <Dropdown as={ButtonGroup}>
-                            <Dropdown.Toggle as={this.CustomToggle} id="dropdown-custom-1">{this.DropdownValue()}</Dropdown.Toggle>
+                            <Dropdown.Toggle onMouseEnter={() => this.updateSizes()} as={this.CustomToggle} id="dropdown-custom-1">{this.DropdownValue()}</Dropdown.Toggle>
                             <Dropdown.Menu className="SizesMenu">
                                     <OverlayTrigger
                                         trigger="hover"

@@ -51,17 +51,18 @@ class ImageForm extends React.Component {
         this.updateImages()
     }
 
-    componentDidUpdate(){
-        this.updateImages()
-    }
-
-
-
     postChange(event) {
         var json = JSON.stringify({last_selected_image: event.target.text})
-        //var json_string = '{"last_selected_image":"'+event.target.text+'"}'
-        fetch('/services/jsp-api/api/user/'+this.props.username+'/configmap', {method: 'POST', body: json, headers:{'Content-Type': 'application/json',}})  //TODO: Make username a variable!
-        console.log("Sent chosen image:", json); // Event target value is current (using this.state.selectedValue returned the previous value)
+        fetch('/services/jsp-api/api/user/'+this.props.username+'/configmap',
+            {
+                method: 'POST',
+                body: json,
+                headers:{
+                  'Content-Type': 'application/json',
+                }
+            }
+            )
+        console.log("Sent chosen image:", json);
         this.updateConfigmap()
     }
 
@@ -103,7 +104,7 @@ class ImageForm extends React.Component {
                 <Form>
                     <FormGroup>
                         <Dropdown as={ButtonGroup}>
-                            <Dropdown.Toggle as={this.CustomToggle} id="dropdown-image">{this.DropdownValue()}</Dropdown.Toggle>
+                            <Dropdown.Toggle onMouseEnter={() => this.updateImages()} as={this.CustomToggle} id="dropdown-image">{this.DropdownValue()}</Dropdown.Toggle>
                             <Dropdown.Menu className="ImageMenu">
                                 {this.state.imageList.map((value, index) => (
                                             <Dropdown.Item onClick={(e) => this.postChange(e)} eventKey={index.toString()}>{value}</Dropdown.Item>
