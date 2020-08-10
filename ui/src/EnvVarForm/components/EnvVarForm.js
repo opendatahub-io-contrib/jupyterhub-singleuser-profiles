@@ -1,5 +1,5 @@
 import React from 'react'
-import './EnvVarForm.css';
+import './EnvVarForm.css'
 import Accordion from 'react-bootstrap/Accordion'
 import Card from 'react-bootstrap/Card'
 import Form from 'react-bootstrap/Form'
@@ -74,14 +74,22 @@ class EnvVarForm extends React.Component {
         this.onBlur()
     }
 
+    enterVariable(event) {
+        event.stopPropagation()
+        var dropdown = event.target.parentElement.parentElement
+        var form = dropdown.children[0]
+        form.placeholder = event.target.text
+    }
+
     addForm(e){
+        //Frequently used variables could also be entered as a list if there are too many of them.
         const newItem = [
             <Dropdown className="FormDropdown" as={ButtonGroup}>
                 <FormControl name='key' type="text" placeholder='key' onBlur={(e) => this.onBlur(e)}/>
                 <Dropdown.Toggle split variant="outline-secondary" id="dropdown-envvar" />
                 <Dropdown.Menu>
-                    <Dropdown.Item eventKey="1">AWS_ACCESS_KEY_ID</Dropdown.Item>
-                    <Dropdown.Item eventKey="2">AWS_SECRET_ACCESS_KEY</Dropdown.Item>
+                    <Dropdown.Item onClick={(e) => this.enterVariable(e)} eventKey="1">AWS_ACCESS_KEY_ID</Dropdown.Item>
+                    <Dropdown.Item onClick={(e) => this.enterVariable(e)} eventKey="2">AWS_SECRET_ACCESS_KEY</Dropdown.Item>
                 </Dropdown.Menu>
             </Dropdown>,
             <FormControl className="InnerGap" type="text" placeholder='value' onBlur={(e) => this.onBlur(e)}/>,
@@ -98,7 +106,14 @@ class EnvVarForm extends React.Component {
         console.log('Logging envvars:', this.state.envvars)
         for (const [key, value] of Object.entries(this.state.envvars)) {
             const newItem = [
-                    <FormControl className="InnerGap" name='key' type="text" placeholder={key} onBlur={(e) => this.onBlur(e)}/>,
+                    <Dropdown className="FormDropdown" as={ButtonGroup}>
+                        <FormControl name={key} type="text" placeholder={key} onBlur={(e) => this.onBlur(e)}/>    
+                        <Dropdown.Toggle split variant="outline-secondary" id="dropdown-envvar" />
+                        <Dropdown.Menu>
+                            <Dropdown.Item onClick={(e) => this.enterVariable(e)} eventKey="1">AWS_ACCESS_KEY_ID</Dropdown.Item>
+                            <Dropdown.Item onClick={(e) => this.enterVariable(e)} eventKey="2">AWS_SECRET_ACCESS_KEY</Dropdown.Item>
+                        </Dropdown.Menu>
+                    </Dropdown>,
                     <FormControl className="InnerGap" type="text" placeholder={value} onBlur={(e) => this.onBlur(e)}/>,
                     <Button className="InnerGap" variant='danger' onClick={(e) => this.removeForm(e)}>
                         Remove

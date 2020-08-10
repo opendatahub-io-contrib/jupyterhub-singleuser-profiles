@@ -6,14 +6,13 @@ import ImageForm from './ImageForm';
 import EnvVarForm from './EnvVarForm';
 import GpuForm from './GpuForm';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import Navbar from 'react-bootstrap/Navbar';
+//import Navbar from 'react-bootstrap/Navbar';
 
 globals._USERNAME = window.jhdata.user
 globals._IMAGE = ''
 
-function App() {
-  return (
-      <div className="App">
+// Navbar removed because of conflict with jupyterhub navbar
+/*
         <Navbar bg="danger" variant="dark" sticky="top" expand="lg">
           <Navbar.Brand href="#home">Jupyterhub Spawner</Navbar.Brand>
           <Navbar.Collapse className="justify-content-end">
@@ -22,6 +21,11 @@ function App() {
             </Navbar.Text>
           </Navbar.Collapse>
         </Navbar>
+*/
+
+function App() {
+  return (
+      <div className="App">
         <header className="App-header">
           <div className="Grid">
             <h3 className="Wide">JupyterHub Server Image</h3>
