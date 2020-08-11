@@ -141,7 +141,7 @@ class EnvVarForm extends React.Component {
 
     render () {
         return (
-            <Accordion defaultActiveKey="0">
+            <Accordion className="EnvVarAccord" defaultActiveKey="0">
                 <Card>
                     <Accordion.Toggle className="EnvVarForm" as={Card.Header} eventKey="0">
                         Environment Variables:

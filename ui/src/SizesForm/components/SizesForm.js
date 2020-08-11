@@ -120,7 +120,7 @@ class SizesForm extends React.Component {
           }}
         >
             <Button className="SizesForm" variant="light">
-                <div className="SizeGrid">
+                <div id="sizes" className="SizeGrid">
                     {children}
                     <p className="DropdownRight">&#x25bc;</p>
                 </div>
@@ -131,11 +131,11 @@ class SizesForm extends React.Component {
     render () {
         this.state.selectedValue = this.state.userCM['last_selected_size']
         return (
-            <div>
+            <div font-size="150%">
                 <Form>
                     <FormGroup>
                         <Dropdown as={ButtonGroup}>
-                            <Dropdown.Toggle onMouseEnter={() => this.updateSizes()} as={this.CustomToggle} id="dropdown-custom-1">{this.DropdownValue()}</Dropdown.Toggle>
+                            <Dropdown.Toggle font-size="70%" onMouseEnter={() => this.updateSizes()} as={this.CustomToggle} id="dropdown-custom-1">{this.DropdownValue()}</Dropdown.Toggle>
                             <Dropdown.Menu className="SizesMenu">
                                     <OverlayTrigger
                                         trigger="hover"

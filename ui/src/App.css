@@ -1,21 +1,36 @@
+body {
+  overflow-x: hidden;
+}
+
+.container {
+  text-align: center;
+}
+
 .App {
+  background-color: #4d4d4f;
   text-align: center;
 }
 
 .App-header {
-  background-color: #4d4d4f;
+  max-width: 100%;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  font-size: calc(10px + 2vmin);
+  /*font-size: calc(10px + 2vmin);*/
   color: white;
 }
 
 .App-header > * {
   padding: 20px;
   border-top: 2px solid darkgrey;
+}
+
+h1#header-text {
+  padding-top: 10px;
+  color: whitesmoke;
+  border-top: 0px solid darkgrey;
 }
 
 .App-link {
@@ -28,7 +43,12 @@
   grid-gap: 10px;
 }
 
+.WideForm {
+  min-width: 710px;
+}
+
 .Wide {
   margin-top: .5rem;
   min-width: 320px;
+  font-size: 250%;
 }

@@ -3,6 +3,15 @@
     color: black;
 }
 
+.EnvVarAccord {
+    max-width: 710px;
+    font-size: 250%;
+}
+
+.EnvVarForm > * {
+    font-size: 150%;
+}
+
 .InnerGap {
     margin-bottom: .5rem;
 }

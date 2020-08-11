@@ -9,6 +9,11 @@
 .ImageMenu {
     min-width: 320px;
 }
+
+div#image {
+    font-size: 150%;
+}
+
 .DropdownRight {
     position: relative;
     text-align: right;

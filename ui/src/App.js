@@ -27,13 +27,14 @@ function App() {
   return (
       <div className="App">
         <header className="App-header">
-          <div className="Grid">
+          <h1 id="header-text">Spawner Options</h1>
+          <div className="Grid" className="WideForm">
             <h3 className="Wide">JupyterHub Server Image</h3>
             <ImageForm image={globals._IMAGE} username={globals._USERNAME}/>
           </div>
           <h3 className="Wide">Deployment size:</h3>
-          <div>
-            <div className="Grid">
+          <div className="WideForm">
+            <div className="Grid" margin-bottom="10px">
               <h3 className="Wide">Container size:</h3>
               <SizesForm username={globals._USERNAME}/>
             </div>
@@ -41,7 +42,6 @@ function App() {
               <h3 className="Wide">GPU:</h3>
               <GpuForm username={globals._USERNAME}/>
             </div>
-            
           </div>
           <EnvVarForm username={globals._USERNAME}/>
         </header>

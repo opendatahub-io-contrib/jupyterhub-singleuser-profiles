@@ -53,9 +53,11 @@ class GpuForm extends React.Component {
 
     render () {
         return (
-            <FormGroup>
-                <Form.Control className="GpuForm" type="text" placeholder={this.state.gpu_value} onChange={(e) => this.postChange(e)}/>
-            </FormGroup>
+            <div>
+                <FormGroup className="GpuGroup">
+                        <Form.Control id="gpu-form" className="GpuForm" type="text" placeholder={this.state.gpu_value} onChange={(e) => this.postChange(e)}/>
+                </FormGroup>
+            </div>
         )
     }
 } 

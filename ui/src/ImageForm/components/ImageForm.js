@@ -89,7 +89,7 @@ class ImageForm extends React.Component {
           }}
         >
             <Button className="ImageForm" variant="light">
-                <div className="ImageGrid">
+                <div id="image" className="ImageGrid">
                     {children}
                     <p className="DropdownRight">&#x25bc;</p>
                 </div>

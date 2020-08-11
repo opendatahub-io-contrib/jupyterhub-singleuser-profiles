@@ -9,6 +9,11 @@
 
 .SizesMenu {
     min-width: 320px;
+    font-size: 50%;
+}
+
+div#sizes {
+    font-size: 150%;
 }
 
 .DropdownRight {
