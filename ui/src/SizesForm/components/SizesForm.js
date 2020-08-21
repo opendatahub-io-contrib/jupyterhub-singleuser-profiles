@@ -21,7 +21,7 @@ class SizesForm extends React.Component {
     }
 
     updateConfigmap() {
-        fetch('/services/jsp-api/api/user/'+this.props.username+'/configmap', {method:'GET'})
+        fetch('/services/jsp-api/api/user/configmap', {method:'GET'})
             .then(response => {
                 if (response.ok) {
                     return response.json();
@@ -89,7 +89,7 @@ class SizesForm extends React.Component {
 
     postChange(event) {
         var json = JSON.stringify({last_selected_size: event.target.text})
-        fetch('/services/jsp-api/api/user/'+this.props.username+'/configmap',
+        fetch('/services/jsp-api/api/user/configmap',
             {
                 method: 'POST',
                 body: json,
@@ -137,6 +137,7 @@ class SizesForm extends React.Component {
                         <Dropdown as={ButtonGroup}>
                             <Dropdown.Toggle font-size="70%" onMouseEnter={() => this.updateSizes()} as={this.CustomToggle} id="dropdown-custom-1">{this.DropdownValue()}</Dropdown.Toggle>
                             <Dropdown.Menu className="SizesMenu">
+                                <td>
                                     <OverlayTrigger
                                         trigger="hover"
                                         placement="right"
@@ -152,24 +153,27 @@ class SizesForm extends React.Component {
                                             </Popover>
                                         }
                                         >
-                                    <Dropdown.Item onMouseLeave={(e) => this.waitForLoad(e)} onClick={(e) => this.postChange(e)} eventKey={this.state.sizeList.length + 1}>Default</Dropdown.Item>
-                                </OverlayTrigger>
+                                        <Dropdown.Item onMouseLeave={(e) => this.waitForLoad(e)} onClick={(e) => this.postChange(e)} eventKey={this.state.sizeList.length + 1}>Default</Dropdown.Item>
+                                    </OverlayTrigger>
+                                </td>
                                 {this.state.sizeList.map((value, index) => (
-                                        <OverlayTrigger
-                                        trigger="hover"
-                                        placement="right"
-                                        rootClose="true"
-                                        overlay={
-                                            <Popover id="popover-basic">
-                                                <Popover.Title as="h3">Size: {value}</Popover.Title>
-                                                <Popover.Content>
-                                                    {this.state.sizeDesc}
-                                                </Popover.Content>
-                                            </Popover>
-                                        }
-                                        >
-                                            <Dropdown.Item onMouseEnter={(e) => this.generateSizeDesc(e)} onMouseLeave={(e) => this.waitForLoad(e)} onClick={(e) => this.postChange(e)} eventKey={index.toString()}>{value}</Dropdown.Item>
-                                        </OverlayTrigger>
+                                        <td>
+                                            <OverlayTrigger
+                                                trigger="hover"
+                                                placement="right"
+                                                rootClose="true"
+                                                overlay={
+                                                    <Popover id="popover-basic">
+                                                        <Popover.Title as="h3">Size: {value}</Popover.Title>
+                                                        <Popover.Content>
+                                                            {this.state.sizeDesc}
+                                                        </Popover.Content>
+                                                    </Popover>
+                                                }
+                                                >
+                                                <Dropdown.Item onMouseEnter={(e) => this.generateSizeDesc(e)} onMouseLeave={(e) => this.waitForLoad(e)} onClick={(e) => this.postChange(e)} eventKey={index.toString()}>{value}</Dropdown.Item>
+                                            </OverlayTrigger>
+                                        </td>
                                     )
                                     )}
                             </Dropdown.Menu>

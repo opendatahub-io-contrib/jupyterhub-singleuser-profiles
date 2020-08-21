@@ -20,7 +20,7 @@ class EnvVarForm extends React.Component {
     }
 
     updateVars() {
-        fetch('/services/jsp-api/api/user/'+this.props.username+'/configmap', {method:'GET'})
+        fetch('/services/jsp-api/api/user/configmap', {method:'GET'})
             .then(response => {
                 if (response.ok) {
                     return response.json();
@@ -127,7 +127,7 @@ class EnvVarForm extends React.Component {
 
     sendVars(){
         var json = JSON.stringify({env: this.state.envvars})
-        fetch('/services/jsp-api/api/user/'+this.props.username+'/configmap',
+        fetch('/services/jsp-api/api/user/configmap',
             {
                 method: 'POST',
                 body: json,

@@ -13,7 +13,7 @@ class GpuForm extends React.Component {
     }
 
     updateGpu() {
-        fetch('/services/jsp-api/api/user/'+this.props.username+'/configmap', {method:'GET'})
+        fetch('/services/jsp-api/api/user/configmap', {method:'GET'})
             .then(response => {
                 if (response.ok) {
                     return response.json();
@@ -39,7 +39,7 @@ class GpuForm extends React.Component {
             gpu: parseInt(event.target.value)
         }
         const json = JSON.stringify(obj)
-        fetch('/services/jsp-api/api/user/'+this.props.username+'/configmap',
+        fetch('/services/jsp-api/api/user/configmap',
             {
                 method: 'POST',
                 body: json,

@@ -116,7 +116,7 @@
 
       <div class="collapse navbar-collapse" id="thenavbar">
         {% if user %}
-        <ul class="nav navbar-nav">
+        <ul class="nav navbar-nav" style="flex-direction: row;">
           {% block nav_bar_left_items %}
             <li><a href="{{base_url}}home">Home</a></li>
             <li><a href="{{base_url}}token">Token</a></li>

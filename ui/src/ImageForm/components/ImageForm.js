@@ -17,7 +17,7 @@ class ImageForm extends React.Component {
     }
 
     updateConfigmap() {
-        fetch('/services/jsp-api/api/user/'+this.props.username+'/configmap', {method:'GET'})
+        fetch('/services/jsp-api/api/user/configmap', {method:'GET'})
             .then(response => {
                 if (response.ok) {
                     return response.json();
@@ -53,7 +53,7 @@ class ImageForm extends React.Component {
 
     postChange(event) {
         var json = JSON.stringify({last_selected_image: event.target.text})
-        fetch('/services/jsp-api/api/user/'+this.props.username+'/configmap',
+        fetch('/services/jsp-api/api/user/configmap',
             {
                 method: 'POST',
                 body: json,

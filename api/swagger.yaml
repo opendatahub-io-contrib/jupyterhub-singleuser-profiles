@@ -8,17 +8,18 @@ servers:
     description: To enable JH routing
 
 paths:
-  /api/user/{user}/configmap:
+  /api/whoami:
+    get:
+      operationId: app.whoami
+      summary: Get current user info
+      responses:
+        '200':
+          description: OK
+
+  /api/user/configmap:
     get:
       operationId: app.get_user_cm
       summary: Get a ConfigMap
-      parameters:
-        - name: user
-          in: path
-          required: true
-          description: User for which to get configmap
-          schema:
-            type: string
       responses:
         '200':
           description: OK
@@ -31,13 +32,6 @@ paths:
     post:
       operationId: app.update_user_cm
       summary: Updates user cm with json data and returns it as response
-      parameters:
-        - name: user
-          in: path
-          required: true
-          description:  User for which to get configmap
-          schema:
-            type: string 
       requestBody:
         content:
           application/json:
