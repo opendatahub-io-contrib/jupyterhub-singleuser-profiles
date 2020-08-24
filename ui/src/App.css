@@ -1,17 +1,16 @@
-body {
+div#root body {
   overflow-x: hidden;
 }
 
-.container {
+div#root .container {
   text-align: center;
 }
 
-.App {
-  background-color: #4d4d4f;
+div#root .App {
   text-align: center;
 }
 
-.App-header {
+div#root .App-header {
   max-width: 100%;
   min-height: 100vh;
   display: flex;
@@ -19,35 +18,35 @@ body {
   align-items: center;
   justify-content: center;
   /*font-size: calc(10px + 2vmin);*/
-  color: white;
+  color: black;
 }
 
-.App-header > * {
+div#root .App-header > * {
   padding: 20px;
-  border-top: 2px solid darkgrey;
+  border-top: 2px solid black;
 }
 
-h1#header-text {
+div#root h1#header-text {
   padding-top: 10px;
-  color: whitesmoke;
-  border-top: 0px solid darkgrey;
+  color: black;
+  border-top: 0px solid black;
 }
 
-.App-link {
+div#root .App-link {
   color: #61dafb;
 }
 
-.Grid {
+div#root .Grid {
   display: grid;
   grid-template-columns: auto auto;
   grid-gap: 10px;
 }
 
-.WideForm {
+div#root .WideForm {
   min-width: 710px;
 }
 
-.Wide {
+div#root .Wide {
   margin-top: .5rem;
   min-width: 320px;
   font-size: 250%;

@@ -7,6 +7,7 @@ import Dropdown from 'react-bootstrap/Dropdown'
 import ButtonGroup from 'react-bootstrap/ButtonGroup'
 import Button from 'react-bootstrap/Button'
 import './SizesForm.css'
+import DropBtn from './DropBtn.js'
 
 class SizesForm extends React.Component {
 
@@ -132,10 +133,11 @@ class SizesForm extends React.Component {
         this.state.selectedValue = this.state.userCM['last_selected_size']
         return (
             <div font-size="150%">
+                <DropBtn/>
                 <Form>
                     <FormGroup>
                         <Dropdown as={ButtonGroup}>
-                            <Dropdown.Toggle font-size="70%" onMouseEnter={() => this.updateSizes()} as={this.CustomToggle} id="dropdown-custom-1">{this.DropdownValue()}</Dropdown.Toggle>
+                            <Dropdown.Toggle classname="SizeButton" font-size="70%" onMouseEnter={() => this.updateSizes()} as={this.CustomToggle} id="dropdown-custom-1">{this.DropdownValue()}</Dropdown.Toggle>
                             <Dropdown.Menu className="SizesMenu">
                                 <td>
                                     <OverlayTrigger

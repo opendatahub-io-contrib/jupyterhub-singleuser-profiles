@@ -5,7 +5,7 @@ import SizesForm from './SizesForm';
 import ImageForm from './ImageForm';
 import EnvVarForm from './EnvVarForm';
 import GpuForm from './GpuForm';
-import 'bootstrap/dist/css/bootstrap.min.css';
+//import 'bootstrap/dist/css/bootstrap.min.css';
 //import Navbar from 'react-bootstrap/Navbar';
 
 globals._USERNAME = window.jhdata.user

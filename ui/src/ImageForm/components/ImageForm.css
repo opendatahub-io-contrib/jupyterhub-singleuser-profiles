@@ -5,6 +5,10 @@
     background-color: white;
     text-align: left;
     vertical-align: middle;
+    border: solid;
+    border-width: 1px;
+    border-color: lightgray;
+    border-radius: 4px;
 }
 .ImageMenu {
     min-width: 320px;
@@ -19,6 +23,7 @@ div#image {
     text-align: right;
     margin-bottom: 0;
 }
+
 .ImageGrid {
     display: grid;
     grid-template-columns: auto auto;

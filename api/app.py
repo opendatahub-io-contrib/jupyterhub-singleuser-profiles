@@ -55,13 +55,13 @@ def whoami(user):
 
 @authenticated
 def get_user_cm(user):
-    cm = _PROFILES.get_user_profile_cm(user)
+    cm = _PROFILES.get_user_profile_cm(user['name'])
     return cm
 
 @authenticated
 def update_user_cm(user, body): 
-    _PROFILES.update_user_profile_cm(user, data=body)
-    return _PROFILES.get_user_profile_cm(user)
+    _PROFILES.update_user_profile_cm(user['name'], data=body)
+    return _PROFILES.get_user_profile_cm(user['name'])
 
 @authenticated
 def get_sizes(pure_json=False, *args, **kwargs):

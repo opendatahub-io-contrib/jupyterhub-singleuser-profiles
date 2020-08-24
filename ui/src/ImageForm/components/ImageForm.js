@@ -104,7 +104,7 @@ class ImageForm extends React.Component {
                 <Form>
                     <FormGroup>
                         <Dropdown as={ButtonGroup}>
-                            <Dropdown.Toggle onMouseEnter={() => this.updateImages()} as={this.CustomToggle} id="dropdown-image">{this.DropdownValue()}</Dropdown.Toggle>
+                            <Dropdown.Toggle className="ImageButton" onMouseEnter={() => this.updateImages()} as={this.CustomToggle} id="dropdown-image">{this.DropdownValue()}</Dropdown.Toggle>
                             <Dropdown.Menu className="ImageMenu">
                                 {this.state.imageList.map((value, index) => (
                                             <Dropdown.Item onClick={(e) => this.postChange(e)} eventKey={index.toString()}>{value}</Dropdown.Item>
