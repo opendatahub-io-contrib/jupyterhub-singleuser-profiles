@@ -6,7 +6,7 @@
 
 {% block main %}
 
-<div style="text-align: center; background-color: #4d4d4f;">
+<div>
   {% if for_user and user.name != for_user.name -%}
     <p>Spawning server for {{ for_user.name }}</p>
   {% endif -%}
@@ -18,7 +18,7 @@
   <form enctype="multipart/form-data" id="spawn_form" action="{{url}}" method="post" role="form">
     {{spawner_options_form | safe}}
     <br>
-    <input style="position: relative; bottom: 60px; font-size: 150%; max-width: 200px; background-color: #007bff; color: whitesmoke;" type="submit" value="Start" class="btn btn-jupyter form-control">
+    <input type="submit" value="Start" class="btn btn-jupyter form-control">
   </form>
 </div>
 
