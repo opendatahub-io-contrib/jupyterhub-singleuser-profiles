@@ -16,14 +16,28 @@
     font-size: 50%;
 }
 
+.SizeDropdown {
+    margin-top: .5rem;
+    min-width: 320px;
+    color: #495057;
+    background-color: white;
+    text-align: left;
+    vertical-align: middle;
+    border: solid;
+    border-width: 1px;
+    border-color: lightgray;
+    border-radius: 4px;
+}
+
 div#sizes {
     font-size: 150%;
 }
 
-.DropdownRight {
-    position: relative;
-    text-align: right;
-    margin-bottom: 0;
+.DropdownItem {
+    border: solid;
+    border-width: 1px;
+    border-color: lightgray;
+    background-color: white;
 }
 
 .SizeGrid {

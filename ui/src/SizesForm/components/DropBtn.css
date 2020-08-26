@@ -18,13 +18,18 @@
     position: relative;
     display: inline-block;
   }
+
+  .DropdownGrid {
+    display: grid;
+    grid-template-columns: auto auto;
+  }
   
   /* Dropdown Content (Hidden by Default) */
   .dropdown-content {
     display: none;
     position: absolute;
     background-color: #f1f1f1;
-    min-width: 160px;
+    min-width: 100%;
     box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
     z-index: 1;
   }
@@ -36,6 +41,12 @@
     text-decoration: none;
     display: block;
   }
+
+  .DropdownRight {
+    position: relative;
+    text-align: right;
+    margin-bottom: 0;
+}
   
   /* Change color of dropdown links on hover */
   .dropdown-content a:hover {background-color: #ddd}

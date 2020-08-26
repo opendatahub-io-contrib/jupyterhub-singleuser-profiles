@@ -8,6 +8,7 @@ import ButtonGroup from 'react-bootstrap/ButtonGroup'
 import Button from 'react-bootstrap/Button'
 import './SizesForm.css'
 import DropBtn from './DropBtn.js'
+import CustomPopup from './CustomPopup.js'
 
 class SizesForm extends React.Component {
 
@@ -18,7 +19,14 @@ class SizesForm extends React.Component {
             sizeList: [],
             selectedValue: '',
             sizeDesc: '',
+            sizeSent: '',
+            sizeDefault: (
+                <p>
+                    Resources will be set based on profiles configured by administrator
+                </p>
+            ),
         }
+
     }
 
     updateConfigmap() {
@@ -33,6 +41,9 @@ class SizesForm extends React.Component {
             })
             .then(data => {
                 this.setState({userCM: data})
+                if (this.state.sizeSent != this.state.userCM['last_selected_size']) {
+                    this.updateConfigmap()
+                }
             }) 
     }
 
@@ -66,11 +77,15 @@ class SizesForm extends React.Component {
         })
         .then(data => {
             json_data = data
-            result = <p>
+            result = <>
                 Size name: {json_data.name} <br/>
-                Limits: CPU: {json_data.resources.limits.cpu} Memory: {json_data.resources.limits.memory} <br/>
-                Requests: CPU: {json_data.resources.requests.cpu} Memory: {json_data.resources.requests.memory} <br/>
-            </p>
+                Limits: <br/>
+                <p>    CPU: {json_data.resources.limits.cpu} </p><br/>
+                <p>    Memory: {json_data.resources.limits.memory}</p><br/>
+                Requests: <br/>
+                <p>    CPU: {json_data.resources.requests.cpu}</p> 
+                <p>    Memory: {json_data.resources.requests.memory}</p><br/>
+            </>
             this.setState({sizeDesc: result}, console.log(this.state.sizeDesc))
             });
         
@@ -89,6 +104,7 @@ class SizesForm extends React.Component {
     }
 
     postChange(event) {
+        this.setState({sizeSent: event.target.text})
         var json = JSON.stringify({last_selected_size: event.target.text})
         fetch('/services/jsp-api/api/user/configmap',
             {
@@ -133,53 +149,19 @@ class SizesForm extends React.Component {
         this.state.selectedValue = this.state.userCM['last_selected_size']
         return (
             <div font-size="150%">
-                <DropBtn/>
                 <Form>
                     <FormGroup>
-                        <Dropdown as={ButtonGroup}>
-                            <Dropdown.Toggle classname="SizeButton" font-size="70%" onMouseEnter={() => this.updateSizes()} as={this.CustomToggle} id="dropdown-custom-1">{this.DropdownValue()}</Dropdown.Toggle>
-                            <Dropdown.Menu className="SizesMenu">
-                                <td>
-                                    <OverlayTrigger
-                                        trigger="hover"
-                                        placement="right"
-                                        rootClose="true"
-                                        overlay={
-                                            <Popover id="popover-basic">
-                                                <Popover.Title as="h3">Size: Default</Popover.Title>
-                                                <Popover.Content>
-                                                    <p>
-                                                        Resources will be set based on profiles configured by administrator
-                                                    </p>
-                                                </Popover.Content>
-                                            </Popover>
-                                        }
-                                        >
-                                        <Dropdown.Item onMouseLeave={(e) => this.waitForLoad(e)} onClick={(e) => this.postChange(e)} eventKey={this.state.sizeList.length + 1}>Default</Dropdown.Item>
-                                    </OverlayTrigger>
-                                </td>
-                                {this.state.sizeList.map((value, index) => (
-                                        <td>
-                                            <OverlayTrigger
-                                                trigger="hover"
-                                                placement="right"
-                                                rootClose="true"
-                                                overlay={
-                                                    <Popover id="popover-basic">
-                                                        <Popover.Title as="h3">Size: {value}</Popover.Title>
-                                                        <Popover.Content>
-                                                            {this.state.sizeDesc}
-                                                        </Popover.Content>
-                                                    </Popover>
-                                                }
-                                                >
-                                                <Dropdown.Item onMouseEnter={(e) => this.generateSizeDesc(e)} onMouseLeave={(e) => this.waitForLoad(e)} onClick={(e) => this.postChange(e)} eventKey={index.toString()}>{value}</Dropdown.Item>
-                                            </OverlayTrigger>
-                                        </td>
-                                    )
-                                    )}
-                            </Dropdown.Menu>
-                        </Dropdown>{' '}
+                        <DropBtn onMouseEnter={() => this.updateSizes()} innerClass="SizeDropdown" text={this.DropdownValue()}>
+                            <CustomPopup innerId="sizeDefaultPopup" header="Size: Default" content={this.state.sizeDefault}>
+                                <Dropdown.Item className="DropdownItem" onMouseLeave={(e) => this.waitForLoad(e)} onClick={(e) => this.postChange(e)} eventKey={this.state.sizeList.length + 1}>Default</Dropdown.Item>
+                            </CustomPopup>
+                            {this.state.sizeList.map((value, index) => (
+                                <CustomPopup innerId={value} header={("Size: " + {value})} content={this.state.sizeDesc}>
+                                    <Dropdown.Item className="DropdownItem" onMouseEnter={(e) => this.generateSizeDesc(e)} onMouseLeave={(e) => this.waitForLoad(e)} onClick={(e) => this.postChange(e)} eventKey={index.toString()}>{value}</Dropdown.Item>
+                                </CustomPopup>
+                                )
+                                )}
+                        </DropBtn>
                     </FormGroup>
                 </Form>
             </div>
