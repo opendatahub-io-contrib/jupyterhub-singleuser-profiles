@@ -8,6 +8,7 @@ class DropBtn extends React.Component {
     toggle between hiding and showing the dropdown content */
     dropdown(e) {
         e.preventDefault();
+        e.stopPropagation();
         document.getElementById(this.props.innerClass).classList.toggle("show");
     }
     

@@ -16,6 +16,18 @@
     border-color: lightgray;
 }
 
+.EnvVarDropdown {
+    margin-top: .5rem;
+    color: #495057;
+    background-color: white;
+    text-align: left;
+    vertical-align: middle;
+    border: solid;
+    border-width: 1px;
+    border-color: lightgray;
+    border-radius: 4px;
+}
+
 .EnvVarForm > * {
     font-size: 150%;
 }

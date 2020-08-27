@@ -21,7 +21,7 @@
     position: absolute;
     z-index: 1;
     text-align: left;
-    left: 100%;
+    left: 130%;
     margin-left: -80px;
   }
 
@@ -54,11 +54,12 @@
   /* Toggle this class when clicking on the popup container (hide and show the popup) */
   .popup .show {
     visibility: visible;
+    /*
     -webkit-animation: fadeIn 1s;
-    animation: fadeIn 1s
+    animation: fadeIn 1s */
   }
   
-  /* Add animation (fade in the popup) */
+  /* Add animation (fade in the popup) 
   @-webkit-keyframes fadeIn {
     from {opacity: 0;}
     to {opacity: 1;}
@@ -68,3 +69,4 @@
     from {opacity: 0;}
     to {opacity:1 ;}
   }
+  */

@@ -11,7 +11,7 @@ class CustomPopup extends React.Component {
     //Note: The innerId is a mandatory variable and must be unique.
     render() {
         return (
-            <div class="popup" onMouseLeave={(e) => this.handlePopup(e)} onMouseEnter={(e) => this.handlePopup(e)}>
+            <div className="popup" onMouseLeave={(e) => this.handlePopup(e)} onMouseEnter={(e) => this.handlePopup(e)}>
                 {this.props.children}
                 <span class="popuptext" id={this.props.innerId}>
                     <h3 className="PopupHeader">{this.props.header}</h3>
