@@ -99,7 +99,6 @@ class SingleuserProfiles(object):
     user_cm = self.get_user_profile_cm(username)
     cm_name = _USER_CONFIG_MAP_TEMPLATE % escape(username)
     cm_key_name = "profile"
-    data = json.loads(data)
     for key, value in data.items():
       user_cm[key] = value
     self.write_config_map(cm_name, cm_key_name, user_cm)

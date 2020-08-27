@@ -31,7 +31,8 @@ def get_user_cm(user):
     return cm
 
 def update_user_cm(user, body): 
-    _PROFILES.update_user_profile_cm(user, data=body)
+    data = json.loads(body)
+    _PROFILES.update_user_profile_cm(user, data=data)
     return _PROFILES.get_user_profile_cm(user)
 
 def get_sizes(pure_json=False):
