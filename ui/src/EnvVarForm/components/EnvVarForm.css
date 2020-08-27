@@ -1,16 +1,16 @@
 .EnvVarForm {
     min-width: 650px;
     color: black;
-    background-color: darkgrey;
+    background-color: #eeeeee;
     border: solid;
     border-radius: 8px;
-    border-color: darkgray;
+    border-color: #eeeeee;
 }
 
 .EnvVarAccord {
     max-width: 710px;
     font-size: 250%;
-    background-color: lightgray;
+    background-color: white;
     border: solid;
     border-radius: 8px;
     border-color: lightgray;

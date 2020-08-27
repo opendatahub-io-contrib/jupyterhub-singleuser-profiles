@@ -5,6 +5,7 @@ import Dropdown from 'react-bootstrap/Dropdown';
 import ButtonGroup from 'react-bootstrap/ButtonGroup';
 import Button from 'react-bootstrap/Button';
 import './ImageForm.css';
+import DropBtn from '../../CustomElements/DropBtn.js'
 
 class ImageForm extends React.Component {
 
@@ -103,15 +104,12 @@ class ImageForm extends React.Component {
             <div>
                 <Form>
                     <FormGroup>
-                        <Dropdown as={ButtonGroup}>
-                            <Dropdown.Toggle className="ImageButton" onMouseEnter={() => this.updateImages()} as={this.CustomToggle} id="dropdown-image">{this.DropdownValue()}</Dropdown.Toggle>
-                            <Dropdown.Menu className="ImageMenu">
-                                {this.state.imageList.map((value, index) => (
-                                            <Dropdown.Item onClick={(e) => this.postChange(e)} eventKey={index.toString()}>{value}</Dropdown.Item>
-                                    )
-                                    )}
-                            </Dropdown.Menu>
-                        </Dropdown>{' '}
+                        <DropBtn onMouseEnter={() => this.updateImages()} innerClass="ImageDropdown" text={this.DropdownValue()}>
+                            {this.state.imageList.map((value, index) => (
+                                <Dropdown.Item className="DropdownItem" onClick={(e) => this.postChange(e)} eventKey={index.toString()}>{value}</Dropdown.Item>
+                                )
+                            )}
+                        </DropBtn>
                     </FormGroup>
                 </Form>
             </div>

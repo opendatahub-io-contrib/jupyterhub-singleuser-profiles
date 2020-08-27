@@ -1,14 +1,11 @@
 import React from 'react';
 import Form from 'react-bootstrap/Form';
 import FormGroup from 'react-bootstrap/FormGroup';
-import Popover from 'react-bootstrap/Popover';
-import OverlayTrigger from 'react-bootstrap/OverlayTrigger'
 import Dropdown from 'react-bootstrap/Dropdown'
-import ButtonGroup from 'react-bootstrap/ButtonGroup'
 import Button from 'react-bootstrap/Button'
 import './SizesForm.css'
-import DropBtn from './DropBtn.js'
-import CustomPopup from './CustomPopup.js'
+import DropBtn from '../../CustomElements/DropBtn.js'
+import CustomPopup from '../../CustomElements/CustomPopup.js'
 
 class SizesForm extends React.Component {
 
@@ -59,6 +56,7 @@ class SizesForm extends React.Component {
             })
             .then(data => {
                 this.setState({sizeList: data});
+                console.log("Sizelist: ", this.state.sizeList)
             })
     }
 
@@ -78,13 +76,13 @@ class SizesForm extends React.Component {
         .then(data => {
             json_data = data
             result = <>
-                Size name: {json_data.name} <br/>
-                Limits: <br/>
-                <p>    CPU: {json_data.resources.limits.cpu} </p><br/>
-                <p>    Memory: {json_data.resources.limits.memory}</p><br/>
-                Requests: <br/>
-                <p>    CPU: {json_data.resources.requests.cpu}</p> 
-                <p>    Memory: {json_data.resources.requests.memory}</p><br/>
+                Size name: {json_data.name}<br/>
+                Limits:<br/>
+                &nbsp;&nbsp;&nbsp;CPU: {json_data.resources.limits.cpu} <br/>
+                &nbsp;&nbsp;&nbsp;Memory: {json_data.resources.limits.memory}<br/>
+                Requests:<br/>
+                &nbsp;&nbsp;&nbsp;CPU: {json_data.resources.requests.cpu}<br/>
+                &nbsp;&nbsp;&nbsp;Memory: {json_data.resources.requests.memory}<br/>
             </>
             this.setState({sizeDesc: result}, console.log(this.state.sizeDesc))
             });
@@ -147,6 +145,7 @@ class SizesForm extends React.Component {
 
     render () {
         this.state.selectedValue = this.state.userCM['last_selected_size']
+        
         return (
             <div font-size="150%">
                 <Form>
@@ -156,7 +155,7 @@ class SizesForm extends React.Component {
                                 <Dropdown.Item className="DropdownItem" onMouseLeave={(e) => this.waitForLoad(e)} onClick={(e) => this.postChange(e)} eventKey={this.state.sizeList.length + 1}>Default</Dropdown.Item>
                             </CustomPopup>
                             {this.state.sizeList.map((value, index) => (
-                                <CustomPopup innerId={value} header={("Size: " + {value})} content={this.state.sizeDesc}>
+                                <CustomPopup innerId={value} header={"Size: " + value} content={this.state.sizeDesc}>
                                     <Dropdown.Item className="DropdownItem" onMouseEnter={(e) => this.generateSizeDesc(e)} onMouseLeave={(e) => this.waitForLoad(e)} onClick={(e) => this.postChange(e)} eventKey={index.toString()}>{value}</Dropdown.Item>
                                 </CustomPopup>
                                 )

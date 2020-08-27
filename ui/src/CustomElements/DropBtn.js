@@ -8,7 +8,7 @@ class DropBtn extends React.Component {
     toggle between hiding and showing the dropdown content */
     dropdown(e) {
         e.preventDefault();
-        document.getElementById("myDropdown").classList.toggle("show");
+        document.getElementById(this.props.innerClass).classList.toggle("show");
     }
     
     closeDropdown(e) {
@@ -26,11 +26,12 @@ class DropBtn extends React.Component {
         }
     }
 
+    //Using inner class also as name
     render () {
         return (
             <div class="dropdown">
-                <Button id="dropbtn" variant='light' onBlur={(e) => this.closeDropdown(e)} onClick={(e) => this.dropdown(e)} className={this.props.innerClass}><p className="DropdownGrid">{this.props.text}<p id="droptxt" className="DropdownRight">&#x25bc;</p></p></Button>
-                <div id="myDropdown" class="dropdown-content">
+                <Button id="dropbtn" variant='light' onBlur={(e) => this.closeDropdown(e)} onClick={(e) => this.dropdown(e)} className={this.props.innerClass}><p id="droptxt" className="DropdownGrid">{this.props.text}<p id="droptxt" className="DropdownRight">&#x25bc;</p></p></Button>
+                <div id={this.props.innerClass} class="dropdown-content">
                     {this.props.children}
                 </div>
             </div>
