@@ -4,12 +4,13 @@ import Button from 'react-bootstrap/Button'
 
 class DropBtn extends React.Component {
 
-    /* When the user clicks on the button,
-    toggle between hiding and showing the dropdown content */
-    dropdown(e) {
-        e.preventDefault();
-        e.stopPropagation();
-        document.getElementById(this.props.innerClass).classList.toggle("show");
+    dropdown(event) {
+        var children = event.currentTarget.parentElement.children
+        for (var i = 0; i < children.length; i++) {
+            if (children[i].id == this.props.innerClass) {
+                children[i].classList.toggle("show");
+            }
+        }
     }
     
     closeDropdown(e) {

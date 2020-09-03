@@ -41,12 +41,12 @@ class EnvVarForm extends React.Component {
     }
 
     onBlur(e) {
-        var container = document.getElementById('EnvVarContainer')
+        /*var container = document.getElementById('EnvVarContainer')
         var vars = {}
         var formgroup = container.children
         for (var i = 0; i < formgroup.length; i++) {
             var children = formgroup[i].children
-            var key = children[0]
+            var key = children[0].children[0]
             if (key.children[0].value) {
                 if (key.nextSibling.value){
                     vars[key.children[0].value] = key.nextSibling.value
@@ -66,7 +66,31 @@ class EnvVarForm extends React.Component {
             }
             
         }
-        this.setState({envvars: vars}, function() {this.sendVars()}) 
+        this.setState({envvars: vars}, function() {this.sendVars()}) */
+        var container = document.getElementById('EnvVarContainer')
+        var vars = {}
+        for (var i = 0; i < container.children.length; i++) {
+            var keyValuePair = container.children[i]
+            var key = keyValuePair.children[0].children[0]
+            var value = keyValuePair.children[1]
+            if (key.value) {
+                if (value.value) {
+                    vars[key.value] = value.value
+                }
+                else {
+                    vars[key.value] = value.placeholder
+                }
+            }
+            else {
+                if (value.value) {
+                    vars[key.placeholder] = value.value
+                }
+                else {
+                    vars[key.placeholder] = value.placeholder
+                }
+            }
+        }
+        this.setState({envvars: vars}, function() {this.sendVars()})
     }
 
     removeForm(e) {
@@ -76,20 +100,21 @@ class EnvVarForm extends React.Component {
     }
 
     enterVariable(event) {
-        event.stopPropagation()
         var dropdown = event.target.parentElement.parentElement
-        var form = dropdown.children[0]
-        form.placeholder = event.target.text
+        var key = dropdown.previousSibling
+        key.placeholder = event.target.text
     }
 
     addForm(e){
         //Frequently used variables could also be entered as a list if there are too many of them.
         const newItem = [
-            <FormControl name='key' type="text" placeholder='key' onBlur={(e) => this.onBlur(e)}/>,
-            <DropBtn innerClass="EnvVarDropdown" text=''>
-                <Dropdown.Item onClick={(e) => this.enterVariable(e)} eventKey="1">AWS_ACCESS_KEY_ID</Dropdown.Item>
-                <Dropdown.Item onClick={(e) => this.enterVariable(e)} eventKey="2">AWS_SECRET_ACCESS_KEY</Dropdown.Item>
-            </DropBtn>,
+            <div className="EnvVarGrid">
+                <FormControl name='key' type="text" placeholder='key' onBlur={(e) => this.onBlur(e)}/>
+                <DropBtn id="EnvVarDrop" innerClass="EnvVarDropdown" text=''>
+                    <Dropdown.Item onClick={(e) => this.enterVariable(e)} eventKey="1">AWS_ACCESS_KEY_ID</Dropdown.Item>
+                    <Dropdown.Item onClick={(e) => this.enterVariable(e)} eventKey="2">AWS_SECRET_ACCESS_KEY</Dropdown.Item>
+                </DropBtn>
+            </div>,
             <FormControl className="InnerGap" type="text" placeholder='value' onBlur={(e) => this.onBlur(e)}/>,
             <Button className="InnerGap" variant='danger' onClick={(e) => this.removeForm(e)}>
                 Remove
@@ -104,11 +129,13 @@ class EnvVarForm extends React.Component {
         console.log('Logging envvars:', this.state.envvars)
         for (const [key, value] of Object.entries(this.state.envvars)) {
             const newItem = [
-                    <FormControl name={key} type="text" placeholder={key} onBlur={(e) => this.onBlur(e)}/>,    
-                    <DropBtn innerClass="EnvVarDropdown" text=''>
-                        <Dropdown.Item onClick={(e) => this.enterVariable(e)} eventKey="1">AWS_ACCESS_KEY_ID</Dropdown.Item>
-                        <Dropdown.Item onClick={(e) => this.enterVariable(e)} eventKey="2">AWS_SECRET_ACCESS_KEY</Dropdown.Item>
-                    </DropBtn>,
+                    <div className="EnvVarGrid">
+                        <FormControl name={key} type="text" placeholder={key} onBlur={(e) => this.onBlur(e)}/>    
+                        <DropBtn id="EnvVarDrop" innerClass="EnvVarDropdown" text=''>
+                            <Dropdown.Item onClick={(e) => this.enterVariable(e)} eventKey="1">AWS_ACCESS_KEY_ID</Dropdown.Item>
+                            <Dropdown.Item onClick={(e) => this.enterVariable(e)} eventKey="2">AWS_SECRET_ACCESS_KEY</Dropdown.Item>
+                        </DropBtn>
+                    </div>,
                     <FormControl className="InnerGap" type="text" placeholder={value} onBlur={(e) => this.onBlur(e)}/>,
                     <Button className="InnerGap" variant='danger' onClick={(e) => this.removeForm(e)}>
                         Remove
@@ -134,45 +161,22 @@ class EnvVarForm extends React.Component {
         console.log('Sent EnvVars:', json)
     }
 
-    HandleCollapse(e) {
-        e.stopPropagation()
-        e.preventDefault()
-    }
-
     render () {
         return (
-            <Accordion className="EnvVarAccord" defaultActiveKey="0">
-                <Card>
-                    <Accordion.Toggle onClick={(e) => this.HandleCollapse(e)} className="EnvVarForm" as={Card.Header} eventKey="0">
-                        Environment Variables:
-                    </Accordion.Toggle>
-                    <Accordion.Collapse eventKey="0">
-                        <Card.Body>
-                            <Form>
-                                <FormGroup id='EnvVarContainer'>
-                                    {this.state.items.map(item => (
-                                            <Form.Row className="RowGap">{item}</Form.Row>
-                                    ))}
-                                </FormGroup>
-                                <Button variant='primary' onClick={(e) => this.addForm(e)}>
-                                    Add
-                                </Button>
-                            </Form>
-                        </Card.Body>
-                    </Accordion.Collapse>
-                </Card>
-            </Accordion>
-        )
-        /*return (
-            <Form>
-                <Form.Label>Environment Variables</Form.Label>
+            <Form className="EnvVarAccord">
+                <Form.Label className="EnvVarForm">Environment Variables</Form.Label>
                 <Form>
-                    <FormGroup id=''>
-
+                    <FormGroup id='EnvVarContainer'>
+                        {this.state.items.map(item => (
+                                <Form.Row className="RowGap">{item}</Form.Row>
+                        ))}
                     </FormGroup>
+                    <Button variant='primary' onClick={(e) => this.addForm(e)}>
+                        Add
+                    </Button>
                 </Form>
             </Form>
-        )*/
+        )
     }
 
 }
