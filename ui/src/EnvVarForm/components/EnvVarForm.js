@@ -1,13 +1,10 @@
 import React from 'react'
 import './EnvVarForm.css'
-import Accordion from 'react-bootstrap/Accordion'
-import Card from 'react-bootstrap/Card'
 import Form from 'react-bootstrap/Form'
 import FormGroup from 'react-bootstrap/FormGroup'
 import Button from 'react-bootstrap/Button'
 import FormControl from 'react-bootstrap/FormControl'
 import Dropdown from 'react-bootstrap/Dropdown'
-import ButtonGroup from 'react-bootstrap/ButtonGroup'
 import DropBtn from '../../CustomElements/DropBtn.js'
 
 class EnvVarForm extends React.Component {
@@ -21,6 +18,7 @@ class EnvVarForm extends React.Component {
     }
 
     updateVars() {
+        console.log("Fetching configmap from vars")
         fetch('/services/jsp-api/api/user/configmap', {method:'GET'})
             .then(response => {
                 if (response.ok) {
@@ -41,32 +39,6 @@ class EnvVarForm extends React.Component {
     }
 
     onBlur(e) {
-        /*var container = document.getElementById('EnvVarContainer')
-        var vars = {}
-        var formgroup = container.children
-        for (var i = 0; i < formgroup.length; i++) {
-            var children = formgroup[i].children
-            var key = children[0].children[0]
-            if (key.children[0].value) {
-                if (key.nextSibling.value){
-                    vars[key.children[0].value] = key.nextSibling.value
-                }
-                else {
-                    vars[key.children[0].value] = key.nextSibling.placeholder
-                }
-            }
-            else {
-                if (key.nextSibling.value){
-                    vars[key.children[0].placeholder] = key.nextSibling.value
-                }
-                else {
-                    vars[key.children[0].placeholder] = key.nextSibling.placeholder
-                }
-                
-            }
-            
-        }
-        this.setState({envvars: vars}, function() {this.sendVars()}) */
         var container = document.getElementById('EnvVarContainer')
         var vars = {}
         for (var i = 0; i < container.children.length; i++) {

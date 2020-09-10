@@ -2,7 +2,6 @@ import React from 'react';
 import Form from 'react-bootstrap/Form';
 import FormGroup from 'react-bootstrap/FormGroup';
 import Dropdown from 'react-bootstrap/Dropdown'
-import Button from 'react-bootstrap/Button'
 import './SizesForm.css'
 import DropBtn from '../../CustomElements/DropBtn.js'
 import CustomPopup from '../../CustomElements/CustomPopup.js'
@@ -12,7 +11,7 @@ class SizesForm extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            userCM: '',
+            userCM: null,
             sizeList: [],
             selectedValue: '',
             sizeDesc: '',
@@ -37,14 +36,15 @@ class SizesForm extends React.Component {
                 }
             })
             .then(data => {
-                this.setState({userCM: data})
-                if (this.state.sizeSent != this.state.userCM['last_selected_size']) {
-                    this.updateConfigmap()
-                }
+                console.log("Received size: ", data['last_selected_size'])
+                this.state.selectedValue = data['last_selected_size']
+                this.setState({selectedValue: this.state.selectedValue}) // Horrible... but it works
+                this.isSizeCorrect()
             }) 
     }
 
     updateSizes() {
+        console.log("Called update Sizes")
         fetch('/services/jsp-api/api/sizes', {method: 'GET'})
             .then(response => {
                 if (response.ok) {
@@ -55,8 +55,12 @@ class SizesForm extends React.Component {
                 }
             })
             .then(data => {
-                this.setState({sizeList: data});
-                console.log("Sizelist: ", this.state.sizeList)
+                if (data.length > 3) {
+                    this.updateSizes()
+                }
+                else {
+                    this.setState({sizeList: data}, this.updateConfigmap());
+                }
             })
     }
 
@@ -97,13 +101,54 @@ class SizesForm extends React.Component {
     }
 
     componentDidMount() {
-        this.updateConfigmap()
         this.updateSizes()
+        console.log("Size list:", this.state.sizeList)
+        
     }
 
-    postChange(event) {
-        this.setState({sizeSent: event.target.text})
-        var json = JSON.stringify({last_selected_size: event.target.text})
+    getValue(value) {
+        return value === this.state.selectedValue
+    }
+
+    isSizeCorrect() {
+        console.log("Entered empty size function: ", this.state.selectedValue)
+        console.log(this.state.sizeList.find(this.getValue))
+        if (this.state.sizeList.find(this.getValue) === undefined) {
+            this.setState({selectedValue: "Default"}, console.log("Set default size"))
+            this.postChange("Default")
+        }
+    }
+
+    /*sendDefaultSize() {
+        if (this.state.userCM) {
+            if (this.state.userCM["last_selected_size"] === '') {
+                console.log("Configmap empty, setting default size")
+                this.setState({sizeSent: "Default"})
+                var json = JSON.stringify({last_selected_size: "Default"})
+                fetch('/services/jsp-api/api/user/configmap',
+                    {
+                        method: 'POST',
+                        body: json,
+                        headers:{
+                            'Content-Type': 'application/json',
+                        }
+                    }
+                    )
+                console.log('Size sent: ', json)
+                this.updateConfigmap()
+            }
+        }
+        else {
+            this.sendDefaultSize()
+        }
+    }*/
+
+    postChange(text) {
+        if (typeof text !== "string") {
+            text = text.target.text
+        }
+        this.setState({sizeSent: text})
+        var json = JSON.stringify({last_selected_size: text})
         fetch('/services/jsp-api/api/user/configmap',
             {
                 method: 'POST',
@@ -111,14 +156,22 @@ class SizesForm extends React.Component {
                 headers:{
                     'Content-Type': 'application/json',
                 }
-            }
-            )
-        console.log('Size sent: ', json)
-        this.updateConfigmap()
+            })
+            .then(response => {
+                if (response.ok) {
+                    console.log('Size sent: ', json);
+                    this.updateConfigmap();
+                }
+                else {
+                    throw new Error("Failed to send chosen size");
+                }
+            })
+
     }
 
     DropdownValue() {
-        if (this.state.selectedValue != null && this.state.selectedValue != '') {
+        console.log("Dropdown size value: ", this.state.selectedValue)
+        if (this.state.selectedValue !== null && this.state.selectedValue !== '') {
             return this.state.selectedValue
         }
         else {
@@ -126,26 +179,7 @@ class SizesForm extends React.Component {
         }
     }
 
-    CustomToggle = React.forwardRef(({ children, onClick }, ref) => (
-        <a
-            ref={ref}
-            onClick={(e) => {
-                e.preventDefault();
-                onClick(e);
-          }}
-        >
-            <Button className="SizesForm" variant="light">
-                <div id="sizes" className="SizeGrid">
-                    {children}
-                    <p className="DropdownRight">&#x25bc;</p>
-                </div>
-            </Button>
-        </a>
-      ));
-
     render () {
-        this.state.selectedValue = this.state.userCM['last_selected_size']
-        
         return (
             <div font-size="150%">
                 <Form>

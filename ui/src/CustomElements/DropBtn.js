@@ -7,7 +7,7 @@ class DropBtn extends React.Component {
     dropdown(event) {
         var children = event.currentTarget.parentElement.children
         for (var i = 0; i < children.length; i++) {
-            if (children[i].id == this.props.innerClass) {
+            if (children[i].id === this.props.innerClass) {
                 children[i].classList.toggle("show");
             }
         }
@@ -15,7 +15,7 @@ class DropBtn extends React.Component {
     
     closeDropdown(e) {
         window.onclick = function(event) { 
-            if (event.target.id != 'dropbtn' && event.target.id != 'droptxt') {
+            if (event.target.id !== 'dropbtn' && event.target.id !== 'droptxt') {
                 var dropdowns = document.getElementsByClassName("dropdown-content");
                 var i;
                 for (i = 0; i < dropdowns.length; i++) {

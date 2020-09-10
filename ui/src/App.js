@@ -28,7 +28,7 @@ function App() {
       <div className="App">
         <header className="App-header">
           <h1 id="header-text">Spawner Options</h1>
-          <div className="Grid" className="WideForm">
+          <div className="Grid WideForm">
             <h3 className="Wide">JupyterHub Server Image</h3>
             <ImageForm image={globals._IMAGE} username={globals._USERNAME}/>
           </div>

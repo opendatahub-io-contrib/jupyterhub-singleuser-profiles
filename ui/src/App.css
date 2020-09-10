@@ -43,7 +43,8 @@ div#root .Grid {
 }
 
 div#root .WideForm {
-  min-width: 710px;
+  min-width: 770px;
+  max-width: 770px;
 }
 
 div#root .Wide {

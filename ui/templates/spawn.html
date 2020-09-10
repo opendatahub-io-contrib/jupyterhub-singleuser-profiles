@@ -15,10 +15,19 @@
       Error: {{error_message}}
     </p>
   {% endif %}
-  <form enctype="multipart/form-data" id="spawn_form" action="{{url}}" method="post" role="form">
+  <form enctype="multipart/form-data" id="spawn_form" action="{{url}}" method="post" role="form" style="text-align: center;">
     {{spawner_options_form | safe}}
     <br>
-    <input type="submit" value="Start" class="btn btn-jupyter form-control">
+    <input 
+      type="submit" 
+      value="Start" 
+      class="btn btn-jupyter form-control" 
+      style="height: 50px;
+            position: relative;
+            bottom: 10px;
+            max-width: 25%;
+            font-size: 150%;"
+    >
   </form>
 </div>
 

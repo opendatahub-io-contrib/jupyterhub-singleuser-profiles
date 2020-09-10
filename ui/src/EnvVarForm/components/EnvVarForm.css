@@ -9,7 +9,7 @@
 }
 
 .EnvVarAccord {
-    max-width: 710px;
+    min-width: 770px;
     font-size: 250%;
     background-color: white;
     border: solid;
@@ -28,6 +28,7 @@
     max-width: 40px;
     position: relative;
     bottom: 13px;
+    right: 2px
 }
 
 .dropdown-content#EnvVarDropdown > * {
@@ -53,5 +54,5 @@
 
 .EnvVarGrid {
     display: grid;
-    grid-template-columns: 94% 6%;
+    grid-template-columns: 94.7% 6%;
   }
