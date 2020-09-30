@@ -5,7 +5,7 @@ info:
   version: 0.1.0
 servers:
   - url: /services/jsp-api
-    description: To enable JH routing
+    description: Add URL prefix for JupyterHub service
 
 paths:
   /api/whoami:
@@ -19,7 +19,7 @@ paths:
   /api/user/configmap:
     get:
       operationId: app.get_user_cm
-      summary: Get a ConfigMap
+      summary: Get a user ConfigMap based on authenticated user
       responses:
         '200':
           description: OK
@@ -31,7 +31,7 @@ paths:
           description: ConfigMap not found
     post:
       operationId: app.update_user_cm
-      summary: Updates user cm with json data and returns it as response
+      summary: Updates user ConfigMap with json data and returns it as response
       requestBody:
         content:
           application/json:

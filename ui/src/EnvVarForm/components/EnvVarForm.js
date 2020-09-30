@@ -6,6 +6,7 @@ import Button from 'react-bootstrap/Button'
 import FormControl from 'react-bootstrap/FormControl'
 import Dropdown from 'react-bootstrap/Dropdown'
 import DropBtn from '../../CustomElements/DropBtn.js'
+import APICalls from '../../CustomElements/APICalls'
 
 class EnvVarForm extends React.Component {
 
@@ -15,9 +16,12 @@ class EnvVarForm extends React.Component {
             envvars: {},
             items: [],
         }
+        this.API = new APICalls()
     }
 
-    updateVars() {
+    async updateVars() {
+        var data = await this.API.APIConfigmapGet()
+        console.log("API call complete: ", data)
         console.log("Fetching configmap from vars")
         fetch('/services/jsp-api/api/user/configmap', {method:'GET'})
             .then(response => {
