@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import './EnvVarForm.css'
 import Form from 'react-bootstrap/Form'
 import FormGroup from 'react-bootstrap/FormGroup'
@@ -20,22 +20,9 @@ class EnvVarForm extends React.Component {
     }
 
     async updateVars() {
-        var data = await this.API.APIConfigmapGet()
-        console.log("API call complete: ", data)
-        console.log("Fetching configmap from vars")
-        fetch('/services/jsp-api/api/user/configmap', {method:'GET'})
-            .then(response => {
-                if (response.ok) {
-                    return response.json();
-                } 
-                else {
-                    throw new Error('Failed to fetch user cm');
-                }
-            })
-            .then(data => {
-                this.setState({envvars: data['env']})
-                this.renderForms()
-            }) 
+        var data = await this.API.APIGet(this.API._CMPATH)
+        this.setState({envvars: data['env']},() => {console.log("Updated EnvVars")})
+        this.renderForms()
     }
 
     componentDidMount() {
@@ -78,63 +65,62 @@ class EnvVarForm extends React.Component {
     enterVariable(event) {
         var dropdown = event.target.parentElement.parentElement
         var key = dropdown.previousSibling
+        console.log("Dropdown, key:", dropdown, key)
         key.placeholder = event.target.text
     }
 
-    addForm(e){
-        //Frequently used variables could also be entered as a list if there are too many of them.
+    makeFormItem(key, value) {
+        var type;
+        switch(key) {
+            case "AWS_ACCESS_KEY_ID":
+                type = "password"
+                break;
+            case "AWS_SECRET_ACCESS_KEY":
+                type = "password"
+                break;
+            default:
+                type = "text"
+        }
         const newItem = [
             <div className="EnvVarGrid">
-                <FormControl name='key' type="text" placeholder='key' onBlur={(e) => this.onBlur(e)}/>
+                <FormControl name={key} type="text" placeholder={key} value={key} onBlur={(e) => this.onBlur(e)}/>
                 <DropBtn id="EnvVarDrop" innerClass="EnvVarDropdown" text=''>
                     <Dropdown.Item onClick={(e) => this.enterVariable(e)} eventKey="1">AWS_ACCESS_KEY_ID</Dropdown.Item>
                     <Dropdown.Item onClick={(e) => this.enterVariable(e)} eventKey="2">AWS_SECRET_ACCESS_KEY</Dropdown.Item>
                 </DropBtn>
             </div>,
-            <FormControl className="InnerGap" type="text" placeholder='value' onBlur={(e) => this.onBlur(e)}/>,
+            <FormControl type={type} className="InnerGap"  placeholder={value} value={value} onBlur={(e) => this.onBlur(e)}/>,
             <Button className="InnerGap" variant='danger' onClick={(e) => this.removeForm(e)}>
                 Remove
             </Button>
             ]
+        console.log(newItem)
+        return newItem
+    }
+
+    addForm(e){
+        //Frequently used variables could also be entered as a list if there are too many of them.
+        var newItem = this.makeFormItem('key', 'value')
         this.setState(previousState => ({
             items: [...previousState.items, newItem]
         }));
+        
     }
 
     renderForms() {
         console.log('Logging envvars:', this.state.envvars)
         for (const [key, value] of Object.entries(this.state.envvars)) {
-            const newItem = [
-                    <div className="EnvVarGrid">
-                        <FormControl name={key} type="text" placeholder={key} onBlur={(e) => this.onBlur(e)}/>    
-                        <DropBtn id="EnvVarDrop" innerClass="EnvVarDropdown" text=''>
-                            <Dropdown.Item onClick={(e) => this.enterVariable(e)} eventKey="1">AWS_ACCESS_KEY_ID</Dropdown.Item>
-                            <Dropdown.Item onClick={(e) => this.enterVariable(e)} eventKey="2">AWS_SECRET_ACCESS_KEY</Dropdown.Item>
-                        </DropBtn>
-                    </div>,
-                    <FormControl className="InnerGap" type="text" placeholder={value} onBlur={(e) => this.onBlur(e)}/>,
-                    <Button className="InnerGap" variant='danger' onClick={(e) => this.removeForm(e)}>
-                        Remove
-                    </Button>
-                    ]
+            console.log("Generating: ", key, value)
+            var newItem = this.makeFormItem(key, value)
             this.setState(previousState => ({
                 items: [...previousState.items, newItem]
-            }));
+            }), () => {console.log("Rendered item", key, value)});
         }
     }
 
-    sendVars(){
+    async sendVars(){
         var json = JSON.stringify({env: this.state.envvars})
-        fetch('/services/jsp-api/api/user/configmap',
-            {
-                method: 'POST',
-                body: json,
-                headers:{
-                   'Content-Type': 'application/json',
-                }
-            }
-            )
-        console.log('Sent EnvVars:', json)
+        var response = await this.API.APIPost(this.API._CMPATH, json)
     }
 
     render () {

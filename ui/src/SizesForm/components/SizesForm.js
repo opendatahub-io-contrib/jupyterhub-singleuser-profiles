@@ -5,6 +5,7 @@ import Dropdown from 'react-bootstrap/Dropdown'
 import './SizesForm.css'
 import DropBtn from '../../CustomElements/DropBtn.js'
 import CustomPopup from '../../CustomElements/CustomPopup.js'
+import APICalls from '../../CustomElements/APICalls'
 
 class SizesForm extends React.Component {
 
@@ -15,71 +16,31 @@ class SizesForm extends React.Component {
             sizeList: [],
             selectedValue: '',
             sizeDesc: '',
-            sizeSent: '',
             sizeDefault: (
                 <p>
                     Resources will be set based on profiles configured by administrator
                 </p>
             ),
         }
+        this.API = new APICalls()
 
     }
 
-    updateConfigmap() {
-        fetch('/services/jsp-api/api/user/configmap', {method:'GET'})
-            .then(response => {
-                if (response.ok) {
-                    return response.json();
-                } 
-                else {
-                    throw new Error('Failed to fetch user cm');
-                }
-            })
-            .then(data => {
-                console.log("Received size: ", data['last_selected_size'])
-                this.state.selectedValue = data['last_selected_size']
-                this.setState({selectedValue: this.state.selectedValue}) // Horrible... but it works
-                this.isSizeCorrect()
-            }) 
+    async updateConfigmap() {
+        var data = await this.API.APIGet(this.API._CMPATH)
+        this.setState({userCM: data, selectedValue: data['last_selected_size']}, () => {this.updateSizes()}) // selected value is initialized here
     }
 
-    updateSizes() {
-        console.log("Called update Sizes")
-        fetch('/services/jsp-api/api/sizes', {method: 'GET'})
-            .then(response => {
-                if (response.ok) {
-                    return response.json();
-                } 
-                else {
-                    throw new Error('Unknown error.');
-                }
-            })
-            .then(data => {
-                if (data.length > 3) {
-                    this.updateSizes()
-                }
-                else {
-                    this.setState({sizeList: data}, this.updateConfigmap());
-                }
-            })
+    async updateSizes() {
+        var data = await this.API.APIGet(this.API._SIZESPATH)
+        this.setState({sizeList: data}, this.isSizeCorrect())
     }
 
-    generateSizeDesc(event) {
+    async generateSizeDesc(event) {
         var value = event.target.text
-        var json_data = {}
         var result = ''
-        fetch('/services/jsp-api/api/size/'+ value, {method: 'GET'})
-        .then(response => {
-            if (response.ok) {
-                return response.json();
-            } 
-            else {
-                throw new Error('Unknown error.');
-            }
-        })
-        .then(data => {
-            json_data = data
-            result = <>
+        var json_data = await this.API.APIGet('/services/jsp-api/api/size/'+ value)
+        result = <>
                 Size name: {json_data.name}<br/>
                 Limits:<br/>
                 &nbsp;&nbsp;&nbsp;CPU: {json_data.resources.limits.cpu} <br/>
@@ -88,9 +49,7 @@ class SizesForm extends React.Component {
                 &nbsp;&nbsp;&nbsp;CPU: {json_data.resources.requests.cpu}<br/>
                 &nbsp;&nbsp;&nbsp;Memory: {json_data.resources.requests.memory}<br/>
             </>
-            this.setState({sizeDesc: result}, console.log(this.state.sizeDesc))
-            });
-        
+        this.setState({sizeDesc: result})        
     }
 
     waitForLoad(event) {
@@ -101,72 +60,28 @@ class SizesForm extends React.Component {
     }
 
     componentDidMount() {
-        this.updateSizes()
-        console.log("Size list:", this.state.sizeList)
-        
-    }
-
-    getValue(value) {
-        return value === this.state.selectedValue
+        this.updateConfigmap()
     }
 
     isSizeCorrect() {
         console.log("Entered empty size function: ", this.state.selectedValue)
-        console.log(this.state.sizeList.find(this.getValue))
-        if (this.state.sizeList.find(this.getValue) === undefined) {
-            this.setState({selectedValue: "Default"}, console.log("Set default size"))
-            this.postChange("Default")
-        }
-    }
-
-    /*sendDefaultSize() {
-        if (this.state.userCM) {
-            if (this.state.userCM["last_selected_size"] === '') {
-                console.log("Configmap empty, setting default size")
-                this.setState({sizeSent: "Default"})
-                var json = JSON.stringify({last_selected_size: "Default"})
-                fetch('/services/jsp-api/api/user/configmap',
-                    {
-                        method: 'POST',
-                        body: json,
-                        headers:{
-                            'Content-Type': 'application/json',
-                        }
-                    }
-                    )
-                console.log('Size sent: ', json)
-                this.updateConfigmap()
+        for(var i = 0; i < this.state.sizeList.length; i++) {
+            if (this.state.sizeList[i] === this.state.selectedValue || this.state.selectedValue === "Default") {
+                return
             }
         }
-        else {
-            this.sendDefaultSize()
-        }
-    }*/
+        this.setState({selectedValue: "Default"}, console.log("Set default size"))
+        this.postChange("Default")
+    }
 
-    postChange(text) {
+    async postChange(text) {
         if (typeof text !== "string") {
             text = text.target.text
         }
-        this.setState({sizeSent: text})
+        this.setState({selectedValue: text})
         var json = JSON.stringify({last_selected_size: text})
-        fetch('/services/jsp-api/api/user/configmap',
-            {
-                method: 'POST',
-                body: json,
-                headers:{
-                    'Content-Type': 'application/json',
-                }
-            })
-            .then(response => {
-                if (response.ok) {
-                    console.log('Size sent: ', json);
-                    this.updateConfigmap();
-                }
-                else {
-                    throw new Error("Failed to send chosen size");
-                }
-            })
-
+        var response = await this.API.APIPost(this.API._CMPATH, json)
+        this.updateConfigmap()
     }
 
     DropdownValue() {

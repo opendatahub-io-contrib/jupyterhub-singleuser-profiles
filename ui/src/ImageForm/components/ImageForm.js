@@ -4,6 +4,7 @@ import FormGroup from 'react-bootstrap/FormGroup';
 import Dropdown from 'react-bootstrap/Dropdown';
 import './ImageForm.css';
 import DropBtn from '../../CustomElements/DropBtn.js'
+import APICalls from '../../CustomElements/APICalls'
 
 class ImageForm extends React.Component {
 
@@ -13,111 +14,47 @@ class ImageForm extends React.Component {
             imageList: [],
             selectedValue: '',
         }
+        this.API = new APICalls()
     }
 
-    updateConfigmap() {
-        console.log("Fetching configmap from images")
-        fetch('/services/jsp-api/api/user/configmap', {method:'GET'})
-            .then(response => {
-                if (response.ok) {
-                    return response.json();
-                } 
-                else {
-                    throw new Error('Failed to fetch user cm');
-                }
-            })
-            .then(data => {
-                console.log("Received image: ", data['last_selected_image'])
-                //this.setState({selectedValue: data['last_selected_image']}, this.isImageEmpty())
-                this.state.selectedValue = data['last_selected_image']
-                this.setState({selectedValue: this.state.selectedValue})
-                this.isImageCorrect()
-            }) 
+    async updateConfigmap() {
+        var data = await this.API.APIGet(this.API._CMPATH)
+        this.setState({userCM: data, selectedValue: data['last_selected_image']}, () => {this.updateImages()})
     }
 
-    updateImages(){
-        fetch('/services/jsp-api/api/images', {method: 'GET'})
-            .then(response => {
-                if (response.ok) {
-                    return response.json();
-                } 
-                else {
-                    throw new Error('Unknown error.');
-                }
-            })
-            .then(data => {
-                this.setState({imageList: data}, this.updateConfigmap());
-            })
+    async updateImages(){
+        var data = await this.API.APIGet(this.API._IMAGEPATH)
+        this.setState({imageList: data}, () => console.log("Taking image"))
+        this.setState({imageList: data}, this.isImageCorrect())
     }
 
     componentDidMount() {
-        //this.updateConfigmap()
-        this.updateImages()
-        //this.sendInitialImage()
+        this.updateConfigmap()
     }
-
-    getValue(value) {
-        return value === this.state.selectedValue
-    }
-
+    
     isImageCorrect() {
         console.log("Entered image check function: ", this.state.selectedValue)
-        console.log(this.state.sizeList.find(this.getValue))
-        if (this.state.imageList.find(this.getValue) === undefined) {
-            if (this.state.imageList.length !== 0) {
-                this.setState({selectedValue: this.state.imageList[0]}, console.log("Set default image"))
-                //this.state.selectedValue = this.state.imageList[0]
-                this.postChange(this.state.selectedValue)
-            }
-            else {
-                this.updateImages()
+        console.log("Image list: ", this.state.imageList)
+        for(var i = 0; i < this.state.imageList.length; i++) {
+            console.log(this.state.imageList[i], this.state.selectedValue)
+            if (this.state.imageList[i] === this.state.selectedValue) {
+                return
             }
         }
+        if (this.state.imageList[0]) {
+            this.setState({selectedValue: this.state.imageList[0]}, console.log("Set default image"))
+            this.postChange(this.state.imageList[0])
+        }     
     }
 
-    /*sendInitialImage() {
-        console.log("Configmap empty, sending initial image", this.state.imageList)
-        if (this.state.imageList.length > 0) {
-            var image = this.state.imageList[0]
-            console.log(image)
-        }
-        var json = JSON.stringify({last_selected_image: image})
-        fetch('/services/jsp-api/api/user/configmap',
-            {
-                method: 'POST',
-                body: json,
-                headers:{
-                  'Content-Type': 'application/json',
-                }
-            }
-            )
-        console.log("Sent chosen image:", json);
-        this.updateConfigmap()
-    }*/
-
-    postChange(text) {
+    async postChange(text) {
         if (typeof text !== "string") {
             text = text.target.text
         }
+        this.setState({selectedValue: text})
         var json = JSON.stringify({last_selected_image: text})
-        fetch('/services/jsp-api/api/user/configmap',
-            {
-                method: 'POST',
-                body: json,
-                headers:{
-                  'Content-Type': 'application/json',
-                }
-            })
-            .then(response => {
-                if (response.ok) {
-                    console.log("Sent chosen image:", json);
-                    this.updateConfigmap();
-                }
-                else {
-                    throw new Error("Failed to send chosen image");
-                }
-            })
-        
+        var response = await this.API.APIPost(this.API._CMPATH, json)
+        this.updateConfigmap() // might delete if considered not necessary, but would prevent realtime CM update
     }
 
     DropdownValue() {
