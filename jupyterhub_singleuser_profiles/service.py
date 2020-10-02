@@ -54,7 +54,7 @@ class Service():
       )
       cm = response.to_dict()
       if cm['data'].get(path):
-        template = yaml.load(cm['data'].get(path))
+        template = cm['data'].get(path)
     except Exception as e:
       _LOGGER.error("Error: %s %s" % (name, e))
 
@@ -62,10 +62,10 @@ class Service():
 
   def process_template(self, user, service_name, template, configuration, labels=None):
     user_e = escape(user)
-    tmp = jinja2.Template(json.dumps(template))
+    tmp = jinja2.Template(template)
     configuration['user'] = user_e
     result = tmp.render(configuration)
-    result = json.loads(result)
+    result = yaml.load(result)
     if not result.get('metadata'):
       result['metadata'] = {}
     if labels:
