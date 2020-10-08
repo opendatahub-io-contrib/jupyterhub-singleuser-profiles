@@ -7,6 +7,7 @@ import FormControl from 'react-bootstrap/FormControl'
 import Dropdown from 'react-bootstrap/Dropdown'
 import DropBtn from '../../CustomElements/DropBtn.js'
 import APICalls from '../../CustomElements/APICalls'
+import VarForm from '../../CustomElements/VarForm'
 
 class EnvVarForm extends React.Component {
 
@@ -15,6 +16,7 @@ class EnvVarForm extends React.Component {
         this.state = {
             envvars: {},
             items: [],
+            secrets: {},
         }
         this.API = new APICalls()
     }
@@ -30,18 +32,25 @@ class EnvVarForm extends React.Component {
     }
 
     onBlur(e) {
+        console.log("Entered Blur", e.target)
         var container = document.getElementById('EnvVarContainer')
         var vars = {}
         for (var i = 0; i < container.children.length; i++) {
             var keyValuePair = container.children[i]
-            var key = keyValuePair.children[0].children[0]
-            var value = keyValuePair.children[1]
+            var key = keyValuePair.children[0].children[0].children[0] //should be rewritten
+            var value = keyValuePair.children[0].children[1]
+            console.log("BLUR key value: ", key, value)
             if (key.value) {
                 if (value.value) {
                     vars[key.value] = value.value
                 }
                 else {
-                    vars[key.value] = value.placeholder
+                    if (value.placeholder === "&#9679;&#9679;&#9679;&#9679;&#9679;") {  // is a password
+                        vars[key.value] = this.state.secrets[key.value]
+                    }
+                    else {
+                        vars[key.value] = value.placeholder
+                    }
                 }
             }
             else {
@@ -49,7 +58,12 @@ class EnvVarForm extends React.Component {
                     vars[key.placeholder] = value.value
                 }
                 else {
-                    vars[key.placeholder] = value.placeholder
+                    if (value.placeholder === "&#9679;&#9679;&#9679;&#9679;&#9679;") {  // is a password
+                        vars[key.placeholder] = this.state.secrets[key.placeholder]
+                    }
+                    else {
+                        vars[key.placeholder] = value.placeholder
+                    } 
                 }
             }
         }
@@ -62,15 +76,15 @@ class EnvVarForm extends React.Component {
         this.onBlur()
     }
 
-    enterVariable(event) {
+    /*enterVariable(event) {
         var dropdown = event.target.parentElement.parentElement
         var key = dropdown.previousSibling
         console.log("Dropdown, key:", dropdown, key)
-        key.placeholder = event.target.text
-    }
+        key.value = event.target.text
+    }*/
 
     makeFormItem(key, value) {
-        var type;
+        /*var type;
         switch(key) {
             case "AWS_ACCESS_KEY_ID":
                 type = "password"
@@ -81,20 +95,38 @@ class EnvVarForm extends React.Component {
             default:
                 type = "text"
         }
+        var keyForm = <input name={key} type="text" placeholder={key} onChange={(e) => this.handleKeyChange(e)} onBlur={(e) => this.onBlur(e)}/>
+        var valueForm = <input type={type} className="InnerGap"  placeholder={value} onChange={(e) => this.handleValueChange(e)} onBlur={(e) => this.onBlur(e)}/>
+        if (type == "password") {
+            valueForm.placeholder = "&#9679;&#9679;&#9679;&#9679;&#9679;"
+            this.state.secrets[key] = value
+        }*/
+        /*
         const newItem = [
             <div className="EnvVarGrid">
-                <FormControl name={key} type="text" placeholder={key} value={key} onBlur={(e) => this.onBlur(e)}/>
+                {keyForm}
                 <DropBtn id="EnvVarDrop" innerClass="EnvVarDropdown" text=''>
                     <Dropdown.Item onClick={(e) => this.enterVariable(e)} eventKey="1">AWS_ACCESS_KEY_ID</Dropdown.Item>
                     <Dropdown.Item onClick={(e) => this.enterVariable(e)} eventKey="2">AWS_SECRET_ACCESS_KEY</Dropdown.Item>
                 </DropBtn>
             </div>,
-            <FormControl type={type} className="InnerGap"  placeholder={value} value={value} onBlur={(e) => this.onBlur(e)}/>,
+            <>
+            {valueForm}
+            </>,
             <Button className="InnerGap" variant='danger' onClick={(e) => this.removeForm(e)}>
                 Remove
             </Button>
             ]
         console.log(newItem)
+        return newItem*/
+        const newItem = [
+            <div onBlur={(e) => this.onBlur(e)}>
+                <VarForm var_key={key} value={value} blurFunc={this.onBlur}/>
+            </div>,
+            <Button className="InnerGap" variant='danger' onClick={(e) => this.removeForm(e)}>
+                Remove
+            </Button>
+        ]
         return newItem
     }
 
