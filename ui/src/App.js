@@ -11,7 +11,7 @@ function App() {
         <header className="App-header">
           <h1 id="header-text">Spawner Options</h1>
           <div className="Grid WideForm">
-            <h3 className="Wide">JupyterHub Notebook Image</h3>
+            <h3 className="Wide">JupyterHub Notebook Image:</h3>
             <ImageForm/>
           </div>
           <h3 className="Wide">Deployment size:</h3>

@@ -1,6 +1,7 @@
 import React from 'react'
 import DropBtn from './DropBtn.js'
 import Dropdown from 'react-bootstrap/Dropdown'
+import './VarForm.css'
 
 class VarForm extends React.Component {
     constructor(props) {
@@ -49,13 +50,13 @@ class VarForm extends React.Component {
             <>
                 <div className="EnvVarGrid">
                     <input name={this.state.key} type="text" value={this.state.key} onChange={(e) => this.handleKeyChange(e)}/>
-                    <DropBtn id="EnvVarDrop" innerClass="EnvVarDropdown" text=''>
+                    <DropBtn id="EnvVarDrop" innerClass="VarDropdown EnvVarDropdown" text=''>
                         <Dropdown.Item onClick={(e) => this.enterVariable(e)} eventKey="1">AWS_ACCESS_KEY_ID</Dropdown.Item>
                         <Dropdown.Item onClick={(e) => this.enterVariable(e)} eventKey="2">AWS_SECRET_ACCESS_KEY</Dropdown.Item>
                     </DropBtn>
                 </div>
                 <>
-                    <input type={this.state.type} className="InnerGap"  value={this.state.value} onChange={(e) => this.handleValueChange(e)}/>
+                    <input type={this.state.type} className="InnerGap VarValueForm"  value={this.state.value} onChange={(e) => this.handleValueChange(e)}/>
                 </>
             </>
         )

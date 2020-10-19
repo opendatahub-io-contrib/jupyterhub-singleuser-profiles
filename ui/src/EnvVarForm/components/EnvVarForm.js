@@ -3,9 +3,6 @@ import './EnvVarForm.css'
 import Form from 'react-bootstrap/Form'
 import FormGroup from 'react-bootstrap/FormGroup'
 import Button from 'react-bootstrap/Button'
-import FormControl from 'react-bootstrap/FormControl'
-import Dropdown from 'react-bootstrap/Dropdown'
-import DropBtn from '../../CustomElements/DropBtn.js'
 import APICalls from '../../CustomElements/APICalls'
 import VarForm from '../../CustomElements/VarForm'
 
@@ -76,51 +73,9 @@ class EnvVarForm extends React.Component {
         this.onBlur()
     }
 
-    /*enterVariable(event) {
-        var dropdown = event.target.parentElement.parentElement
-        var key = dropdown.previousSibling
-        console.log("Dropdown, key:", dropdown, key)
-        key.value = event.target.text
-    }*/
-
     makeFormItem(key, value) {
-        /*var type;
-        switch(key) {
-            case "AWS_ACCESS_KEY_ID":
-                type = "password"
-                break;
-            case "AWS_SECRET_ACCESS_KEY":
-                type = "password"
-                break;
-            default:
-                type = "text"
-        }
-        var keyForm = <input name={key} type="text" placeholder={key} onChange={(e) => this.handleKeyChange(e)} onBlur={(e) => this.onBlur(e)}/>
-        var valueForm = <input type={type} className="InnerGap"  placeholder={value} onChange={(e) => this.handleValueChange(e)} onBlur={(e) => this.onBlur(e)}/>
-        if (type == "password") {
-            valueForm.placeholder = "&#9679;&#9679;&#9679;&#9679;&#9679;"
-            this.state.secrets[key] = value
-        }*/
-        /*
         const newItem = [
-            <div className="EnvVarGrid">
-                {keyForm}
-                <DropBtn id="EnvVarDrop" innerClass="EnvVarDropdown" text=''>
-                    <Dropdown.Item onClick={(e) => this.enterVariable(e)} eventKey="1">AWS_ACCESS_KEY_ID</Dropdown.Item>
-                    <Dropdown.Item onClick={(e) => this.enterVariable(e)} eventKey="2">AWS_SECRET_ACCESS_KEY</Dropdown.Item>
-                </DropBtn>
-            </div>,
-            <>
-            {valueForm}
-            </>,
-            <Button className="InnerGap" variant='danger' onClick={(e) => this.removeForm(e)}>
-                Remove
-            </Button>
-            ]
-        console.log(newItem)
-        return newItem*/
-        const newItem = [
-            <div onBlur={(e) => this.onBlur(e)}>
+            <div onBlur={(e) => this.onBlur(e)} className="VarGridDiv">
                 <VarForm var_key={key} value={value} blurFunc={this.onBlur}/>
             </div>,
             <Button className="InnerGap" variant='danger' onClick={(e) => this.removeForm(e)}>
@@ -132,7 +87,7 @@ class EnvVarForm extends React.Component {
 
     addForm(e){
         //Frequently used variables could also be entered as a list if there are too many of them.
-        var newItem = this.makeFormItem('key', 'value')
+        var newItem = this.makeFormItem('variable_name', 'variable_value')
         this.setState(previousState => ({
             items: [...previousState.items, newItem]
         }));

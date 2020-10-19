@@ -33,7 +33,7 @@ class SizesForm extends React.Component {
 
     async updateSizes() {
         var data = await this.API.APIGet(this.API._SIZESPATH)
-        this.setState({sizeList: data}, this.isSizeCorrect())
+        this.setState({sizeList: data}, () => this.isSizeCorrect())
     }
 
     async generateSizeDesc(event) {
@@ -66,7 +66,9 @@ class SizesForm extends React.Component {
     isSizeCorrect() {
         console.log("Entered empty size function: ", this.state.selectedValue)
         for(var i = 0; i < this.state.sizeList.length; i++) {
+            console.log(this.state.sizeList[i])
             if (this.state.sizeList[i] === this.state.selectedValue || this.state.selectedValue === "Default") {
+                console.log("break")
                 return
             }
         }

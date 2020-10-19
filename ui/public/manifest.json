@@ -1,6 +1,6 @@
 {
-  "short_name": "JSP-UI",
-  "name": "Jupyterhub-singleuser-profiles-ui",
+  "short_name": "JSP UI",
+  "name": "Jupyterhub singleuser profiles ui",
   "start_url": ".",
   "display": "standalone",
   "theme_color": "#000000",
