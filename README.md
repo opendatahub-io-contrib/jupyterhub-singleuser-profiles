@@ -213,6 +213,10 @@ For testing:
   - If `api-deploy` is running you can access the api by using 
    ```oc get route jh-api-route -o jsonpath='http://{.spec.host}/ui'```
 
+## User Interface
+
+For detailed information about the User Interface component of the JupyterHub Singleuser Profiles please read the [User interface Readme](https:/github.com/opendatahub.io/blob/master/ui/README.md)
+
 
 # How to Use
 

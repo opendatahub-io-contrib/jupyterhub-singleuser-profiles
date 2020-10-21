@@ -1,68 +1,53 @@
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+# Jupyterhub SingleUser Profiles User Interface
 
-## Available Scripts
+This part of the JSP repository contains the user interface for configuring the notebook to be spawned.
+It contains the javascript and CSS files which are then built on cluster and the resulting file is ran as a JupyterHub service through the `jupyter_config.py` in the [jupyterhub-odh repository](https://github.com/opendatahub-io/jupyterhub-odh).
 
-In the project directory, you can run:
+## Usage
 
-### `npm start`
+![Main_UI_img](https://github.com/mroman-redhat/jupyterhub-singleuser-profiles/blob/feature/API/ui/readme_img/UI-main.png)
 
-Runs the app in the development mode.<br />
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+### JupyterHub Notebook Image
+This dropdown contains images available to the logged in user.
+By default, to add images to this dropdown you need to add them to your cluster and give them a `opendatahub.io/notebook-image=true` tag.
 
-The page will reload if you make edits.<br />
-You will also see any lint errors in the console.
+For more information on this process see the JSP [Readme](https://github.com/opendatahub.io/jupyterhub-singleuser-profiles/)
+### Container Size
+The container size dropdown contains all of the sizes available to the user.
+Currently, these sizes are not tied to the image in use.
 
-### `npm test`
+The actual limits and requests can be set in the `jupyterhub-singleuser-profiles` Config Map.
 
-Launches the test runner in the interactive watch mode.<br />
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+By hovering onto any size option, a brief summary will be shown, containing the limits, requests and the name of the size.
+### Number of required GPUs
+In this field, it is possible to set the amount of required GPUs. Currently it is not possible to specify which GPUs are chosen, just the amount.
+### Environment Variables
+These fields are divided into variable names and variable values
+It is possible to click a dropdown on the side of the variable name which contains frequently used variables. Currently only the `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY`. 
 
-### `npm run build`
+The value field contains the value assigned to the variable. If the variable name is considered secret the value is automatically hidden.
 
-Builds the app for production to the `build` folder.<br />
-It correctly bundles React in production mode and optimizes the build for the best performance.
+Please note that **currently only the two AWS variables mentioned are considered secret**.
+Under each pair of variable names and values is a `Remove` button, which removes the pair.
+At the end of the Environment Variables form is an `Add` which adds a pair to the form.
+The amount of environment variables that can be added is unlimited.
 
-The build is minified and the filenames include the hashes.<br />
-Your app is ready to be deployed!
+Once done with the configuration, it is possible to click the `Start` button to start the notebook.
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+## Notes
 
-### `npm run eject`
+This part of the repository can NOT be run locally. It requires a cluster with jupyterhub singleuser profiles running on it. To access it it is neccessary to go to the JupyterHub spawner page.
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+The UI is supported by a swagger API to which all of the requests are routed. For more information check the [API section of the Readme](https://github.com/opendatahub.io/jupyterhub-singleuser-profiles/blob/master/README.md)
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+This UI was boostrapped with [Create React App](https://github.com/facebook/create-react-app). Due to the nature of the UI it is not possible to execute all of the commands mentioned in the instructions.
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+## Testing
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+The UI is deployed together with jupyterhub singleuser profiles. To test it it is only necessary to deploy jupyterhub singleuser profiles and open the spawner page.
 
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/code-splitting
-
-### Analyzing the Bundle Size
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size
-
-### Making a Progressive Web App
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app
-
-### Advanced Configuration
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/advanced-configuration
-
-### Deployment
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/deployment
-
-### `npm run build` fails to minify
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify
+Similarly, to test changes, it is neccessary to:
+1. change the needed CSS or JS files
+2. push the changes to a repository
+3. rewrite the target repository in the `jupyterhub-img` build
+4. start the build and redeploy the pods. 
