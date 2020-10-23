@@ -13,7 +13,6 @@ class GpuForm extends React.Component {
     }
 
     updateGpu() {
-        console.log("Fetching configmap from GPU")
         fetch('/services/jsp-api/api/user/configmap', {method:'GET'})
             .then(response => {
                 if (response.ok) {
@@ -49,7 +48,7 @@ class GpuForm extends React.Component {
                 }
             }
             )
-        console.log('GPU value sent:', json)
+        console.log('GPU value sent')
     }
 
     render () {

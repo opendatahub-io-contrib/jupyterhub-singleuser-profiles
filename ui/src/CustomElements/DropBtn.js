@@ -15,7 +15,7 @@ class DropBtn extends React.Component {
     
     closeDropdown(e) {
         window.onclick = function(event) { 
-            if (event.target.id !== 'dropbtn' && event.target.id !== 'droptxt') {
+            if (event.target.id !== 'dropbtn' && event.target.id !== 'droptxt') {   //Text is also checked.
                 var dropdowns = document.getElementsByClassName("dropdown-content");
                 var i;
                 for (i = 0; i < dropdowns.length; i++) {
@@ -32,7 +32,14 @@ class DropBtn extends React.Component {
     render () {
         return (
             <div class="dropdown">
-                <Button id="dropbtn" variant='light' onBlur={(e) => this.closeDropdown(e)} onClick={(e) => this.dropdown(e)} className={this.props.innerClass}><p id="droptxt" className="DropdownGrid">{this.props.text}<p id="droptxt" className="DropdownRight">&#x25bc;</p></p></Button>
+                <Button id="dropbtn" variant='light' onBlur={(e) => this.closeDropdown(e)} onClick={(e) => this.dropdown(e)} className={this.props.innerClass}>
+                    <p id="droptxt" className="DropdownGrid">
+                        {this.props.text}
+                        <p id="droptxt" className="DropdownRight">
+                            &#x25bc;
+                        </p>
+                    </p>
+                </Button>
                 <div id={this.props.innerClass} class="dropdown-content">
                     {this.props.children}
                 </div>

@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React from 'react'
 import './EnvVarForm.css'
 import Form from 'react-bootstrap/Form'
 import FormGroup from 'react-bootstrap/FormGroup'
@@ -29,14 +29,12 @@ class EnvVarForm extends React.Component {
     }
 
     onBlur(e) {
-        console.log("Entered Blur", e.target)
         var container = document.getElementById('EnvVarContainer')
         var vars = {}
         for (var i = 0; i < container.children.length; i++) {
             var keyValuePair = container.children[i]
             var key = keyValuePair.children[0].children[0].children[0] //should be rewritten
             var value = keyValuePair.children[0].children[1]
-            console.log("BLUR key value: ", key, value)
             if (key.value) {
                 if (value.value) {
                     vars[key.value] = value.value
@@ -95,19 +93,18 @@ class EnvVarForm extends React.Component {
     }
 
     renderForms() {
-        console.log('Logging envvars:', this.state.envvars)
         for (const [key, value] of Object.entries(this.state.envvars)) {
-            console.log("Generating: ", key, value)
-            var newItem = this.makeFormItem(key, value)
+            let newItem = this.makeFormItem(key, value)
             this.setState(previousState => ({
                 items: [...previousState.items, newItem]
-            }), () => {console.log("Rendered item", key, value)});
+            }), () => {console.log("Rendered item")});
         }
     }
 
     async sendVars(){
         var json = JSON.stringify({env: this.state.envvars})
-        var response = await this.API.APIPost(this.API._CMPATH, json)
+        await this.API.APIPost(this.API._CMPATH, json)
+        console.log("Sent vars")
     }
 
     render () {

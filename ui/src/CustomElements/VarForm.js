@@ -14,12 +14,10 @@ class VarForm extends React.Component {
     }
 
     handleKeyChange(event) {
-        console.log("Called key change: ", event.target.value)
         this.setState({key: event.target.value}, () => {this.checkKey(this.state.key)})
     }
 
     checkKey(key) {
-        console.log("Checking key: ", key)
         switch(key) {
             case "AWS_ACCESS_KEY_ID":
                 this.setState({type: "password"})
@@ -37,7 +35,6 @@ class VarForm extends React.Component {
     }
 
     handleValueChange(event) {
-        console.log("Called value change: ", event.target.value)
         this.setState({value: event.target.value})
     }
 

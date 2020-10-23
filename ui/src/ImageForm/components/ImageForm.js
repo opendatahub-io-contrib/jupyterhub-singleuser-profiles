@@ -24,8 +24,8 @@ class ImageForm extends React.Component {
 
     async updateImages(){
         var data = await this.API.APIGet(this.API._IMAGEPATH)
-        this.setState({imageList: data}, () => console.log("Taking image"))
-        this.setState({imageList: data}, this.isImageCorrect())
+        //this.setState({imageList: data}, () => console.log("Taking image"))
+        this.setState({imageList: data}, () => this.isImageCorrect())
     }
 
     componentDidMount() {
@@ -33,10 +33,8 @@ class ImageForm extends React.Component {
     }
     
     isImageCorrect() {
-        console.log("Entered image check function: ", this.state.selectedValue)
-        console.log("Image list: ", this.state.imageList)
+        console.log("Entered image check function")
         for(var i = 0; i < this.state.imageList.length; i++) {
-            console.log(this.state.imageList[i], this.state.selectedValue)
             if (this.state.imageList[i] === this.state.selectedValue) {
                 return
             }
@@ -53,12 +51,12 @@ class ImageForm extends React.Component {
         }
         this.setState({selectedValue: text})
         var json = JSON.stringify({last_selected_image: text})
-        var response = await this.API.APIPost(this.API._CMPATH, json)
+        await this.API.APIPost(this.API._CMPATH, json)
+        console.log("Sent image")
         this.updateConfigmap() // might delete if considered not necessary, but would prevent realtime CM update
     }
 
     DropdownValue() {
-        console.log("Dropdown image value: ", this.state.selectedValue)
         if (this.state.selectedValue !== null && this.state.selectedValue !== '') {
             return this.state.selectedValue
         }

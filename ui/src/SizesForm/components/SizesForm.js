@@ -56,7 +56,7 @@ class SizesForm extends React.Component {
         var result = <p>
             Loading...
         </p>
-        this.setState({sizeDesc: result}, console.log('loading size desc'));
+        this.setState({sizeDesc: result}, console.log('Loading size desc'));
     }
 
     componentDidMount() {
@@ -64,11 +64,9 @@ class SizesForm extends React.Component {
     }
 
     isSizeCorrect() {
-        console.log("Entered empty size function: ", this.state.selectedValue)
+        console.log("Checking sizes...")
         for(var i = 0; i < this.state.sizeList.length; i++) {
-            console.log(this.state.sizeList[i])
             if (this.state.sizeList[i] === this.state.selectedValue || this.state.selectedValue === "Default") {
-                console.log("break")
                 return
             }
         }
@@ -82,12 +80,12 @@ class SizesForm extends React.Component {
         }
         this.setState({selectedValue: text})
         var json = JSON.stringify({last_selected_size: text})
-        var response = await this.API.APIPost(this.API._CMPATH, json)
+        await this.API.APIPost(this.API._CMPATH, json)
+        console.log("Sent sizes")
         this.updateConfigmap()
     }
 
     DropdownValue() {
-        console.log("Dropdown size value: ", this.state.selectedValue)
         if (this.state.selectedValue !== null && this.state.selectedValue !== '') {
             return this.state.selectedValue
         }

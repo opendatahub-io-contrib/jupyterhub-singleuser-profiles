@@ -41,19 +41,4 @@
   
   .popup .show {
     visibility: visible;
-    /*
-    -webkit-animation: fadeIn 1s;
-    animation: fadeIn 1s */
   }
-  
-  /* Add animation (fade in the popup) 
-  @-webkit-keyframes fadeIn {
-    from {opacity: 0;}
-    to {opacity: 1;}
-  }
-  
-  @keyframes fadeIn {
-    from {opacity: 0;}
-    to {opacity:1 ;}
-  }
-  */
