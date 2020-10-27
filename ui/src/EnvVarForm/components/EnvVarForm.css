@@ -1,0 +1,66 @@
+.EnvVarForm {
+    min-width: 650px;
+    color: black;
+    background-color: #eeeeee;
+    border: solid;
+    border-radius: 8px;
+    border-color: #d3d3d3;
+    font-weight: normal;
+}
+
+.EnvVarAccord {
+    min-width: 770px;
+    font-size: 250%;
+    background-color: white;
+    border: solid;
+    border-radius: 8px;
+    border-color: lightgray;
+}
+
+.EnvVarDropdown {
+    background-color: #fff;
+    vertical-align: middle;
+    border: solid;
+    border-left: #fff;
+    border-width: 1px;
+    border-color: #d3d3d3;
+    border-radius: 2px;
+    max-width: 40px;
+    position: relative;
+    bottom: 13px;
+    right: 2px
+}
+
+.dropdown-content#EnvVarDropdown > * {
+    font-size: 50%;
+}
+
+.EnvVarForm > * {
+    font-size: 150%;
+}
+
+.InnerGap {
+    margin-bottom: .5rem;
+}
+
+.RowGap {
+    margin-bottom: 1rem;
+}
+
+.FormDropdown {
+    margin-bottom: 1rem;
+    min-width: 650px;
+}
+
+.EnvVarGrid {
+    display: grid;
+    grid-template-columns: 94% 6.3%;
+    margin-bottom: 10px;
+  }
+
+.VarGridDiv {
+    font-size: 58%;
+    max-width: 650px;
+    margin: auto;
+    margin-top: 10px;
+}

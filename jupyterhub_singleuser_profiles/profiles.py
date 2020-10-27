@@ -17,6 +17,12 @@ _JUPYTERHUB_USER_NAME_ENV = "JUPYTERHUB_USER_NAME"
 _USER_CONFIG_MAP_TEMPLATE = "jupyterhub-singleuser-profile-%s"
 _USER_CONFIG_PROFILE_NAME = "@singleuser@"
 _GPU_KEY = "nvidia.com/gpu"
+_DEFAULT_USER_CM = {
+        "env":{"AWS_ACCESS_KEY_ID":"", "AWS_SECRET_ACCESS_KEY":""},
+        "gpu":"0",
+        "last_selected_image":"",
+        "last_selected_size":"",
+      }
 
 class SingleuserProfiles(object):
   GPU_MODE_SELINUX = "selinux"
@@ -104,7 +110,11 @@ class SingleuserProfiles(object):
     self.write_config_map(cm_name, cm_key_name, user_cm)
 
   def get_user_profile_cm(self, username):
-    return self.read_config_map(_USER_CONFIG_MAP_TEMPLATE % escape(username), "profile")
+    cm = self.read_config_map(_USER_CONFIG_MAP_TEMPLATE % escape(username), "profile")
+    if cm == {}:
+      return _DEFAULT_USER_CM
+    else:
+      return cm
     
   def load_profiles(self, secret_name="jupyter-singleuser-profiles", filename=None, key_name="jupyterhub-singleuser-profiles.yaml", username=None):
     self.profiles = []

@@ -22,8 +22,8 @@ spec:
   source:
     type: Git
     git:
-      uri: 'https://github.com/opendatahub-io/jupyterhub-singleuser-profiles.git'
-      ref: master
+      uri: 'https://github.com/mroman-redhat/jupyterhub-singleuser-profiles.git'
+      ref: feature/API
   triggers:
     - type: ImageChange
     - type: ConfigChange

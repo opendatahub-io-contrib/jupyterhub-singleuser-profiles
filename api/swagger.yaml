@@ -3,81 +3,23 @@ info:
   title: JupyterHub API
   description: API for the Spawner UI of JupyterHub
   version: 0.1.0
+servers:
+  - url: /services/jsp-api
+    description: Add URL prefix for JupyterHub service
 
 paths:
-  /:
+  /api/whoami:
     get:
-      operationId: app.index
+      operationId: app.whoami
+      summary: Get current user info
       responses:
         '200':
           description: OK
-          content:
-            text/html:
-              schema:
-                type: string
-  
-  /{path}:
-    get:
-      operationId: app.handle_local_file
-      parameters:
-        - name: path
-          in: path
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                type: string
-  
-  /static/js/{path}:
-    get:
-      operationId: app.handle_js
-      parameters:
-        - name: path
-          in: path
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          description: OK
-          content:
-            text/javascript:
-              schema:
-                type: string
-  
-  /static/css/{path}:
-    get:
-      operationId: app.handle_css
-      parameters:
-        - name: path
-          in: path
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          description: OK
-          content:
-            text/css:
-              schema:
-                type: string
 
-  /api/user/{user}/configmap:
+  /api/user/configmap:
     get:
       operationId: app.get_user_cm
-      summary: Get a ConfigMap
-      parameters:
-        - name: user
-          in: path
-          required: true
-          description: User for which to get configmap
-          schema:
-            type: string
+      summary: Get a user ConfigMap based on authenticated user
       responses:
         '200':
           description: OK
@@ -89,19 +31,12 @@ paths:
           description: ConfigMap not found
     post:
       operationId: app.update_user_cm
-      summary: Updates user cm with json data and returns it as response
-      parameters:
-        - name: user
-          in: path
-          required: true
-          description:  User for which to get configmap
-          schema:
-            type: string 
+      summary: Updates user ConfigMap with json data and returns it as response
       requestBody:
         content:
-          text/plain:
+          application/json:
             schema:
-              type: string
+              $ref: '#/components/schemas/configmap'
       responses:
         '200':
           description: OK
@@ -173,4 +108,13 @@ paths:
 components:
   schemas:
     configmap:
-      type: string
+      type: object
+      properties:
+        env:
+          type: object
+        gpu:
+          type: integer
+        last_selected_image:
+          type: string
+        last_selected_size:
+          type: string

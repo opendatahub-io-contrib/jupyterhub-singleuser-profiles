@@ -1,0 +1,44 @@
+/* Popup container */
+.popup {
+    position: relative;
+    display: inline-block;
+    cursor: pointer;
+    min-width: 100%;
+  }
+  
+  /* The actual popup (appears on top) */
+  .popup .popuptext {
+    visibility: hidden;
+    min-width: 100%;
+    background-color: #fff;
+    color: #000;
+    text-align: center;
+    border-radius: 6px;
+    border: solid;
+    border-color: #a9a9a9;
+    border-width: 1px;
+    bottom: 0%;
+    position: absolute;
+    z-index: 1;
+    text-align: left;
+    left: 130%;
+    margin-left: -80px;
+  }
+
+  .PopupHeader {
+    background-color: #eeeeee;
+    border-bottom: solid;
+    border-width: 1px;
+    border-color: lightgrey;
+    margin-top: 0px;
+    margin-bottom: 0px;
+    padding: 8px;
+  }
+
+  .PopupPadding {
+      padding: 8px;
+  }
+  
+  .popup .show {
+    visibility: visible;
+  }

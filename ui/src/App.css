@@ -1,0 +1,53 @@
+div#root body {
+  overflow-x: hidden;
+}
+
+div#root .container {
+  text-align: center;
+}
+
+div#root .App {
+  text-align: center;
+}
+
+div#root .App-header {
+  max-width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  /*font-size: calc(10px + 2vmin);*/
+  color: black;
+}
+
+div#root .App-header > * {
+  padding: 20px;
+  border-top: 2px solid black;
+}
+
+div#root h1#header-text {
+  padding-top: 10px;
+  color: black;
+  border-top: 0px solid black;
+}
+
+div#root .App-link {
+  color: #61dafb;
+}
+
+div#root .Grid {
+  display: grid;
+  grid-template-columns: auto auto;
+  grid-gap: 10px;
+}
+
+div#root .WideForm {
+  min-width: 770px;
+  max-width: 770px;
+}
+
+div#root .Wide {
+  margin-top: .5rem;
+  min-width: 320px;
+  font-size: 175%;
+}
