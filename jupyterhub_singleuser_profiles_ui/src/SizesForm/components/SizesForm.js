@@ -84,23 +84,12 @@ class SizesForm extends React.Component {
         this.updateConfigmap()
     }
 
-    DropdownValue() {
-        if (this.state.selectedValue !== null && this.state.selectedValue !== '') {
-            return this.state.selectedValue
-        }
-        else {
-            return "Default"
-        }
-    }
-
-    //Removed IDs TODO: Return them back
-
     render () {
         return (
             <div font-size="150%">
                 <Form>
                     <FormGroup>
-                        <DropBtn onMouseEnter={() => this.updateSizes()} innerClass="SizeDropdown" text={this.DropdownValue()}>
+                        <DropBtn onMouseEnter={() => this.updateSizes()} innerClass="SizeDropdown" text={this.state.selectedValue} defaultText="Default">
                             <CustomPopup innerId="DefaultPopup" header="Size: Default" content={this.state.sizeDefault}>
                                 <Dropdown.Item id="Default" className="DropdownItem" onMouseLeave={(e) => this.waitForLoad(e)} onClick={(e) => this.postChange(e)} eventKey={this.state.sizeList.length + 1}>Default</Dropdown.Item>
                             </CustomPopup>

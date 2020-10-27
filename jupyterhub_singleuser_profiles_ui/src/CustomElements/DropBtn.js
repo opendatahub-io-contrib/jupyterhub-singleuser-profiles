@@ -19,6 +19,15 @@ class DropBtn extends React.Component {
             }
         }
     }
+
+    getTextOrDefault(text) {
+        if (text !== null && text !== '') {
+            return text
+        }
+        else {
+            return this.props.defaultText
+        }
+    }
     
     closeDropdown(e) {
         var btnId = this.state.btnId
@@ -42,7 +51,7 @@ class DropBtn extends React.Component {
             <div class="dropdown">
                 <Button id={this.state.btnId} variant='light' onBlur={(e) => this.closeDropdown(e)} onClick={(e) => this.dropdown(e)} className={this.props.innerClass}>
                     <p id="droptxt" className="DropdownGrid">
-                        {this.props.text}
+                        {this.getTextOrDefault(this.props.text)}
                         <p id="droptxt" className="DropdownRight">
                             &#x25bc;
                         </p>
