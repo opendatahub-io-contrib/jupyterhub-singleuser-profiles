@@ -101,11 +101,11 @@ class SizesForm extends React.Component {
                     <FormGroup>
                         <DropBtn onMouseEnter={() => this.updateSizes()} innerClass="SizeDropdown" text={this.DropdownValue()}>
                             <CustomPopup innerId="sizeDefaultPopup" header="Size: Default" content={this.state.sizeDefault}>
-                                <Dropdown.Item className="DropdownItem" onMouseLeave={(e) => this.waitForLoad(e)} onClick={(e) => this.postChange(e)} eventKey={this.state.sizeList.length + 1}>Default</Dropdown.Item>
+                                <Dropdown.Item className="DropdownItem" id="Default" onMouseLeave={(e) => this.waitForLoad(e)} onClick={(e) => this.postChange(e)} eventKey={this.state.sizeList.length + 1}>Default</Dropdown.Item>
                             </CustomPopup>
                             {this.state.sizeList.map((value, index) => (
                                 <CustomPopup innerId={value} header={"Size: " + value} content={this.state.sizeDesc}>
-                                    <Dropdown.Item className="DropdownItem" onMouseEnter={(e) => this.generateSizeDesc(e)} onMouseLeave={(e) => this.waitForLoad(e)} onClick={(e) => this.postChange(e)} eventKey={index.toString()}>{value}</Dropdown.Item>
+                                    <Dropdown.Item className="DropdownItem" id={value} onMouseEnter={(e) => this.generateSizeDesc(e)} onMouseLeave={(e) => this.waitForLoad(e)} onClick={(e) => this.postChange(e)} eventKey={index.toString()}>{value}</Dropdown.Item>
                                 </CustomPopup>
                                 )
                                 )}

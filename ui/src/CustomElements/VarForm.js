@@ -53,7 +53,7 @@ class VarForm extends React.Component {
                     </DropBtn>
                 </div>
                 <>
-                    <input type={this.state.type} className="InnerGap VarValueForm"  value={this.state.value} onChange={(e) => this.handleValueChange(e)}/>
+                    <input type={this.state.type} name={this.state.value} className="InnerGap VarValueForm"  value={this.state.value} onChange={(e) => this.handleValueChange(e)}/>
                 </>
             </>
         )

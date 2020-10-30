@@ -215,8 +215,7 @@ For testing:
 
 ## User Interface
 
-For detailed information about the User Interface component of the JupyterHub Singleuser Profiles please read the [User interface Readme](https:/github.com/opendatahub.io/blob/master/ui/README.md)
-
+For detailed information about the User Interface component of the JupyterHub Singleuser Profiles please read the [User interface README](ui/README.md)
 
 # How to Use
 
