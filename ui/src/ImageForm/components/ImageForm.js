@@ -17,19 +17,19 @@ class ImageForm extends React.Component {
         this.API = new APICalls()
     }
 
-    async updateConfigmap() {
+    async loadConfigmap() {
         var data = await this.API.APIGet(this.API._CMPATH)
-        this.setState({userCM: data, selectedValue: data['last_selected_image']}, () => {this.updateImages()})
+        this.setState({userCM: data, selectedValue: data['last_selected_image']}, () => {this.loadImages()})
     }
 
-    async updateImages(){
+    async loadImages(){
         var data = await this.API.APIGet(this.API._IMAGEPATH)
         //this.setState({imageList: data}, () => console.log("Taking image"))
         this.setState({imageList: data}, () => this.isImageCorrect())
     }
 
     componentDidMount() {
-        this.updateConfigmap()
+        this.loadConfigmap()
     }
     
     isImageCorrect() {
@@ -51,9 +51,12 @@ class ImageForm extends React.Component {
         }
         this.setState({selectedValue: text})
         var json = JSON.stringify({last_selected_image: text})
-        await this.API.APIPost(this.API._CMPATH, json)
+        console.log("JHDATA Status:", window.jhdata)
+        if (window.jhdata['for_user']) {
+            var for_user = window.jhdata['for_user']
+        }
+        await this.API.APIPost(this.API._CMPATH, json, for_user)
         console.log("Sent image")
-        this.updateConfigmap() // might delete if considered not necessary, but would prevent realtime CM update
     }
 
     DropdownValue() {
@@ -75,7 +78,7 @@ class ImageForm extends React.Component {
             <div>
                 <Form>
                     <FormGroup>
-                        <DropBtn onMouseEnter={() => this.updateImages()} innerClass="ImageDropdown" text={this.DropdownValue()}>
+                        <DropBtn onMouseEnter={() => this.loadImages()} innerClass="ImageDropdown" text={this.DropdownValue()}>
                             {this.state.imageList.map((value, index) => (
                                 <Dropdown.Item className="DropdownItem" id={value} onClick={(e) => this.postChange(e)} eventKey={index.toString()}>{value}</Dropdown.Item>
                                 )

@@ -4,6 +4,13 @@ import Button from 'react-bootstrap/Button'
 
 class DropBtn extends React.Component {
 
+    constructor(props) {
+        super(props);
+        this.state = {
+            btnId: props.innerClass + "Btn", 
+        }
+    }
+
     dropdown(event) {
         var children = event.currentTarget.parentElement.children
         for (var i = 0; i < children.length; i++) {
@@ -14,8 +21,9 @@ class DropBtn extends React.Component {
     }
     
     closeDropdown(e) {
+        var btnId = this.state.btnId
         window.onclick = function(event) { 
-            if (event.target.id !== 'dropbtn' && event.target.id !== 'droptxt') {   //Text is also checked.
+            if (event.target.id !== btnId && event.target.id !== 'droptxt') {   //Text is also checked.
                 var dropdowns = document.getElementsByClassName("dropdown-content");
                 var i;
                 for (i = 0; i < dropdowns.length; i++) {
@@ -32,7 +40,7 @@ class DropBtn extends React.Component {
     render () {
         return (
             <div class="dropdown">
-                <Button id="dropbtn" variant='light' onBlur={(e) => this.closeDropdown(e)} onClick={(e) => this.dropdown(e)} className={this.props.innerClass}>
+                <Button id={this.state.btnId} variant='light' onBlur={(e) => this.closeDropdown(e)} onClick={(e) => this.dropdown(e)} className={this.props.innerClass}>
                     <p id="droptxt" className="DropdownGrid">
                         {this.props.text}
                         <p id="droptxt" className="DropdownRight">

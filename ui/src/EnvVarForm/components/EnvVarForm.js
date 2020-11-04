@@ -39,27 +39,6 @@ class EnvVarForm extends React.Component {
                 if (value.value) {
                     vars[key.value] = value.value
                 }
-                else {
-                    if (value.placeholder === "&#9679;&#9679;&#9679;&#9679;&#9679;") {  // is a password
-                        vars[key.value] = this.state.secrets[key.value]
-                    }
-                    else {
-                        vars[key.value] = value.placeholder
-                    }
-                }
-            }
-            else {
-                if (value.value) {
-                    vars[key.placeholder] = value.value
-                }
-                else {
-                    if (value.placeholder === "&#9679;&#9679;&#9679;&#9679;&#9679;") {  // is a password
-                        vars[key.placeholder] = this.state.secrets[key.placeholder]
-                    }
-                    else {
-                        vars[key.placeholder] = value.placeholder
-                    } 
-                }
             }
         }
         this.setState({envvars: vars}, function() {this.sendVars()})
@@ -103,7 +82,10 @@ class EnvVarForm extends React.Component {
 
     async sendVars(){
         var json = JSON.stringify({env: this.state.envvars})
-        await this.API.APIPost(this.API._CMPATH, json)
+        if (window.jhdata['for_user']) {
+            var for_user = window.jhdata['for_user']
+        }
+        await this.API.APIPost(this.API._CMPATH, json, for_user)
         console.log("Sent vars")
     }
 

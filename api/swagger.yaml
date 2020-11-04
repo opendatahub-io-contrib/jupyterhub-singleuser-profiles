@@ -84,12 +84,12 @@ paths:
                       type: string
                   - type: string
   
-  /api/size/{sizeName}:
+  /api/size/{size_name}:
     get:
       operationId: app.get_size_by_name
       summary: Get a single size by name
       parameters:
-        - name: sizeName
+        - name: size_name
           in: path
           required: true
           description: Name of the size

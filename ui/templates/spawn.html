@@ -6,6 +6,12 @@
 
 {% block main %}
 
+{% if for_user and user.name != for_user.name -%}
+<script type="text/javascript">
+  window.jhdata['for_user']=
+    '{{ for_user.name }}'
+</script>
+{% endif -%}
 <div>
   {% if for_user and user.name != for_user.name -%}
     <p>Spawning server for {{ for_user.name }}</p>

@@ -3,6 +3,7 @@ import React from 'react';
 import Form from 'react-bootstrap/Form';
 import FormGroup from 'react-bootstrap/FormGroup';
 import './GpuForm.css'
+import APICalls from '../../CustomElements/APICalls'
 
 class GpuForm extends React.Component {
     constructor(props) {
@@ -10,28 +11,19 @@ class GpuForm extends React.Component {
         this.state = {
             gpu_value: 0,
         }
+        this.API = new APICalls()
     }
 
-    updateGpu() {
-        fetch('/services/jsp-api/api/user/configmap', {method:'GET'})
-            .then(response => {
-                if (response.ok) {
-                    return response.json();
-                } 
-                else {
-                    throw new Error('Failed to fetch user cm');
-                }
-            })
-            .then(data => {
-                this.setState({gpu_value: data['gpu']})
-            }) 
+    async updateGpu() {
+        var data = await this.API.APIGet(this.API._CMPATH)
+        this.setState({gpu_value: data['gpu']}, () => console.log('Updated GPU'))
     }
 
     componentDidMount() {
         this.updateGpu()
     }
 
-    postChange(event) {
+    async postChange(event) {
         if (event.target.value.length === 0) {
             return
         }
@@ -39,15 +31,10 @@ class GpuForm extends React.Component {
             gpu: parseInt(event.target.value)
         }
         const json = JSON.stringify(obj)
-        fetch('/services/jsp-api/api/user/configmap',
-            {
-                method: 'POST',
-                body: json,
-                headers:{
-                      'Content-Type': 'application/json',
-                }
-            }
-            )
+        if (window.jhdata['for_user']) {
+            var for_user = window.jhdata['for_user']
+        }
+        await this.API.APIPost(this.API._CMPATH, json, for_user)
         console.log('GPU value sent')
     }
 

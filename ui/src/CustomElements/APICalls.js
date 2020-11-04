@@ -2,9 +2,11 @@
 class APICalls {
 
     constructor() {
-        this._CMPATH = "/services/jsp-api/api/user/configmap"
-        this._SIZESPATH = "/services/jsp-api/api/sizes"
-        this._IMAGEPATH = "/services/jsp-api/api/images"
+        this._BASEPATH = "/services/jsp-api/api/"
+        this._CMPATH = this._BASEPATH + "user/configmap"
+        this._SIZESPATH = this._BASEPATH + "sizes"
+        this._IMAGEPATH = this._BASEPATH + "images"
+        this._SINGLESIZEPATH = this._BASEPATH + "size/"
     }
 
     APIGet(target) {
@@ -15,13 +17,13 @@ class APICalls {
                         resolve(response.json());
                     } 
                     else {
-                        throw new Error('Failed to fetch User ConfigMap');
+                        throw new Error('Failed to fetch ' + target + response);
                     }
                 });
         });
     }
     
-    APIPost(target, json) {
+    APIPost(target, json, target_user=null) {
         return new Promise(function (resolve, reject) {
             fetch(target,
                 {
@@ -29,6 +31,7 @@ class APICalls {
                     body: json,
                     headers:{
                         'Content-Type': 'application/json',
+                        'For-User': target_user,
                     }
                 })
                 .then(response => {
@@ -36,7 +39,7 @@ class APICalls {
                         resolve(response.json())
                     }
                     else {
-                        throw new Error("Failed to send", json, target);
+                        throw new Error("Failed to send", target);
                     }
                 })
         })

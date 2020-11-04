@@ -39,7 +39,7 @@ class SizesForm extends React.Component {
     async generateSizeDesc(event) {
         var value = event.target.text
         var result = ''
-        var json_data = await this.API.APIGet('/services/jsp-api/api/size/'+ value)
+        var json_data = await this.API.APIGet(this.API._SINGLESIZEPATH + value)
         result = <>
                 Size name: {json_data.name}<br/>
                 Limits:<br/>
@@ -56,7 +56,7 @@ class SizesForm extends React.Component {
         var result = <p>
             Loading...
         </p>
-        this.setState({sizeDesc: result}, console.log('Loading size desc'));
+        this.setState({sizeDesc: result}, console.log('Loading size desc', this.state.sizeDesc));
     }
 
     componentDidMount() {
@@ -80,7 +80,10 @@ class SizesForm extends React.Component {
         }
         this.setState({selectedValue: text})
         var json = JSON.stringify({last_selected_size: text})
-        await this.API.APIPost(this.API._CMPATH, json)
+        if (window.jhdata['for_user']) {
+            var for_user = window.jhdata['for_user']
+        }
+        await this.API.APIPost(this.API._CMPATH, json, for_user)
         console.log("Sent sizes")
         this.updateConfigmap()
     }
@@ -94,18 +97,20 @@ class SizesForm extends React.Component {
         }
     }
 
+    //Removed IDs TODO: Return them back
+
     render () {
         return (
             <div font-size="150%">
                 <Form>
                     <FormGroup>
                         <DropBtn onMouseEnter={() => this.updateSizes()} innerClass="SizeDropdown" text={this.DropdownValue()}>
-                            <CustomPopup innerId="sizeDefaultPopup" header="Size: Default" content={this.state.sizeDefault}>
-                                <Dropdown.Item className="DropdownItem" id="Default" onMouseLeave={(e) => this.waitForLoad(e)} onClick={(e) => this.postChange(e)} eventKey={this.state.sizeList.length + 1}>Default</Dropdown.Item>
+                            <CustomPopup innerId="DefaultPopup" header="Size: Default" content={this.state.sizeDefault}>
+                                <Dropdown.Item id="Default" className="DropdownItem" onMouseLeave={(e) => this.waitForLoad(e)} onClick={(e) => this.postChange(e)} eventKey={this.state.sizeList.length + 1}>Default</Dropdown.Item>
                             </CustomPopup>
                             {this.state.sizeList.map((value, index) => (
-                                <CustomPopup innerId={value} header={"Size: " + value} content={this.state.sizeDesc}>
-                                    <Dropdown.Item className="DropdownItem" id={value} onMouseEnter={(e) => this.generateSizeDesc(e)} onMouseLeave={(e) => this.waitForLoad(e)} onClick={(e) => this.postChange(e)} eventKey={index.toString()}>{value}</Dropdown.Item>
+                                <CustomPopup innerId={value + "Popup"} header={"Size: " + value} content={this.state.sizeDesc}>
+                                    <Dropdown.Item id={value} className="DropdownItem" onMouseEnter={(e) => this.generateSizeDesc(e)} onMouseLeave={(e) => this.waitForLoad(e)} onClick={(e) => this.postChange(e)} eventKey={index.toString()}>{value}</Dropdown.Item>
                                 </CustomPopup>
                                 )
                                 )}

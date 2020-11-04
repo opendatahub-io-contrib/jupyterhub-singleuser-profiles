@@ -60,6 +60,8 @@ def get_user_cm(user):
 
 @authenticated
 def update_user_cm(user, body): 
+    if connexion.request.headers['For-User'] != 'null':
+        user['name'] = connexion.request.headers['For-User']
     _PROFILES.update_user_profile_cm(user['name'], data=body)
     return _PROFILES.get_user_profile_cm(user['name'])
 
@@ -81,9 +83,9 @@ def get_images(*args, **kwargs):
     return image_array
 
 @authenticated
-def get_size_by_name(sizeName, *args, **kwargs):
+def get_size_by_name(size_name, *args, **kwargs):
     _PROFILES.load_profiles()
-    return _PROFILES.get_size(sizeName)
+    return _PROFILES.get_size(size_name)
 
 app = connexion.App(__name__, specification_dir='.', options={'swagger_ui':True})
 app.add_api('swagger.yaml')

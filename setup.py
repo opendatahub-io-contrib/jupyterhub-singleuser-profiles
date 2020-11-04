@@ -4,8 +4,6 @@ from setuptools import setup
 from setuptools.command.test import test as TestCommand
 from setuptools.command.install import install
 import distutils.log
-distutils.log.set_verbosity(-1) # Disable logging in disutils
-distutils.log.set_verbosity(distutils.log.DEBUG) # Set DEBUG level
 
 def copy_dir():
     dir_path = 'ui'
