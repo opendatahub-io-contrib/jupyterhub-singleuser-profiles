@@ -51,11 +51,7 @@ class ImageForm extends React.Component {
         }
         this.setState({selectedValue: text})
         var json = JSON.stringify({last_selected_image: text})
-        console.log("JHDATA Status:", window.jhdata)
-        if (window.jhdata['for_user']) {
-            var for_user = window.jhdata['for_user']
-        }
-        await this.API.APIPost(this.API._CMPATH, json, for_user)
+        await this.API.APIPost(this.API._CMPATH, json)
         console.log("Sent image")
     }
 

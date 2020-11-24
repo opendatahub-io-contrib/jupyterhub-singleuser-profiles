@@ -10,8 +10,17 @@ class APICalls {
     }
 
     APIGet(target) {
+        var target_user = this.get_for_user()
+        var headers = {}
+        if (target_user) {
+            headers['For-User'] = target_user
+        }
         return new Promise(function (resolve, reject) {
-            fetch(target, {method:'GET'})
+            fetch(target, 
+                {
+                    method:'GET',
+                    headers: headers
+                })
                 .then(response => {
                     if (response.ok) {
                         resolve(response.json());
@@ -23,16 +32,20 @@ class APICalls {
         });
     }
     
-    APIPost(target, json, target_user=null) {
+    APIPost(target, json) {
+        var target_user = this.get_for_user()
+        var headers = {
+            'Content-Type': 'application/json'
+        }
+        if (target_user) {
+            headers['For-User'] = target_user
+        }
         return new Promise(function (resolve, reject) {
             fetch(target,
                 {
                     method: 'POST',
                     body: json,
-                    headers:{
-                        'Content-Type': 'application/json',
-                        'For-User': target_user,
-                    }
+                    headers: headers
                 })
                 .then(response => {
                     if (response.ok) {
@@ -44,6 +57,13 @@ class APICalls {
                 })
         })
     
+    }
+
+    get_for_user() {
+        if (window.jhdata['for_user']) {
+           return window.jhdata['for_user']
+        }
+        return null
     }
 }
 

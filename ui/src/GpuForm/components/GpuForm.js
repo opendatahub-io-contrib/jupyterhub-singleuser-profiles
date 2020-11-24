@@ -27,14 +27,10 @@ class GpuForm extends React.Component {
         if (event.target.value.length === 0) {
             return
         }
-        const obj = {
+        const json = {
             gpu: parseInt(event.target.value)
         }
-        const json = JSON.stringify(obj)
-        if (window.jhdata['for_user']) {
-            var for_user = window.jhdata['for_user']
-        }
-        await this.API.APIPost(this.API._CMPATH, json, for_user)
+        await this.API.APIPost(this.API._CMPATH, json)
         console.log('GPU value sent')
     }
 

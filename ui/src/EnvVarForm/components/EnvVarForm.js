@@ -82,10 +82,7 @@ class EnvVarForm extends React.Component {
 
     async sendVars(){
         var json = JSON.stringify({env: this.state.envvars})
-        if (window.jhdata['for_user']) {
-            var for_user = window.jhdata['for_user']
-        }
-        await this.API.APIPost(this.API._CMPATH, json, for_user)
+        await this.API.APIPost(this.API._CMPATH, json)
         console.log("Sent vars")
     }
 

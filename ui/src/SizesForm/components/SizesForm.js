@@ -23,7 +23,6 @@ class SizesForm extends React.Component {
             ),
         }
         this.API = new APICalls()
-
     }
 
     async updateConfigmap() {
@@ -80,10 +79,7 @@ class SizesForm extends React.Component {
         }
         this.setState({selectedValue: text})
         var json = JSON.stringify({last_selected_size: text})
-        if (window.jhdata['for_user']) {
-            var for_user = window.jhdata['for_user']
-        }
-        await this.API.APIPost(this.API._CMPATH, json, for_user)
+        await this.API.APIPost(this.API._CMPATH, json)
         console.log("Sent sizes")
         this.updateConfigmap()
     }

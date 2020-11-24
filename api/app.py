@@ -33,12 +33,16 @@ def authenticated(f):
     def decorated(*args, **kwargs):
         cookie = request.cookies.get(auth.cookie_name)
         token = request.headers.get(auth.auth_header_name)
+        for_user = connexion.request.headers.get('For-User')
         if cookie:
             user = auth.user_for_cookie(cookie)
         elif token:
             user = auth.user_for_token(token)
         else:
             user = None
+        if for_user and user.get('admin'):
+            user['name'] = for_user
+            user['admin'] = False
         if user:
             return f(user=user, *args, **kwargs)
         else:
@@ -60,8 +64,6 @@ def get_user_cm(user):
 
 @authenticated
 def update_user_cm(user, body): 
-    if connexion.request.headers['For-User'] != 'null':
-        user['name'] = connexion.request.headers['For-User']
     _PROFILES.update_user_profile_cm(user['name'], data=body)
     return _PROFILES.get_user_profile_cm(user['name'])
 
