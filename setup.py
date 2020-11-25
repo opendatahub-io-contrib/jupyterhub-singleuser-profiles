@@ -6,7 +6,7 @@ from setuptools.command.install import install
 import distutils.log
 
 def copy_dir():
-    dir_path = 'ui'
+    dir_path = 'jupyterhub_singleuser_profiles_ui'
     base_dir = os.path.join('', dir_path)
     for (dirpath, dirnames, files) in os.walk(base_dir):
         for f in files:
@@ -30,24 +30,6 @@ def get_test_requires():
   else:
     return []
 
-class Test(TestCommand):
-    user_options = [
-        ('pytest-args=', 'a', "Arguments to pass into py.test")
-    ]
-
-    def initialize_options(self):
-        super().initialize_options()
-        self.pytest_args = ['--timeout=2', '--cov=./thoth', '--capture=no', '--verbose']
-
-    def finalize_options(self):
-        super().finalize_options()
-        self.test_args = []
-        self.test_suite = True
-
-    def run_tests(self):
-        import pytest
-        sys.exit(pytest.main(self.pytest_args))
-
 setup(
     name='jupyterhub-singleuser-profiles',
     version="0.0.1",
@@ -58,8 +40,8 @@ setup(
     license='GPLv3+',
     packages=[
         'jupyterhub_singleuser_profiles',
-        'api',
-        'ui',
+        'jupyterhub_singleuser_profiles_api',
+        'jupyterhub_singleuser_profiles_ui',
     ],
     package_data= {
         '': [f for f in copy_dir()] + ['*.json', '*.yaml', '*.txt']
@@ -67,5 +49,4 @@ setup(
     zip_safe=False,
     install_requires=get_install_requires(),
     tests_require=get_test_requires(),
-    cmdclass={'test': Test},
 )
