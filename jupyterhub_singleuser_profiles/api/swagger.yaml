@@ -10,7 +10,7 @@ servers:
 paths:
   /api/whoami:
     get:
-      operationId: app.whoami
+      operationId: jupyterhub_singleuser_profiles.api.api.whoami
       summary: Get current user info
       responses:
         '200':
@@ -18,7 +18,7 @@ paths:
 
   /api/user/configmap:
     get:
-      operationId: app.get_user_cm
+      operationId: jupyterhub_singleuser_profiles.api.api.get_user_cm
       summary: Get a user ConfigMap based on authenticated user
       responses:
         '200':
@@ -30,7 +30,7 @@ paths:
         '404':
           description: ConfigMap not found
     post:
-      operationId: app.update_user_cm
+      operationId: jupyterhub_singleuser_profiles.api.api.update_user_cm
       summary: Updates user ConfigMap with json data and returns it as response
       requestBody:
         content:
@@ -47,7 +47,7 @@ paths:
 
   /api/images:
     get:
-      operationId: app.get_images
+      operationId: jupyterhub_singleuser_profiles.api.api.get_images
       summary: Get an array of strings of image names (not capable of returning pure json)
       responses:
         '200':
@@ -63,7 +63,7 @@ paths:
 
   /api/sizes:
     get:
-      operationId: app.get_sizes
+      operationId: jupyterhub_singleuser_profiles.api.api.get_sizes
       summary: Get an array strings of size names or a pure json with all parameters
       parameters:
         - name: pure_json
@@ -86,7 +86,7 @@ paths:
   
   /api/size/{size_name}:
     get:
-      operationId: app.get_size_by_name
+      operationId: jupyterhub_singleuser_profiles.api.api.get_size_by_name
       summary: Get a single size by name
       parameters:
         - name: size_name
