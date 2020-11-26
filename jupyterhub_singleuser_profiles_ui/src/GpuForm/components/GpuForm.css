@@ -1,0 +1,14 @@
+.GpuForm {
+    margin-top: .5rem;
+    min-width: 320px;
+}
+
+*#gpu-form {
+    font-size: 150%;
+}
+
+.GpuGroup {
+    max-width: 320px;
+    position: relative;
+    left: 20px;
+}

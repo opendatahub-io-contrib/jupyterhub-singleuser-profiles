@@ -1,0 +1,40 @@
+ 
+{% extends "page.html" %}
+{% if announcement_spawn %}
+  {% set announcement = announcement_spawn %}
+{% endif %}
+
+{% block main %}
+
+{% if for_user and user.name != for_user.name -%}
+<script type="text/javascript">
+  window.jhdata['for_user']=
+    '{{ for_user.name }}'
+</script>
+{% endif -%}
+<div>
+  {% if for_user and user.name != for_user.name -%}
+    <p>Spawning server for {{ for_user.name }}</p>
+  {% endif -%}
+  {% if error_message -%}
+    <p class="spawn-error-msg text-danger">
+      Error: {{error_message}}
+    </p>
+  {% endif %}
+  <form enctype="multipart/form-data" id="spawn_form" action="{{url}}" method="post" role="form" style="text-align: center;">
+    {{spawner_options_form | safe}}
+    <br>
+    <input 
+      type="submit" 
+      value="Start" 
+      class="btn btn-jupyter form-control" 
+      style="height: 50px;
+            position: relative;
+            bottom: 10px;
+            max-width: 25%;
+            font-size: 150%;"
+    >
+  </form>
+</div>
+
+{% endblock %}

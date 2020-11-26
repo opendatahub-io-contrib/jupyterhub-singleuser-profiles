@@ -1,0 +1,43 @@
+.ImageForm {
+    margin-top: .5rem;
+    min-width: 320px;
+    color: #495057;
+    background-color: white;
+    text-align: left;
+    vertical-align: middle;
+    border: solid;
+    border-width: 1px;
+    border-color: lightgray;
+    border-radius: 4px;
+}
+.ImageMenu {
+    min-width: 320px;
+}
+
+div#image {
+    font-size: 150%;
+}
+
+.DropdownRight {
+    position: relative;
+    text-align: right;
+    margin-bottom: 0;
+}
+
+.ImageGrid {
+    display: grid;
+    grid-template-columns: auto auto;
+}
+
+.ImageDropdown {
+    margin-top: .5rem;
+    min-width: 320px;
+    color: #495057;
+    background-color: white;
+    text-align: left;
+    vertical-align: middle;
+    border: solid;
+    border-width: 1px;
+    border-color: lightgray;
+    border-radius: 4px;
+}
