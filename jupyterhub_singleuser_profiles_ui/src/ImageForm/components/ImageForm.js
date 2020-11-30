@@ -24,7 +24,6 @@ class ImageForm extends React.Component {
 
     async loadImages(){
         var data = await this.API.APIGet(this.API._IMAGEPATH)
-        //this.setState({imageList: data}, () => console.log("Taking image"))
         this.setState({imageList: data}, () => this.isImageCorrect())
     }
 
@@ -32,14 +31,13 @@ class ImageForm extends React.Component {
         this.loadConfigmap()
     }
     
+    // Checks if received image belongs to current list, and if not, selects first image of list as default
     isImageCorrect() {
         console.log("Entered image check function")
-        for(var i = 0; i < this.state.imageList.length; i++) {
-            if (this.state.imageList[i] === this.state.selectedValue) {
-                return
-            }
+        if (this.state.imageList.includes(this.state.selectedValue)) {
+            return
         }
-        if (this.state.imageList[0]) {
+        if (this.state.imageList.length > 0) {
             this.setState({selectedValue: this.state.imageList[0]}, console.log("Set default image"))
             this.postChange(this.state.imageList[0])
         }     
@@ -55,26 +53,12 @@ class ImageForm extends React.Component {
         console.log("Sent image")
     }
 
-    DropdownValue() {
-        if (this.state.selectedValue !== null && this.state.selectedValue !== '') {
-            return this.state.selectedValue
-        }
-        else {
-            if(this.state.imageList.length !== 0) {
-                return this.state.imageList[0]
-            }
-            else {
-                return "No images available"
-            }
-        }
-    }
-
     render () {
         return (
             <div>
                 <Form>
                     <FormGroup>
-                        <DropBtn onMouseEnter={() => this.loadImages()} innerClass="ImageDropdown" text={this.DropdownValue()}>
+                        <DropBtn onMouseEnter={() => this.loadImages()} innerClass="ImageDropdown" text={this.state.selectedValue} defaultText="No images available">
                             {this.state.imageList.map((value, index) => (
                                 <Dropdown.Item className="DropdownItem" id={value} onClick={(e) => this.postChange(e)} eventKey={index.toString()}>{value}</Dropdown.Item>
                                 )
