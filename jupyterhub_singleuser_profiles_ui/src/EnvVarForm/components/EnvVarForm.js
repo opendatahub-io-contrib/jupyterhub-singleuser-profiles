@@ -35,10 +35,8 @@ class EnvVarForm extends React.Component {
             var keyValuePair = container.children[i]
             var key = keyValuePair.children[0].children[0].children[0] //should be rewritten
             var value = keyValuePair.children[0].children[1]
-            if (key.value) {
-                if (value.value) {
-                    vars[key.value] = value.value
-                }
+            if (key.value && value.value) {
+                vars[key.value] = value.value
             }
         }
         this.setState({envvars: vars}, function() {this.sendVars()})
