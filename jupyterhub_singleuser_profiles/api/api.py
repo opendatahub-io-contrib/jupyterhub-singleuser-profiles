@@ -1,8 +1,10 @@
 import connexion
 import os
+import sys
 import json
 import logging
 from jupyterhub_singleuser_profiles.profiles import SingleuserProfiles
+from jupyterhub_singleuser_profiles import version as singleuser_profiles_version
 
 from functools import wraps
 from urllib.parse import quote
@@ -16,7 +18,6 @@ from jupyterhub.services.auth import HubAuth
 
 _PROFILES = SingleuserProfiles(verify_ssl=False)
 _PROFILES.load_profiles()
-_PATH = "/opt/app-root/lib64/python3.6/site-packages"
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -91,4 +92,6 @@ def get_size_by_name(size_name, *args, **kwargs):
 
 app = connexion.App(__name__, specification_dir='.', options={'swagger_ui':True})
 app.add_api('swagger.yaml')
-app.run(port=8181)
+
+def main():
+    app.run(port=8181)
