@@ -8,15 +8,17 @@ class DropBtn extends React.Component {
         super(props);
         this.state = {
             btnId: props.innerClass + "Btn", 
+            isVisible: false,
         }
+        this.dropdownContent = React.createRef();
     }
 
-    dropdown(event) {
-        var children = event.currentTarget.parentElement.children
-        for (var i = 0; i < children.length; i++) {
-            if (children[i].id === this.props.innerClass) {
-                children[i].classList.toggle("show");
-            }
+    handleClick(event) {
+        if (this.state.isVisible) {
+            this.setState({isVisible: false})
+        }
+        else {
+            this.setState({isVisible: true})
         }
     }
 
@@ -29,35 +31,22 @@ class DropBtn extends React.Component {
         }
     }
     
-    closeDropdown(e) {
-        var btnId = this.state.btnId
-        window.onclick = function(event) { 
-            if (event.target.id !== btnId && event.target.id !== 'droptxt') {   //Text is also checked.
-                var dropdowns = document.getElementsByClassName("dropdown-content");
-                var i;
-                for (i = 0; i < dropdowns.length; i++) {
-                    var openDropdown = dropdowns[i];
-                    if (openDropdown.classList.contains('show')) {
-                    openDropdown.classList.remove('show');
-                    }
-                }
-            }
+    handleBlur(e) {
+            this.setState({isVisible: false})
         }
-    }
 
-    //Using inner class also as name
     render () {
         return (
             <div class="dropdown">
-                <Button id={this.state.btnId} variant='light' onBlur={(e) => this.closeDropdown(e)} onClick={(e) => this.dropdown(e)} className={this.props.innerClass}>
-                    <p id="droptxt" className="DropdownGrid">
+                <Button id={this.state.btnId} variant='light' onBlur={(e) => this.handleBlur(e)} onClick={(e) => this.handleClick(e)} className={this.props.innerClass}>
+                    <p id={this.state.btnId + "text"} className="DropdownGrid">
                         {this.getTextOrDefault(this.props.text)}
-                        <p id="droptxt" className="DropdownRight">
+                        <p id={this.state.btnId + "arrow"} className="DropdownRight">
                             &#x25bc;
                         </p>
                     </p>
                 </Button>
-                <div id={this.props.innerClass} class="dropdown-content">
+                <div id={this.props.innerClass} ref={this.dropdownContent} class={this.state.isVisible ? "dropdown-content show" : "dropdown-content"}>
                     {this.props.children}
                 </div>
             </div>

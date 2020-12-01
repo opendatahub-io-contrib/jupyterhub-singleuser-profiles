@@ -6,6 +6,7 @@ import './SizesForm.css'
 import DropBtn from '../../CustomElements/DropBtn.js'
 import CustomPopup from '../../CustomElements/CustomPopup.js'
 import APICalls from '../../CustomElements/APICalls'
+import { Button } from 'react-bootstrap';
 
 class SizesForm extends React.Component {
 
@@ -36,7 +37,7 @@ class SizesForm extends React.Component {
     }
 
     async generateSizeDesc(event) {
-        var value = event.target.text
+        var value = event.target.innerHTML
         var result = ''
         var json_data = await this.API.APIGet(this.API._SINGLESIZEPATH + value)
         result = <>
@@ -55,7 +56,7 @@ class SizesForm extends React.Component {
         var result = <p>
             Loading...
         </p>
-        this.setState({sizeDesc: result}, console.log('Loading size desc', this.state.sizeDesc));
+        this.setState({sizeDesc: result}, console.log('Loading size desc'));
     }
 
     componentDidMount() {
@@ -73,9 +74,14 @@ class SizesForm extends React.Component {
         this.postChange("Default")
     }
 
+    onFocusCheck(e) {
+        console.log("Entered onFocus()")
+    }
+
     async postChange(text) {
+        console.log("Entered onClick()")
         if (typeof text !== "string") {
-            text = text.target.text
+            text = text.target.innerHTML
         }
         this.setState({selectedValue: text})
         var json = JSON.stringify({last_selected_size: text})
@@ -84,6 +90,7 @@ class SizesForm extends React.Component {
         this.updateConfigmap()
     }
 
+    // Note: It is very important that the postChange function is assigned to onMouseDown, since onClick is already "taken" by DropBtn
     render () {
         return (
             <div font-size="150%">
@@ -91,11 +98,11 @@ class SizesForm extends React.Component {
                     <FormGroup>
                         <DropBtn onMouseEnter={() => this.updateSizes()} innerClass="SizeDropdown" text={this.state.selectedValue} defaultText="Default">
                             <CustomPopup innerId="DefaultPopup" header="Size: Default" content={this.state.sizeDefault}>
-                                <Dropdown.Item id="Default" className="DropdownItem" onMouseLeave={(e) => this.waitForLoad(e)} onClick={(e) => this.postChange(e)} eventKey={this.state.sizeList.length + 1}>Default</Dropdown.Item>
+                                <Dropdown.Item id="Default" className="DropdownItem" onMouseLeave={(e) => this.waitForLoad(e)} onMouseDown={(e) => this.postChange(e)} onFocus={(e) => this.onFocusCheck(e)} eventKey={this.state.sizeList.length + 1}>Default</Dropdown.Item>
                             </CustomPopup>
                             {this.state.sizeList.map((value, index) => (
                                 <CustomPopup innerId={value + "Popup"} header={"Size: " + value} content={this.state.sizeDesc}>
-                                    <Dropdown.Item id={value} className="DropdownItem" onMouseEnter={(e) => this.generateSizeDesc(e)} onMouseLeave={(e) => this.waitForLoad(e)} onClick={(e) => this.postChange(e)} eventKey={index.toString()}>{value}</Dropdown.Item>
+                                    <Dropdown.Item id={value} className="DropdownItem" onMouseEnter={(e) => this.generateSizeDesc(e)} onMouseLeave={(e) => this.waitForLoad(e)} onMouseDown={(e) => this.postChange(e)} eventKey={index.toString()}>{value}</Dropdown.Item>
                                 </CustomPopup>
                                 )
                                 )}
