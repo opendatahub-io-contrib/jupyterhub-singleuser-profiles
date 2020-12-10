@@ -60,7 +60,7 @@ class ImageForm extends React.Component {
                     <FormGroup>
                         <DropBtn onMouseEnter={() => this.loadImages()} innerClass="ImageDropdown" text={this.state.selectedValue} defaultText="No images available">
                             {this.state.imageList.map((value, index) => (
-                                <Dropdown.Item className="DropdownItem" id={value} onClick={(e) => this.postChange(e)} eventKey={index.toString()}>{value}</Dropdown.Item>
+                                <Dropdown.Item className="DropdownItem" id={value} onMouseDown={(e) => this.postChange(e)} eventKey={index.toString()}>{value}</Dropdown.Item>
                                 )
                             )}
                         </DropBtn>

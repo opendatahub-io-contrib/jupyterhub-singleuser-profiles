@@ -47,9 +47,9 @@ class VarForm extends React.Component {
             <>
                 <div className="EnvVarGrid">
                     <input name={this.state.key} type="text" value={this.state.key} onChange={(e) => this.handleKeyChange(e)}/>
-                    <DropBtn id="EnvVarDrop" innerClass="VarDropdown EnvVarDropdown" text=''>
-                        <Dropdown.Item onClick={(e) => this.enterVariable(e)} eventKey="1">AWS_ACCESS_KEY_ID</Dropdown.Item>
-                        <Dropdown.Item onClick={(e) => this.enterVariable(e)} eventKey="2">AWS_SECRET_ACCESS_KEY</Dropdown.Item>
+                    <DropBtn id={"EnvVarDropdown"+this.props.formIndex} innerClass="VarDropdown EnvVarDropdown" text=''>
+                        <Dropdown.Item onMouseDown={(e) => this.enterVariable(e)} eventKey="1">AWS_ACCESS_KEY_ID</Dropdown.Item>
+                        <Dropdown.Item onMouseDown={(e) => this.enterVariable(e)} eventKey="2">AWS_SECRET_ACCESS_KEY</Dropdown.Item>
                     </DropBtn>
                 </div>
                 <>

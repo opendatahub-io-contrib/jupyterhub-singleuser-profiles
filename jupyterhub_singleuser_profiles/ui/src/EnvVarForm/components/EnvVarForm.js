@@ -14,6 +14,7 @@ class EnvVarForm extends React.Component {
             envvars: {},
             items: [],
             secrets: {},
+            index: 0,
         }
         this.API = new APICalls()
     }
@@ -48,10 +49,10 @@ class EnvVarForm extends React.Component {
         this.onBlur()
     }
 
-    makeFormItem(key, value) {
+    makeFormItem(key, value, index) {
         const newItem = [
             <div onBlur={(e) => this.onBlur(e)} className="VarGridDiv">
-                <VarForm var_key={key} value={value} blurFunc={this.onBlur}/>
+                <VarForm var_key={key} value={value} blurFunc={this.onBlur} formIndex={index}/>
             </div>,
             <Button className="InnerGap" variant='danger' onClick={(e) => this.removeForm(e)}>
                 Remove
@@ -62,18 +63,19 @@ class EnvVarForm extends React.Component {
 
     addForm(e){
         //Frequently used variables could also be entered as a list if there are too many of them.
-        var newItem = this.makeFormItem('variable_name', 'variable_value')
+        var newItem = this.makeFormItem('variable_name', 'variable_value', this.state.index.toString())
         this.setState(previousState => ({
             items: [...previousState.items, newItem]
         }));
+        this.setState({index: this.state.index+1}, () => {console.log("Added item " + this.state.index.toString())})
         
     }
 
     renderForms() {
         for (const [key, value] of Object.entries(this.state.envvars)) {
-            let newItem = this.makeFormItem(key, value)
+            let newItem = this.makeFormItem(key, value, this.state.index.toString())
             this.setState(previousState => ({
-                items: [...previousState.items, newItem]
+                items: [...previousState.items, newItem], index: this.state.index+1
             }), () => {console.log("Rendered item")});
         }
     }
