@@ -44,3 +44,17 @@ div#sizes {
     display: grid;
     grid-template-columns: auto auto;
 }
+
+.DescDivider {
+    padding-top: 5px;
+}
+
+.DescOffset {
+    position: relative;
+    left: 20px;
+}
+
+.DelPad {
+    padding: 0%;
+    margin: 0%;
+}
