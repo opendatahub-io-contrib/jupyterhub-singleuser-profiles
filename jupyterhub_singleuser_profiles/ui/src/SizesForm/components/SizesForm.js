@@ -41,13 +41,13 @@ class SizesForm extends React.Component {
         var result = ''
         var json_data = await this.API.APIGet(this.API._SINGLESIZEPATH + value)
         result = <>
-                Size name: {json_data.name}<br/>
-                Limits:<br/>
-                &nbsp;&nbsp;&nbsp;CPU: {json_data.resources.limits.cpu} <br/>
-                &nbsp;&nbsp;&nbsp;Memory: {json_data.resources.limits.memory}<br/>
-                Requests:<br/>
-                &nbsp;&nbsp;&nbsp;CPU: {json_data.resources.requests.cpu}<br/>
-                &nbsp;&nbsp;&nbsp;Memory: {json_data.resources.requests.memory}<br/>
+                <p className="DelPad">Size name: {json_data.name}</p>
+                <p className="DescDivider DelPad">Limits:</p>
+                <p className="DescOffset DelPad">CPU: {json_data.resources.limits.cpu} </p>
+                <p className="DescOffset DelPad">Memory: {json_data.resources.limits.memory}</p>
+                <p className="DescDivider DelPad">Requests:</p>
+                <p className="DescOffset DelPad">CPU: {json_data.resources.requests.cpu}</p>
+                <p className="DescOffset DelPad">Memory: {json_data.resources.requests.memory}</p>
             </>
         this.setState({sizeDesc: result})        
     }
