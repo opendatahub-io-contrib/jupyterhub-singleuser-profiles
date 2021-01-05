@@ -1,0 +1,62 @@
+
+## Release 0.0.2 (2021-01-05T17:02:05)
+### Features
+* include thoth.yaml configuration for release maintainence
+* setup bot configuration for release
+* Modified element accessing
+* Fixed dropdown closing
+* Rework the package structure; (#59)
+* Moved dropdown value check to Dropbtn.js (#60)
+* Removed page.html (#64)
+* Fixed double ifs (#61)
+* UI Definition (#51)
+* Changed build source to opendatahub repo (#43)
+* Update and lock OpenShift client version (#45)
+* API definition (#39)
+* Add a pod gpu config handling (#34)
+* Use the resource parsing for profiles as well (#35)
+* Escape user name to prevent OpenShift rejecting invalid names (#33)
+* Added notebook image documentation (#24)
+* Add user name to pod labels (#31)
+* Make sizes parsing more error proof (#29)
+* Implemented image list gathering based on labels (#21)
+* Move image list implementation from JupyterHub Config (#17)
+* Implemented support for enviroment variable injection (#14)
+* Update README for dynamic profile loading from ConfigMaps
+* Fix variable vs string issue
+* Add support for dynamicallly loading profiles from configmaps
+* Change the GPU enablement to support GPU_MODE env var and OCP3 and OCP4
+* Use OpenShift v4 compatible api version
+* Add GPU configuration to pod spec
+* Add (t-shirt) sizes for Jupyter Singleuser containers
+* Handle empty dict for data properly
+* Enable extension of user config map
+* Write user config map
+* Load info from users configMap
+* Add username as env to every container
+* Quote username as it might contain @
+* Add proper jsonpath implementation
+* Add support for services
+* Handle empty config map
+* Filter also when image is not defined
+* Fix README to reflect the last changes
+* Update environment variables in apply_pod_profile method
+* Emphasize that globals must be the first profile
+* Remove __pycache__
+* Add resources to the profile
+* Add ability to merge multiple profiles (to support global/default) profile
+* Update README to mention asterisk in user list
+* Add README and filtering by users
+* Add initial implementation
+### Bug Fixes
+* Do not fail if a service template is not available - just report error and skip the sevice deployment
+### Improvements
+* Added CSS to size desc
+* Fix typo in processed_template logging (#37)
+* Clean up error handling for services and refactor new code a bit (#36)
+* Generalize how service integration works (#26)
+* Implemented kubernetes resource structure to profiles and sizes. (#22)
+* Allow customization of notebook node affinity and tolerations
+* Fix typo in dict access
+### Other
+*  Move json loading into API code (#46)
