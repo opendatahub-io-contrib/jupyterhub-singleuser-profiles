@@ -1,0 +1,9 @@
+managers:
+  - name: version
+    configuration:
+      maintainers:
+        - vpavlin
+      assignees:
+        - sesheta
+      labels: [bot]
+      changelog_file: true
