@@ -17,6 +17,7 @@ class EnvVarForm extends React.Component {
             index: 0,
         }
         this.API = new APICalls()
+        this.envVarContainer = React.createRef()
     }
 
     async updateVars() {
@@ -30,12 +31,12 @@ class EnvVarForm extends React.Component {
     }
 
     onBlur(e) {
-        var container = document.getElementById('EnvVarContainer')
+        var container = this.envVarContainer.current
         var vars = {}
         for (var i = 0; i < container.children.length; i++) {
             var keyValuePair = container.children[i]
-            var key = keyValuePair.children[0].children[0].children[0] //should be rewritten
-            var value = keyValuePair.children[0].children[1]
+            var key = keyValuePair.getElementsByClassName("KeyForm")[0]
+            var value = keyValuePair.getElementsByClassName("VarValueForm")[0]
             if (key.value && value.value) {
                 vars[key.value] = value.value
             }
@@ -91,7 +92,7 @@ class EnvVarForm extends React.Component {
             <Form className="EnvVarAccord">
                 <Form.Label className="EnvVarForm">Environment Variables</Form.Label>
                 <Form>
-                    <FormGroup id='EnvVarContainer'>
+                    <FormGroup ref={this.envVarContainer} id='EnvVarContainer'>
                         {this.state.items.map(item => (
                                 <Form.Row className="RowGap">{item}</Form.Row>
                         ))}
