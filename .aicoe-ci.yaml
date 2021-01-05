@@ -1,0 +1,3 @@
+check: []
+release:
+  - upload-pypi-sesheta
