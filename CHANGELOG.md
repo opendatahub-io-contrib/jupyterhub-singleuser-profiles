@@ -60,3 +60,7 @@
 * Fix typo in dict access
 ### Other
 *  Move json loading into API code (#46)
+
+## Release 0.1.0 (2021-01-06T11:03:52)
+### Features
+* Use template as string rather than yaml
