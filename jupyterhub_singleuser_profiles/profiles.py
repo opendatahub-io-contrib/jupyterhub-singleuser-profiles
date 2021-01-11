@@ -4,7 +4,8 @@ import yaml
 import json
 import logging
 import re
-from kubernetes.client import V1EnvVar, V1ResourceRequirements, V1ConfigMap, V1ObjectMeta, V1SecurityContext, V1Capabilities, V1SELinuxOptions, V1Volume, V1VolumeMount, V1PersistentVolumeClaimVolumeSource
+from kubernetes.client import V1EnvVar, V1ResourceRequirements, V1ConfigMap, V1ObjectMeta, V1SecurityContext, V1Capabilities, V1SELinuxOptions, V1Secret, V1Volume, V1VolumeMount, V1PersistentVolumeClaimVolumeSource
+import base64
 from kubernetes.client.rest import ApiException
 from openshift.dynamic import DynamicClient
 from .service import Service
@@ -19,11 +20,11 @@ _USER_CONFIG_MAP_TEMPLATE = "jupyterhub-singleuser-profile-%s"
 _USER_CONFIG_PROFILE_NAME = "@singleuser@"
 _GPU_KEY = "nvidia.com/gpu"
 _DEFAULT_USER_CM = {
-        "env":{"AWS_ACCESS_KEY_ID":"", "AWS_SECRET_ACCESS_KEY":""},
-        "gpu":"0",
-        "last_selected_image":"",
-        "last_selected_size":"",
-      }
+  "env":[],
+  "gpu":"0",
+  "last_selected_image":"",
+  "last_selected_size":"",
+}
 
 class SingleuserProfiles(object):
   GPU_MODE_SELINUX = "selinux"
@@ -75,7 +76,7 @@ class SingleuserProfiles(object):
     _LOGGER.info("Found these additional Config Maps: %s" % config_maps_list)
     return config_maps_list
 
-  def read_config_map(self, config_map_name, key_name="profiles"):
+  def read_config_map(self, config_map_name, key_name="profile"):
     try:
       config_map = self.api_client.read_namespaced_config_map(config_map_name, self.namespace)
     except ApiException as e:
@@ -85,6 +86,23 @@ class SingleuserProfiles(object):
       
     config_map_yaml = yaml.load(config_map.data[key_name])
     return config_map_yaml
+
+  def read_secret(self, secret_name, key_name="profile"):
+    try:
+      secret = self.api_client.read_namespaced_secret(secret_name, self.namespace)
+    except ApiException as e:
+      if e.status != 404:
+        _LOGGER.error(e)
+      return {}
+    if secret.data:
+      base64_secret = secret.data[key_name]
+      base64_bytes = base64_secret.encode('ascii')
+      secret_bytes = base64.b64decode(base64_bytes)
+      content = secret_bytes.decode('ascii')
+      secret_yaml = yaml.load(content)
+    else:
+      secret_yaml = {}
+    return secret_yaml
 
   def write_config_map(self, config_map_name, key_name, data):
     cm = V1ConfigMap()
@@ -101,21 +119,55 @@ class SingleuserProfiles(object):
       else:
         raise
 
+  def write_secret(self, secret_name, key_name, data):
+    secret = V1Secret()
+    secret.metadata = V1ObjectMeta(name=secret_name, labels={'app': 'jupyterhub'})
+    secret.string_data = {key_name: yaml.dump(data, default_flow_style=False)} #stringData instead of data here to make kubernetes parse this as a string without base64 encoding
+    try:
+      api_response = self.api_client.replace_namespaced_secret(secret_name, self.namespace, secret)
+    except ApiException as e:
+      if e.status == 404:
+        try:
+          api_response = self.api_client.create_namespaced_secret(self.namespace, secret)
+        except ApiException as e:
+          _LOGGER.error("Exception when calling CoreV1Api->create_namespaced_secret: %s\n" % e)
+      else:
+        raise
+
   def update_user_profile_cm(self, username, data={}):
     
     user_cm = self.get_user_profile_cm(username)
+    user_cm_env = []
+    user_secret = self.get_user_secret(username)
+    user_secret['env'] = []
     cm_name = _USER_CONFIG_MAP_TEMPLATE % escape(username)
     cm_key_name = "profile"
     for key, value in data.items():
       user_cm[key] = value
+    for var in user_cm['env']:
+      if var['type'] == "password":
+        user_secret['env'].append(var) 
+      else:
+        user_cm_env.append(var)
+    user_cm['env'] = user_cm_env
+    self.write_secret(cm_name, cm_key_name, user_secret) #not a typo, secret uses the same name as user cm
     self.write_config_map(cm_name, cm_key_name, user_cm)
 
   def get_user_profile_cm(self, username):
     cm = self.read_config_map(_USER_CONFIG_MAP_TEMPLATE % escape(username), "profile")
+    secret = self.get_user_secret(username)
     if cm == {}:
-      return _DEFAULT_USER_CM
+      cm = _DEFAULT_USER_CM
+    for sec in secret['env']:
+      cm['env'].append(sec)
+    return cm
+
+  def get_user_secret(self, username):
+    secret = self.read_secret(_USER_CONFIG_MAP_TEMPLATE % escape(username))
+    if secret == {}:
+      return{"env":[]}
     else:
-      return cm
+      return secret
     
   def load_profiles(self, secret_name="jupyter-singleuser-profiles", filename=None, key_name="jupyterhub-singleuser-profiles.yaml", username=None):
     self.profiles = []
