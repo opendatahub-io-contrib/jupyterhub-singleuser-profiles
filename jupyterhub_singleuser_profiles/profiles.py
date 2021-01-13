@@ -3,7 +3,8 @@ import os
 import yaml
 import json
 import logging
-from kubernetes.client import V1EnvVar, V1ResourceRequirements, V1ConfigMap, V1ObjectMeta, V1SecurityContext, V1Capabilities, V1SELinuxOptions
+import re
+from kubernetes.client import V1EnvVar, V1ResourceRequirements, V1ConfigMap, V1ObjectMeta, V1SecurityContext, V1Capabilities, V1SELinuxOptions, V1Volume, V1VolumeMount, V1PersistentVolumeClaimVolumeSource
 from kubernetes.client.rest import ApiException
 from openshift.dynamic import DynamicClient
 from .service import Service
@@ -270,6 +271,7 @@ class SingleuserProfiles(object):
     profile1["images"] = list(set(profile1.get("images", []) + profile2.get("images", [])))
     profile1["users"] = list(set(profile1.get("users", []) + profile2.get("users", [])))
     profile1["env"] = profile1.get('env', []) + profile2.get('env', [])
+    profile1["volumes"] = profile1.get('volumes', []) + profile2.get('volumes', [])
     profile1["resources"] = {**profile1.get('resources', {}), **profile2.get('resources', {})}
     profile1["services"] = {**profile1.get('services', {}), **profile2.get('services', {})}
     profile1["node_tolerations"] = profile1.get("node_tolerations", []) + profile2.get("node_tolerations", [])
@@ -296,10 +298,30 @@ class SingleuserProfiles(object):
     return pod
 
   @classmethod
-  def apply_pod_profile(self, spawner, pod, profile):
+  def generate_volume_path(self, mountPath, default_mount_path, volume_name):
+    if (mountPath):
+      if (os.path.isabs(mountPath)):
+        return mountPath
+      return os.path.join(default_mount_path, mountPath)
+    return os.path.join(default_mount_path, volume_name)
+    
+
+  @classmethod
+  def apply_pod_profile(self, spawner, pod, profile, default_mount_path):
     api_client = kubernetes.client.ApiClient()
 
     pod.metadata.labels['jupyterhub.opendatahub.io/user'] = escape(spawner.user.name)
+
+    profile_volumes = profile.get('volumes')
+
+    if profile_volumes:
+      for volume in profile_volumes:
+        volume_name = re.sub('[^a-zA-Z0-9\.]', '_', volume['name'])
+        read_only = volume['persistentVolumeClaim'].get('readOnly')
+        pvc = V1PersistentVolumeClaimVolumeSource(volume['persistentVolumeClaim']['claimName'], read_only=read_only)
+        mount_path = self.generate_volume_path(volume.get('mountPath'), default_mount_path, volume_name)
+        pod.spec.volumes.append(V1Volume(name=volume_name, persistent_volume_claim=pvc))
+        pod.spec.containers[0].volume_mounts.append(V1VolumeMount(name=volume_name, mount_path=mount_path))
 
     profile_environment = profile.get('env')
 
