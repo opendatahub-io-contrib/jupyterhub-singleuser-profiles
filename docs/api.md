@@ -1,6 +1,5 @@
 # Spawner API
 
-We are reworking the HTML spawner document to a dynamic spawner page with an API and rendered UI.
 The new API allows gathering data which is shown in the UI.
 The capabilities of the API are:
   - User ConfigMaps (`GET`, `POST`), It is possible to request the json of the User ConfigMap, and send a body of data to add (or replace). This includes selections, enviroment variables and gpu number.
@@ -14,6 +13,8 @@ For testing:
    ```oc get builds```
   - If `api-deploy` is running you can access the api by using 
    ```oc get route jh-api-route -o jsonpath='http://{.spec.host}/ui'```
+
+This API is made with [Swagger](https://swagger.io/), and you can find its configuration YAML file [here](../jupyterhub_singleuser_profiles/api/swagger.yaml)
 
 ## User Interface
 

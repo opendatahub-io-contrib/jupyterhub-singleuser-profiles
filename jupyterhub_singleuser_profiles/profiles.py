@@ -316,7 +316,7 @@ class SingleuserProfiles(object):
 
     if profile_volumes:
       for volume in profile_volumes:
-        volume_name = re.sub('[^a-zA-Z0-9\.]', '_', volume['name'])
+        volume_name = re.sub('[^a-zA-Z0-9\.]', '-', volume['name']).lower()
         read_only = volume['persistentVolumeClaim'].get('readOnly')
         pvc = V1PersistentVolumeClaimVolumeSource(volume['persistentVolumeClaim']['claimName'], read_only=read_only)
         mount_path = self.generate_volume_path(volume.get('mountPath'), default_mount_path, volume_name)

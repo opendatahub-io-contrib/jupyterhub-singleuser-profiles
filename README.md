@@ -6,10 +6,10 @@ This library helps to manage and configure singleuser JupyterHub servers deploye
 
 The `ConfigMap` this library reads is divided into several sections, each configuring a different part of the singleuser server.
 
-- [Configuration](./docs/configuration.md)
 - [Services](./docs/services.md)
 - [Sizes](./docs/sizes.md)
 - [Volumes](./docs/volumes.md)
 - [Images](./docs/images.md)
 - [API/UI](./docs/api.md)
+- [Example Configuration](./docs/configuration.md)
 - [How To Use](./docs/howtouse.md)

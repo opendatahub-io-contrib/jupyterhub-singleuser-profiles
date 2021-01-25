@@ -4,9 +4,9 @@
 
 The method `load_profiles` can download a given ConfigMap from OpenShift/Kubernetes and extract the configuration from `data` section. This allows for dynamic changes to how (with what environment variables) singleuser servers are deployed - by updating the configuration in the ConfigMap, changes can be automatically pulled on singleuser server (re)start.
 
-By default, the `load_profiles` method attempts to read profile data from a ConfigMap named "jupyter-singleuser-profiles". In addition, it will also search for any ConfigMap with a label that matches "jupyterhub=singleuser-profiles" and load profile data from a key therein named "jupyterhub-singleuser-profiles.yaml". This allows for dynamic customization of the JupyterHub deployment. These ConfigMaps will be loaded alphabetically, where configuration in later ConfigMaps will override earlier ones.
+By default, the `load_profiles` method attempts to read profile data from a ConfigMap named `jupyter-singleuser-profiles`. In addition, it will also search for any ConfigMap with a label that matches `jupyterhub=singleuser-profiles` and load profile data from a key therein named `jupyterhub-singleuser-profiles.yaml`. This allows for dynamic customization of the JupyterHub deployment. These ConfigMaps will be loaded alphabetically, where configuration in later ConfigMaps will override earlier ones.
 
-This approach requires `c.KubeSpawner.modify_pod_hook` option to point to a function similar to [this](https://github.com/AICoE/jupyterhub-ocp-oauth/blob/master/.jupyter/jupyterhub_config.py#L192) - it simply calls out to `SingleuserProfiles.apply_pod_profile` which takes a pod and updates its configuration based on the profile and returns new pod manifest.
+This approach requires `c.KubeSpawner.modify_pod_hook` option to point to a function similar to [this](https://github.com/opendatahub-io/jupyterhub-odh/blob/master/.jupyter/jupyterhub_config.py#L241) - it simply calls out to `SingleuserProfiles.apply_pod_profile` which takes a pod and updates its configuration based on the profile and returns new pod manifest.
 
 ## Static File Method
 

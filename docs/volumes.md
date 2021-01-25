@@ -5,6 +5,7 @@ In cases where multiple volumes are neccessary for your Jupyter notebook such as
 - a workshop requires some dataset/examples and instead of pulling it from S3, you want to have it mounted in the container
 - you want to provide additional storage to a set of users
 - specialized binaries/libraries mounted into the container
+
 it is possible to define volumes to be added to the notebook.
 
 To choose which volumes get added to the jupyter notebook it is possible to define them in the `ConfigMap` in the `volumes` section. To define a volume a structure similar to the [Kubernetes volume definition structure](https://kubernetes.io/docs/concepts/storage/volumes/) is used.
@@ -30,4 +31,4 @@ The `claimName` should include the name of an existing `PersistentVolumeClaim`
 
 ## Volume sharing
 
-In the current version of Jupyterhub Singleuser Profiles, volumes that are defined in the JSP `ConfigMap` are available based on how they are separated, similar to services, environment variables and so on. In the example at the start of the page, the volume `example-dataset` would be available to all users, since it is in the `globals` section.
+In the current version of Jupyterhub Singleuser Profiles, volumes that are defined in the JSP `ConfigMap` are available based on how they are separated, similar to services, environment variables and so on. In the [Example Configuration](./configuration.md), the volume `example-dataset` would be available to all users, since it is in the `globals` section.
