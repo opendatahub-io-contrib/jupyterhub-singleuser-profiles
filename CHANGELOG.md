@@ -64,3 +64,7 @@
 ## Release 0.1.0 (2021-01-06T11:03:52)
 ### Features
 * Use template as string rather than yaml
+
+## Release 0.1.1 (2021-01-27T13:50:12)
+### Features
+* Added volume gathering
