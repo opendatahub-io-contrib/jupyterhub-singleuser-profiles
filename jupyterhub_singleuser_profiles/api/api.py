@@ -64,6 +64,11 @@ def get_user_cm(user):
     return cm
 
 @authenticated
+def get_ui_config():
+    cm = _PROFILES.get_ui_configuration()
+    return cm
+
+@authenticated
 def update_user_cm(user, body): 
     _PROFILES.update_user_profile_cm(user['name'], data=body)
     return _PROFILES.get_user_profile_cm(user['name'])
