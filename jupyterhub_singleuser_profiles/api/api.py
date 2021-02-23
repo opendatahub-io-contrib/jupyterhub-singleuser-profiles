@@ -64,7 +64,7 @@ def get_user_cm(user):
     return cm
 
 @authenticated
-def get_ui_config():
+def get_ui_config(user):
     cm = _PROFILES.get_ui_configuration()
     return cm
 

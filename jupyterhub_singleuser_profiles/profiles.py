@@ -206,7 +206,7 @@ class SingleuserProfiles(object):
 
   def get_ui_configuration(self):
     ui = UIConfig(self.ui)
-    return ui.get_parsed()
+    return ui.validate_ui_cm()
 
   def get_sizes_form(self, username=None):
     if not self.profiles:

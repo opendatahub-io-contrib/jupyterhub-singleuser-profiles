@@ -1,70 +1,90 @@
-import numbers
+from pydantic import BaseModel, ValidationError, validator
+from typing import Union, Dict, Any
+import json
+import logging
+
+_LOGGER = logging.getLogger(__name__)
+DEFAULT_FREQ_KEYS = ["AWS_ACCESS_KEY_ID", "AWS_SECRET_ACCESS_KEY"] # This should go to jupyterhub_config?
+
+class GpuCheckbox(BaseModel):
+    value: int = 1
+
+class GpuDropdown(BaseModel):
+    start: int = 0
+    end: int = 1
+
+class GpuInput(BaseModel):
+    limit: int = 1
+
+class GpuConfig(BaseModel):
+    enabled: bool = True
+    type: str
+
+    @classmethod
+    def create(cls, dict_:Dict[str, Any]) -> "GpuConfig":
+        v = dict_.get("config")
+        if v is None and dict_.get('type') is not None:
+            raise ValueError("No config supplied")
+        if dict_.get('type') is None:
+            v = None
+            return cls(enabled=dict_.get('enabled'))
+        if dict_['type'] == 'checkbox':
+            v = GpuCheckbox(**v)
+        elif dict_['type'] == 'dropdown':
+            v = GpuDropdown(**v)
+        elif dict_['type'] == 'input':
+            v = GpuInput(**v)
+        else:
+            raise ValueError(f"Unknown type {dict_['type']}")
+        instance = cls(enabled=dict_.get('enabled'), type=dict_.get('type'), config=v)
+        return instance
+
+class ImageConfig(BaseModel):
+    blacklist: list = []
+    sort: str
+    #Should not be used, can lock a user out.
+    #enabled: bool = True
+
+    @validator('sort')
+    def sort_type(cls, v):
+        if v in ['name', 'version']:
+            return v
+        else:
+            raise ValueError('Sort type \"%s\" invalid' % v)
+
+class SizeConfig(BaseModel):
+    enabled: bool = True
+
+class EnvVarConfig(BaseModel):
+    freq_keys: list = DEFAULT_FREQ_KEYS
+    enabled: bool = True
+
+class UIConfigModel(BaseModel):
+    gpuConfig: GpuConfig = {}
+    imageConfig: ImageConfig = {}
+    sizeConfig: SizeConfig = {}
+    envVarConfig: EnvVarConfig = {}
 
 class UIConfig():
-    def __init__(self, ui):
-        self.ui = ui
 
-    def get_parsed(self):
-        uiconfig = []
-        gpu = GpuConfig(self.ui.get('gpuConfig', {}))
-        image = ImageConfig(self.ui.get('imageConfig', {}))
-        size = SizeConfig(self.ui.get('sizeConfig', {}))
-        envvar = EnvVarConfig(self.ui.get('envVarConfig', {}))
-
-        uiconfig.extend(gpu.parse())
-
-
-class GpuConfig():
-    def __init__(self, gpu_config):
-        self.gpu_config
+    def __init__(self, ui_cfg, default_freq_keys=[]):
+        self.default_freq_keys = default_freq_keys
+        self.ui_cfg = ui_cfg
     
-    def parse(self):
-        if self.gpu_config.get('type') == "checkbox":
-            inner_config = GpuCheckbox(self.gpu_config.get('GpuCheckbox'))
-            self.gpu_config['GpuCheckbox'] = inner_config.get_parsed()
-        elif self.gpu_config.get('type') == "dropdown":
-            inner_config = GpuDropdown(self.gpu_config.get('GpuDropdown'))
-            self.gpu_config['GpuDropdown'] = inner_config.get_parsed()
-        else:
-            inner_config = GpuInput(self.gpu_config.get('GpuInput'))
-            self.gpu_config['GpuInput'] = inner_config.get_parsed()
-
-
-
-class GpuCheckbox():
-    def __init__(self, config):
-        self.config = config
-    
-    def get_parsed(self):
-        value = self.config.get('value')
-        if isinstance(value, numbers.Number):
-            return self.config
-        else:
-            return ''
-
-class GpuInput():
-    def __init__(self):
-        pass
-
-class GpuDropdown():
-    def __init__(self, config):
-        self.config = config
-    
-    def get_parsed(self):
-        range_values = self.config.get('range')
-        if isinstance(range_values.get('start'), numbers.Number) and isinstance(range_values.get('end'), numbers.Number):
-            return self.config
-        else:
-            return ''
-
-class ImageConfig():
-    def __init__(self, image_config):
-        self.image_config = image_config
-
-class EnvVarConfig():
-    def __init__(self, envvar_config):
-        self.envvar_config = envvar_config
-
-class SizeConfig():
-    def __init__(self, size_config):
-        self.size_config = size_config
+    def validate_ui_cm(self):
+        
+        try:
+            for key, value in self.ui_cfg.items():
+                if key == "gpuConfig":
+                    value = GpuConfig.create(value)
+                if key == "imageConfig":
+                    value = ImageConfig(**value)
+                if key == "sizeConfig":
+                    value = SizeConfig(**value)
+                if key == "envVarConfig":
+                    value = EnvVarConfig(**value)
+        except ValidationError as e:
+            _LOGGER.error("UI ConfigMap validation failed! %s" % e)
+            return json.dumps({})
+        ui = UIConfigModel(**self.ui_cfg)
+        return ui.dict()
