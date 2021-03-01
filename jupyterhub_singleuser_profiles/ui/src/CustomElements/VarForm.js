@@ -15,12 +15,16 @@ class VarForm extends React.Component {
     }
 
     handleKeyChange(event) {
-        this.setState({key: event.target.value},() => {this.checkKey(this.state.key)})
+        this.setState({key: event.target.value}, () => {this.checkKey(this.state.key)})
+    }
+
+    getId(key) {
+        return key + "check"+this.props.formIndex
     }
 
     checkKey(key) {
-        if (document.getElementById(key + "check"+this.props.formIndex)) {
-            if (document.getElementById(key + "check"+this.props.formIndex).checked) {
+        if (document.getElementById(this.getId(key))) {
+            if (document.getElementById(this.getId(key)).checked) {
                 this.setState({type: "password"})
             }
             else {
@@ -31,7 +35,7 @@ class VarForm extends React.Component {
 
     componentDidMount() {
         if (this.state.type == "password") {
-            document.getElementById(this.state.key + "check"+this.props.formIndex).checked = true
+            document.getElementById(this.getId(this.state.key)).checked = true
         }
         this.checkKey(this.state.key)
     }
@@ -41,9 +45,8 @@ class VarForm extends React.Component {
     }
 
     enterVariable(event) {
-        this.setState({key: event.target.text})
-        this.setState({type: "password"})
-        document.getElementById(this.state.key + "check"+this.props.formIndex).checked = true
+        this.setState({key: event.target.text, type: "password"})
+        document.getElementById(this.getId(this.state.key)).checked = true
     }
 
     render() {
@@ -61,7 +64,7 @@ class VarForm extends React.Component {
                 <div className="CheckboxGrid">
                     <input type={this.state.type} name={this.state.value} className="InnerGap VarValueForm"  value={this.state.value} onChange={(e) => this.handleValueChange(e)}/>
                     <p className="Secret">Secret</p>
-                    <input className="VarCheckbox" type="checkbox" id={this.state.key + "check"+this.props.formIndex} label="Secret" onClick={(e) => this.checkKey(this.state.key)}/>
+                    <input className="VarCheckbox" type="checkbox" id={this.getId(this.state.key)} label="Secret" onClick={(e) => this.checkKey(this.state.key)}/>
                 </div>
             </>
         )

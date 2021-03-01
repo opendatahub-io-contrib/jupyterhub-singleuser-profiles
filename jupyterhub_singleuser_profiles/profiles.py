@@ -25,6 +25,9 @@ _DEFAULT_USER_CM = {
   "last_selected_image":"",
   "last_selected_size":"",
 }
+_DEFAULT_USER_SECRET = {
+  "env":[],
+}
 
 class SingleuserProfiles(object):
   GPU_MODE_SELINUX = "selinux"
@@ -140,7 +143,7 @@ class SingleuserProfiles(object):
     user_cm_env = []
     user_secret = self.get_user_secret(username)
     user_secret['env'] = []
-    cm_name = _USER_CONFIG_MAP_TEMPLATE % escape(username)
+    resource_name = _USER_CONFIG_MAP_TEMPLATE % escape(username)
     cm_key_name = "profile"
     for key, value in data.items():
       user_cm[key] = value
@@ -150,22 +153,34 @@ class SingleuserProfiles(object):
       else:
         user_cm_env.append(var)
     user_cm['env'] = user_cm_env
-    self.write_secret(cm_name, cm_key_name, user_secret) #not a typo, secret uses the same name as user cm
-    self.write_config_map(cm_name, cm_key_name, user_cm)
+    self.write_secret(resource_name, cm_key_name, user_secret)
+    self.write_config_map(resource_name, cm_key_name, user_cm)
 
-  def get_user_profile_cm(self, username):
+  def fix_legacy_user_cm(self, cm):
+    env_list = []
+    for key, value in cm['env'].items():
+      env_list.append({"name":key, "type":"text", "value":value})
+    cm['env'] = env_list
+    return cm
+
+  def get_user_profile_cm(self, username, for_k8s=False):
     cm = self.read_config_map(_USER_CONFIG_MAP_TEMPLATE % escape(username), "profile")
     secret = self.get_user_secret(username)
     if cm == {}:
       cm = _DEFAULT_USER_CM
+    if isinstance(cm['env'], dict):
+      cm = self.fix_legacy_user_cm(cm)
     for sec in secret['env']:
       cm['env'].append(sec)
+    if for_k8s:
+      for x in cm['env']:
+        del x['type'] 
     return cm
 
   def get_user_secret(self, username):
     secret = self.read_secret(_USER_CONFIG_MAP_TEMPLATE % escape(username))
     if secret == {}:
-      return{"env":[]}
+      return _DEFAULT_USER_SECRET
     else:
       return secret
     
@@ -185,7 +200,7 @@ class SingleuserProfiles(object):
       if len(self.profiles) == 0:
         self.profiles.append(self.empty_profile())
       if username:
-        config_map_yaml = self.read_config_map(_USER_CONFIG_MAP_TEMPLATE % escape(username), "profile")
+        config_map_yaml = self.get_user_profile_cm(username, for_k8s=True)
         if config_map_yaml:
           if not config_map_yaml.get('name'):
             config_map_yaml['name'] = _USER_CONFIG_PROFILE_NAME

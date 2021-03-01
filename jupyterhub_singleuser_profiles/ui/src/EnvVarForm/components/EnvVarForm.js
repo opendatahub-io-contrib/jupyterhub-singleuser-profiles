@@ -59,7 +59,7 @@ class EnvVarForm extends React.Component {
             console.log(key.value, value.value)
             if (key.value && value.value) {
                 vars.push({
-                    "key":key.value,
+                    "name":key.value,
                     "value": value.value,
                     "type": type
                 })
@@ -98,9 +98,15 @@ class EnvVarForm extends React.Component {
     }
 
     renderForms() {
+        
+        var keys = []
         for (var i = 0; i < this.state.envvars.length;i++) {
             const envvar = this.state.envvars[i]
-            let newItem = this.makeFormItem(envvar['key'], envvar['value'], envvar['type'], this.state.index.toString())
+            if (keys.indexOf(envvar['name']) !== keys.lastIndexOf(envvar['name'])) {
+                continue
+            }
+            let newItem = this.makeFormItem(envvar['name'], envvar['value'], envvar['type'], this.state.index.toString())
+            keys.push(envvar['name'])
             this.setState(previousState => ({
                 items: [...previousState.items, newItem], index: this.state.index+1
             }), () => {console.log("Rendered item")});
