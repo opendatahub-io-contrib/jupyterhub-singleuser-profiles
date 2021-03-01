@@ -11,14 +11,14 @@ It contains the javascript and CSS files which are then built as part of the Jup
 This dropdown contains images available to the logged in user.
 By default, to add images to this dropdown you need to add them to your cluster and give their corresponding imagestreams a `opendatahub.io/notebook-image=true` label.
 
-For more information on this process see the JSP [README](../README.md)
+For more information on this process see the JSP [Image documentation](../../docs/images.md)
 ### Container Size
 The container size dropdown contains all of the sizes available to the user.
 Currently, these sizes are not tied to the image in use.
 
 The actual limits and requests can be set in the `jupyterhub-singleuser-profiles` Config Map.
 
-For more information, check the JSP [README](../README.md#configuration)
+For more information, check the JSP [Sizes documentation](../../docs/sizes.md)
 
 By hovering onto any size option, a brief summary will be shown, containing the limits, requests and the name of the size.
 ### Number of required GPUs
@@ -40,7 +40,7 @@ Once done with the configuration, it is possible to click the `Start` button to 
 
 This part of the repository can NOT be run locally. It requires a cluster with Jupyterhub Singleuser Profiles running on it. To access it it is neccessary to go to the JupyterHub spawner page.
 
-The UI is supported by a swagger API to which all of the requests are routed. For more information check the [API section of the Readme](../README.md#spawner-api)
+The UI is supported by a swagger API to which all of the requests are routed. For more information check the [API section of the documentation](../../docs/api.md)
 
 This UI was boostrapped with [Create React App](https://github.com/facebook/create-react-app). Due to the nature of the UI it is not possible to execute all of the commands mentioned in the instructions.
 
