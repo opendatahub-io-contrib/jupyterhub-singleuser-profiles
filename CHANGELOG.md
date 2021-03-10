@@ -68,3 +68,9 @@
 ## Release 0.1.1 (2021-01-27T13:50:12)
 ### Features
 * Added volume gathering
+
+## Release 0.1.2 (2021-03-10T11:00:32)
+### Features
+* Added default image handling and label
+* Separated documentation into files
+* Added volume gathering
