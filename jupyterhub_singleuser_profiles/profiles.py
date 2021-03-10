@@ -110,13 +110,21 @@ class SingleuserProfiles(object):
       user_cm[key] = value
     self.write_config_map(cm_name, cm_key_name, user_cm)
 
+  def get_default_image(self):
+    image_list = self.get_images()
+    if len(image_list) > 0:
+      return image_list[0]
+    return ''
+
+
   def get_user_profile_cm(self, username):
     cm = self.read_config_map(_USER_CONFIG_MAP_TEMPLATE % escape(username), "profile")
     if cm == {}:
-      return _DEFAULT_USER_CM
-    else:
-      return cm
-    
+      cm = _DEFAULT_USER_CM
+    if cm['last_selected_image'] == '':
+      cm['last_selected_image'] = self.get_default_image()
+    return cm  
+  
   def load_profiles(self, secret_name="jupyter-singleuser-profiles", filename=None, key_name="jupyterhub-singleuser-profiles.yaml", username=None):
     self.profiles = []
     self.sizes = []
