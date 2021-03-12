@@ -312,6 +312,19 @@ class SingleuserProfiles(object):
         return mountPath
       return os.path.join(default_mount_path, mountPath)
     return os.path.join(default_mount_path, volume_name)
+
+  @classmethod
+  def get_mem_limit(self, memory_limit):
+    if 'Ti' in memory_limit:
+      memory_limit = int(memory_limit[:-2]) * 1024 * 1024 * 1024 * 1024
+    elif 'Gi' in memory_limit:
+      memory_limit = int(memory_limit[:-2]) * 1024 * 1024 * 1024
+    elif 'Mi' in memory_limit:
+      memory_limit = int(memory_limit[:-2]) * 1024 * 1024
+    elif 'Ki' in memory_limit:
+      memory_limit = int(memory_limit[:-2]) * 1024
+
+    return str(memory_limit)
     
 
   @classmethod
@@ -361,6 +374,9 @@ class SingleuserProfiles(object):
 
     if resource_var:
       pod.spec.containers[0].resources = resource_var
+      mem_limit = resource_var.limits.get('memory', '')
+      if mem_limit:
+        pod.spec.containers[0].env.append(V1EnvVar(name='MEM_LIMIT', value=self.get_mem_limit(mem_limit)))
       
     if profile.get('node_tolerations'):
         pod.spec.tolerations = profile.get('node_tolerations')
