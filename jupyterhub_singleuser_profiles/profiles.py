@@ -162,6 +162,12 @@ class SingleuserProfiles(object):
       env_list.append({"name":key, "type":"text", "value":value})
     cm['env'] = env_list
     return cm
+    
+  def get_default_image(self):
+    image_list = self.get_images()
+    if len(image_list) > 0:
+      return image_list[0]
+    return ''
 
   def get_user_profile_cm(self, username, for_k8s=False):
     cm = self.read_config_map(_USER_CONFIG_MAP_TEMPLATE % escape(username), "profile")
@@ -175,6 +181,8 @@ class SingleuserProfiles(object):
     if for_k8s:
       for x in cm['env']:
         del x['type'] 
+    if cm['last_selected_image'] == '':
+      cm['last_selected_image'] = self.get_default_image()
     return cm
 
   def get_user_secret(self, username):
@@ -182,8 +190,8 @@ class SingleuserProfiles(object):
     if secret == {}:
       return _DEFAULT_USER_SECRET
     else:
-      return secret
-    
+      return secret 
+  
   def load_profiles(self, secret_name="jupyter-singleuser-profiles", filename=None, key_name="jupyterhub-singleuser-profiles.yaml", username=None):
     self.profiles = []
     self.sizes = []
@@ -371,6 +379,19 @@ class SingleuserProfiles(object):
         return mountPath
       return os.path.join(default_mount_path, mountPath)
     return os.path.join(default_mount_path, volume_name)
+
+  @classmethod
+  def get_mem_limit(self, memory_limit):
+    if 'Ti' in memory_limit:
+      memory_limit = int(memory_limit[:-2]) * 1024 * 1024 * 1024 * 1024
+    elif 'Gi' in memory_limit:
+      memory_limit = int(memory_limit[:-2]) * 1024 * 1024 * 1024
+    elif 'Mi' in memory_limit:
+      memory_limit = int(memory_limit[:-2]) * 1024 * 1024
+    elif 'Ki' in memory_limit:
+      memory_limit = int(memory_limit[:-2]) * 1024
+
+    return str(memory_limit)
     
 
   @classmethod
@@ -420,6 +441,9 @@ class SingleuserProfiles(object):
 
     if resource_var:
       pod.spec.containers[0].resources = resource_var
+      mem_limit = resource_var.limits.get('memory', '')
+      if mem_limit:
+        pod.spec.containers[0].env.append(V1EnvVar(name='MEM_LIMIT', value=self.get_mem_limit(mem_limit)))
       
     if profile.get('node_tolerations'):
         pod.spec.tolerations = profile.get('node_tolerations')

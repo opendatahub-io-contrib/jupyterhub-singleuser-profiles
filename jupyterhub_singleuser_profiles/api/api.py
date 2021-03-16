@@ -86,6 +86,12 @@ def get_images(*args, **kwargs):
     return image_array
 
 @authenticated
+def get_default_image(*args, **kwargs):
+    _PROFILES.load_profiles()
+    default_image = _PROFILES.get_default_image()
+    return default_image
+
+@authenticated
 def get_size_by_name(size_name, *args, **kwargs):
     _PROFILES.load_profiles()
     return _PROFILES.get_size(size_name)
