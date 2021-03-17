@@ -74,3 +74,8 @@
 * Added default image handling and label
 * Separated documentation into files
 * Added volume gathering
+
+## Release 0.1.3 (2021-03-17T15:48:38)
+### Features
+* Set the MEM_LIMIT env var to real memory limit
+* Force the UI to use https for API calls
