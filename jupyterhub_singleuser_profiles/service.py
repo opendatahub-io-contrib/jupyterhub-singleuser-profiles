@@ -17,8 +17,8 @@ _SERVICE_LABEL="jupyterhub-singluser-service"
 _REFERENCE_CM_NAME = "singleuser-service-ref-%s"
 
 class Service():
-  def __init__(self, os_client, namespace):
-    self.os_client = os_client
+  def __init__(self, openshift_wrapper, namespace):
+    self.os_client = openshift_wrapper.oapi_client
     self.namespace = namespace
 
   def get_service_reference_config_map (self, user):
