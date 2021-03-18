@@ -123,7 +123,7 @@ components:
       type: object
       properties:
         env:
-          type: object
+          type: array
         gpu:
           type: integer
         last_selected_image:
