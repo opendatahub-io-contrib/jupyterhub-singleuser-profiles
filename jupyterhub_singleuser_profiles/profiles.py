@@ -13,6 +13,7 @@ from .images import Images
 from .openshift import OpenShift
 from .user import User
 
+
 _LOGGER = logging.getLogger(__name__)
 
 _JUPYTERHUB_USER_NAME_ENV = "JUPYTERHUB_USER_NAME"
@@ -24,10 +25,11 @@ class SingleuserProfiles(object):
   GPU_MODE_PRIVILEGED = "privileged"
   def __init__(self, namespace=None, verify_ssl=True, gpu_mode=None, service_account_path='/var/run/secrets/kubernetes.io/serviceaccount'):
     self.profiles = []
-    self.namespace = namespace #TODO why do I need to pass namespace?
+    self.namespace = None
     self.gpu_mode = gpu_mode
 
     self.openshift = OpenShift(namespace=namespace, verify_ssl=verify_ssl)
+    self.namespace = self.openshift.namespace
 
     self.service = Service(self.openshift, self.namespace)
     self.images = Images(self.openshift, namespace=namespace)
@@ -193,6 +195,7 @@ class SingleuserProfiles(object):
     profile1["services"] = {**profile1.get('services', {}), **profile2.get('services', {})}
     profile1["node_tolerations"] = profile1.get("node_tolerations", []) + profile2.get("node_tolerations", [])
     profile1["node_affinity"] = {**profile1.get('node_affinity', {}), **profile2.get('node_affinity', {})}
+    profile1["gpu"] = profile2.get("gpu", 0)
 
     profile1['resources'] = parse_resources(profile1['resources'])
 
@@ -237,10 +240,10 @@ class SingleuserProfiles(object):
     
 
   @classmethod
-  def apply_pod_profile(self, spawner, pod, profile, default_mount_path):
+  def apply_pod_profile(self, username, pod, profile, default_mount_path, gpu_mode=None):
     api_client = kubernetes.client.ApiClient()
 
-    pod.metadata.labels['jupyterhub.opendatahub.io/user'] = escape(spawner.user.name)
+    pod.metadata.labels['jupyterhub.opendatahub.io/user'] = escape(username)
 
     profile_volumes = profile.get('volumes')
 
@@ -304,18 +307,18 @@ class SingleuserProfiles(object):
       for e in env:
         if type(e) is dict:
           if e['name'] == _JUPYTERHUB_USER_NAME_ENV:
-            e['value'] = spawner.user.name
+            e['value'] = username
             update = True
             break
         else:
           if e.name == _JUPYTERHUB_USER_NAME_ENV:
-            e.value = spawner.user.name
+            e.value = username
             update = True
             break
 
       if not update:
-        env.append(V1EnvVar(_JUPYTERHUB_USER_NAME_ENV, spawner.user.name))
+        env.append(V1EnvVar(_JUPYTERHUB_USER_NAME_ENV, username))
 
-    self.apply_gpu_config(spawner.gpu_mode, spawner.gpu_count, pod)
+    self.apply_gpu_config(gpu_mode, profile.get('gpu', 0), pod)
 
     return pod  
