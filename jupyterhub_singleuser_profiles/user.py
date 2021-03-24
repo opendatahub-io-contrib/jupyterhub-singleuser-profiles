@@ -43,7 +43,7 @@ class User(object):
   def get_presets(self, username):
     presets = self.openshift.read_config_map(self._USER_CONFIG_MAP_TEMPLATE % escape(username), "profile")
     if presets == {}:
-      presets = self._DEFAULT_USER_PRESETS
+      presets = copy.deepcopy(self._DEFAULT_USER_PRESETS)
 
     presets = self.fix_if_legacy(username, presets)
 
