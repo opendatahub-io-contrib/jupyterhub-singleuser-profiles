@@ -88,3 +88,7 @@
 * Rework how env vars and secrets are stored
 ### Other
 * Restructure code for user info rework
+
+## Release 0.2.1 (2021-03-24T16:03:57)
+### Features
+* Deep copy the default CM to prevent pointer issues
