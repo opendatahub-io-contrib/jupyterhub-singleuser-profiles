@@ -42,7 +42,6 @@ class EnvVarForm extends React.Component {
             var type = keyValuePair.getElementsByClassName("VarCheckbox")[0]
             keys.push(key.value)
             // If key already exists change color to red and block adding
-            console.log(keys, keys.indexOf(key.value), keys.lastIndexOf(key.value))
             if (keys.indexOf(key.value) !== keys.lastIndexOf(key.value)) {
                 key.parentElement.style.color = "red"
                 continue
@@ -56,7 +55,6 @@ class EnvVarForm extends React.Component {
             else {
                 type = "text"
             }
-            console.log(key.value, value.value)
             if (key.value && value.value) {
                 vars.push({
                     "name":key.value,
@@ -102,7 +100,7 @@ class EnvVarForm extends React.Component {
         var keys = []
         for (var i = 0; i < this.state.envvars.length;i++) {
             const envvar = this.state.envvars[i]
-            if (keys.indexOf(envvar['name']) !== keys.lastIndexOf(envvar['name'])) {
+            if (keys.indexOf(envvar['name']) > -1) {
                 continue
             }
             let newItem = this.makeFormItem(envvar['name'], envvar['value'], envvar['type'], this.state.index.toString())
@@ -116,7 +114,6 @@ class EnvVarForm extends React.Component {
     async sendVars(){
         var json = JSON.stringify({env: this.state.envvars})
         await this.API.APIPost(this.API._CMPATH, json)
-        console.log("Sent vars", json)
     }
 
     render () {
