@@ -79,3 +79,12 @@
 ### Features
 * Set the MEM_LIMIT env var to real memory limit
 * Force the UI to use https for API calls
+
+## Release 0.2.0 (2021-03-24T10:59:02)
+### Features
+* Changed how envvars are stored
+### Improvements
+* Removed debug logs in EnvVarForm
+* Rework how env vars and secrets are stored
+### Other
+* Restructure code for user info rework
