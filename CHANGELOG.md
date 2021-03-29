@@ -92,3 +92,7 @@
 ## Release 0.2.1 (2021-03-24T16:03:57)
 ### Features
 * Deep copy the default CM to prevent pointer issues
+
+## Release 0.2.2 (2021-03-29T12:36:14)
+### Improvements
+* Added additional ids in VarForm for selenium tests
