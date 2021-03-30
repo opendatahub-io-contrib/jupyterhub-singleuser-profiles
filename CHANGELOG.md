@@ -68,3 +68,31 @@
 ## Release 0.1.1 (2021-01-27T13:50:12)
 ### Features
 * Added volume gathering
+
+## Release 0.1.2 (2021-03-10T11:00:32)
+### Features
+* Added default image handling and label
+* Separated documentation into files
+* Added volume gathering
+
+## Release 0.1.3 (2021-03-17T15:48:38)
+### Features
+* Set the MEM_LIMIT env var to real memory limit
+* Force the UI to use https for API calls
+
+## Release 0.2.0 (2021-03-24T10:59:02)
+### Features
+* Changed how envvars are stored
+### Improvements
+* Removed debug logs in EnvVarForm
+* Rework how env vars and secrets are stored
+### Other
+* Restructure code for user info rework
+
+## Release 0.2.1 (2021-03-24T16:03:57)
+### Features
+* Deep copy the default CM to prevent pointer issues
+
+## Release 0.2.2 (2021-03-29T12:36:14)
+### Improvements
+* Added additional ids in VarForm for selenium tests

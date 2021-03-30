@@ -45,7 +45,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/configmap'
 
-  /api/ui/configmap:
+  /ui/config:
     get:
       operationId: jupyterhub_singleuser_profiles.api.api.get_ui_config
       summary: Get a part of the main ConfigMap containing information about the UI
@@ -72,6 +72,18 @@ paths:
                     items:
                       type: string
                   - type: string
+  
+  /api/images/default:
+    get:
+      operationId: jupyterhub_singleuser_profiles.api.api.get_default_image
+      summary: Get the default image, (either one with label or first in list)
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: string
 
   /api/sizes:
     get:
@@ -123,10 +135,72 @@ components:
       type: object
       properties:
         env:
-          type: object
+          type: array
         gpu:
           type: integer
         last_selected_image:
           type: string
         last_selected_size:
           type: string
+    
+    ui:
+      type: object
+      properties:
+        envVarConfig:
+          type: object
+          properties:
+            enabled:
+              type: boolean
+            freq_keys:
+              type: array
+        gpuConfig:
+          $ref: "#/components/schemas/gpuConfig"
+        imageConfig:
+          type: object
+          properties:
+            blacklist: 
+              type: array
+            whitelist: 
+              type: array
+            sort:
+              type: string
+        sizeConfig:
+          type: object
+          properties:
+            enabled:
+              type: boolean
+
+        
+    gpuConfig:
+      type: object
+      properties:
+        enabled:
+          type: boolean
+        gpuCheckbox:
+          $ref: "#/components/schemas/gpuCheckbox"
+        gpuInput:
+          $ref: "#/components/schemas/gpuInput"
+        gpuDropdown:
+          $ref: "#/components/schemas/gpuDropdown"
+
+
+    gpuCheckbox:
+      type: object
+      properties:
+        value:
+          type: integer
+    
+    gpuDropdown:
+      type: object
+      properties:
+        start:
+          type: integer
+        end:
+          type: integer
+    
+    gpuInput:
+      type: object
+      properties:
+        limit:
+          type: integer
+              

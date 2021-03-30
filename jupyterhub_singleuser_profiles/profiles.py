@@ -4,51 +4,38 @@ import yaml
 import json
 import logging
 import re
-from kubernetes.client import V1EnvVar, V1ResourceRequirements, V1ConfigMap, V1ObjectMeta, V1SecurityContext, V1Capabilities, V1SELinuxOptions, V1Volume, V1VolumeMount, V1PersistentVolumeClaimVolumeSource
-from kubernetes.client.rest import ApiException
-from openshift.dynamic import DynamicClient
+from kubernetes.client import V1EnvVar, V1ResourceRequirements, V1ConfigMap, V1ObjectMeta, V1SecurityContext, V1Capabilities, V1SELinuxOptions, V1Secret, V1Volume, V1VolumeMount, V1PersistentVolumeClaimVolumeSource
+
 from .service import Service
 from .utils import escape, parse_resources
 from .sizes import Sizes
 from .images import Images
 from .ui_config import UIConfig
+from .openshift import OpenShift
+from .user import User
+
 
 _LOGGER = logging.getLogger(__name__)
 
 _JUPYTERHUB_USER_NAME_ENV = "JUPYTERHUB_USER_NAME"
-_USER_CONFIG_MAP_TEMPLATE = "jupyterhub-singleuser-profile-%s"
 _USER_CONFIG_PROFILE_NAME = "@singleuser@"
 _GPU_KEY = "nvidia.com/gpu"
-_DEFAULT_USER_CM = {
-        "env":{"AWS_ACCESS_KEY_ID":"", "AWS_SECRET_ACCESS_KEY":""},
-        "gpu":"0",
-        "last_selected_image":"",
-        "last_selected_size":"",
-      }
 
 class SingleuserProfiles(object):
   GPU_MODE_SELINUX = "selinux"
   GPU_MODE_PRIVILEGED = "privileged"
   def __init__(self, namespace=None, verify_ssl=True, gpu_mode=None, service_account_path='/var/run/secrets/kubernetes.io/serviceaccount'):
     self.profiles = []
-    self.api_client = None
-    self.namespace = namespace #TODO why do I need to pass namespace?
+    self.namespace = None
     self.gpu_mode = gpu_mode
-    self.oapi_client = None
 
-    if not self.namespace:
-      with open(os.path.join(service_account_path, 'namespace')) as fp:
-          self.namespace = fp.read().strip()
-    kubernetes.config.load_incluster_config()
-    self.api_client = kubernetes.client.CoreV1Api()
+    self.openshift = OpenShift(namespace=namespace, verify_ssl=verify_ssl)
+    self.namespace = self.openshift.namespace
 
-    configuration = kubernetes.client.Configuration()
-    configuration.verify_ssl = verify_ssl
-    self.oapi_client = DynamicClient(
-      kubernetes.client.ApiClient(configuration=configuration)
-    )
+    self.service = Service(self.openshift, self.namespace)
+    self.images = Images(self.openshift, namespace=namespace)
+    self.user = User(self.openshift, default_image=self.images.get_default())
 
-    self.service = Service(self.oapi_client, self.namespace)
   @property
   def gpu_mode(self):
     return self._gpu_mode
@@ -61,72 +48,16 @@ class SingleuserProfiles(object):
       self._gpu_mode = self.GPU_MODE_SELINUX
     else:
       self._gpu_mode = None
-
-  def get_config_maps_matching_label(self, target_label='jupyterhub=singleuser-profiles'):
-    config_maps_list = []
-    try:
-      config_maps = self.api_client.list_namespaced_config_map(self.namespace, label_selector=target_label)
-    except ApiException as e:
-      if e.status != 404:
-        _LOGGER.error(e)
-      return config_maps_list
-    for cm in config_maps.items:
-      config_maps_list.append(cm.metadata.name)
-
-    _LOGGER.info("Found these additional Config Maps: %s" % config_maps_list)
-    return config_maps_list
-
-  def read_config_map(self, config_map_name, key_name="profiles"):
-    try:
-      config_map = self.api_client.read_namespaced_config_map(config_map_name, self.namespace)
-    except ApiException as e:
-      if e.status != 404:
-        _LOGGER.error(e)
-      return {}
-      
-    config_map_yaml = yaml.load(config_map.data[key_name])
-    return config_map_yaml
-
-  def write_config_map(self, config_map_name, key_name, data):
-    cm = V1ConfigMap()
-    cm.metadata = V1ObjectMeta(name=config_map_name, labels={'app': 'jupyterhub'})
-    cm.data = {key_name: yaml.dump(data, default_flow_style=False)}
-    try: 
-      api_response = self.api_client.replace_namespaced_config_map(config_map_name, self.namespace, cm)
-    except ApiException as e:
-      if e.status == 404:
-        try: 
-          api_response = self.api_client.create_namespaced_config_map(self.namespace, cm)
-        except ApiException as e:
-          _LOGGER.error("Exception when calling CoreV1Api->create_namespaced_config_map: %s\n" % e)
-      else:
-        raise
-
-  def update_user_profile_cm(self, username, data={}):
-    
-    user_cm = self.get_user_profile_cm(username)
-    cm_name = _USER_CONFIG_MAP_TEMPLATE % escape(username)
-    cm_key_name = "profile"
-    for key, value in data.items():
-      user_cm[key] = value
-    self.write_config_map(cm_name, cm_key_name, user_cm)
-
-  def get_user_profile_cm(self, username):
-    cm = self.read_config_map(_USER_CONFIG_MAP_TEMPLATE % escape(username), "profile")
-    if cm == {}:
-      return _DEFAULT_USER_CM
-    else:
-      return cm
-    
+  
   def load_profiles(self, secret_name="jupyter-singleuser-profiles", filename=None, key_name="jupyterhub-singleuser-profiles.yaml", username=None):
     self.profiles = []
     self.sizes = []
     self.ui = {}
-    if self.api_client:
+    if self.openshift.api_client:
       profiles_config_maps = [secret_name]
-      profiles_config_maps.extend(sorted(self.get_config_maps_matching_label()))
+      profiles_config_maps.extend(sorted(self.openshift.get_config_maps_matching_label()))
       for cm_name in profiles_config_maps:
-        config_map_yaml = self.read_config_map(cm_name, key_name)
+        config_map_yaml = self.openshift.read_config_map(cm_name, key_name)
         if config_map_yaml:
           self.sizes.extend(config_map_yaml.get("sizes", [self.empty_profile()]))
           self.profiles.extend(config_map_yaml.get("profiles", [self.empty_profile()]))
@@ -136,7 +67,7 @@ class SingleuserProfiles(object):
       if len(self.profiles) == 0:
         self.profiles.append(self.empty_profile())
       if username:
-        config_map_yaml = self.read_config_map(_USER_CONFIG_MAP_TEMPLATE % escape(username), "profile")
+        config_map_yaml = self.user.get(username, for_k8s=True)
         if config_map_yaml:
           if not config_map_yaml.get('name'):
             config_map_yaml['name'] = _USER_CONFIG_PROFILE_NAME
@@ -221,18 +152,6 @@ class SingleuserProfiles(object):
   def get_sizes(self):
     return self.sizes
 
-  def get_images(self):
-    i = Images(self.oapi_client, self.namespace)
-    return i.get_form(name_only=True)
-  
-  def get_image_list_form(self, username=None):
-
-    if not self.profiles:
-      self.load_profiles(username=username)
-
-    i = Images(self.oapi_client, self.namespace)
-    return i.get_form(self.get_profile_by_name(_USER_CONFIG_PROFILE_NAME).get('last_selected_image'))
-
   @classmethod
   def empty_profile(self):
     return {
@@ -283,6 +202,7 @@ class SingleuserProfiles(object):
     profile1["services"] = {**profile1.get('services', {}), **profile2.get('services', {})}
     profile1["node_tolerations"] = profile1.get("node_tolerations", []) + profile2.get("node_tolerations", [])
     profile1["node_affinity"] = {**profile1.get('node_affinity', {}), **profile2.get('node_affinity', {})}
+    profile1["gpu"] = profile2.get("gpu", 0)
 
     profile1['resources'] = parse_resources(profile1['resources'])
 
@@ -311,13 +231,26 @@ class SingleuserProfiles(object):
         return mountPath
       return os.path.join(default_mount_path, mountPath)
     return os.path.join(default_mount_path, volume_name)
+
+  @classmethod
+  def get_mem_limit(self, memory_limit):
+    if 'Ti' in memory_limit:
+      memory_limit = int(memory_limit[:-2]) * 1024 * 1024 * 1024 * 1024
+    elif 'Gi' in memory_limit:
+      memory_limit = int(memory_limit[:-2]) * 1024 * 1024 * 1024
+    elif 'Mi' in memory_limit:
+      memory_limit = int(memory_limit[:-2]) * 1024 * 1024
+    elif 'Ki' in memory_limit:
+      memory_limit = int(memory_limit[:-2]) * 1024
+
+    return str(memory_limit)
     
 
   @classmethod
-  def apply_pod_profile(self, spawner, pod, profile, default_mount_path):
+  def apply_pod_profile(self, username, pod, profile, default_mount_path, gpu_mode=None):
     api_client = kubernetes.client.ApiClient()
 
-    pod.metadata.labels['jupyterhub.opendatahub.io/user'] = escape(spawner.user.name)
+    pod.metadata.labels['jupyterhub.opendatahub.io/user'] = escape(username)
 
     profile_volumes = profile.get('volumes')
 
@@ -360,6 +293,9 @@ class SingleuserProfiles(object):
 
     if resource_var:
       pod.spec.containers[0].resources = resource_var
+      mem_limit = resource_var.limits.get('memory', '')
+      if mem_limit:
+        pod.spec.containers[0].env.append(V1EnvVar(name='MEM_LIMIT', value=self.get_mem_limit(mem_limit)))
       
     if profile.get('node_tolerations'):
         pod.spec.tolerations = profile.get('node_tolerations')
@@ -378,18 +314,18 @@ class SingleuserProfiles(object):
       for e in env:
         if type(e) is dict:
           if e['name'] == _JUPYTERHUB_USER_NAME_ENV:
-            e['value'] = spawner.user.name
+            e['value'] = username
             update = True
             break
         else:
           if e.name == _JUPYTERHUB_USER_NAME_ENV:
-            e.value = spawner.user.name
+            e.value = username
             update = True
             break
 
       if not update:
-        env.append(V1EnvVar(_JUPYTERHUB_USER_NAME_ENV, spawner.user.name))
+        env.append(V1EnvVar(_JUPYTERHUB_USER_NAME_ENV, username))
 
-    self.apply_gpu_config(spawner.gpu_mode, spawner.gpu_count, pod)
+    self.apply_gpu_config(gpu_mode, profile.get('gpu', 0), pod)
 
     return pod  

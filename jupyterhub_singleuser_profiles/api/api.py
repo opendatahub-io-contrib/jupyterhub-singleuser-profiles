@@ -60,18 +60,19 @@ def whoami(user):
 
 @authenticated
 def get_user_cm(user):
-    cm = _PROFILES.get_user_profile_cm(user['name'])
+    cm = _PROFILES.user.get(user['name'])
     return cm
 
 @authenticated
 def get_ui_config(user):
+    _PROFILES.load_profiles()
     cm = _PROFILES.get_ui_configuration()
     return cm
 
 @authenticated
 def update_user_cm(user, body): 
-    _PROFILES.update_user_profile_cm(user['name'], data=body)
-    return _PROFILES.get_user_profile_cm(user['name'])
+    _PROFILES.user.update(user['name'], data=body)
+    return _PROFILES.user.get(user['name'])
 
 @authenticated
 def get_sizes(pure_json=False, *args, **kwargs):
@@ -87,8 +88,14 @@ def get_sizes(pure_json=False, *args, **kwargs):
 @authenticated
 def get_images(*args, **kwargs):
     _PROFILES.load_profiles()
-    image_array = _PROFILES.get_images()
-    return image_array
+    images = _PROFILES.images.get()
+    return images
+
+@authenticated
+def get_default_image(*args, **kwargs):
+    _PROFILES.load_profiles()
+    default_image = _PROFILES.images.get_default()
+    return default_image
 
 @authenticated
 def get_size_by_name(size_name, *args, **kwargs):

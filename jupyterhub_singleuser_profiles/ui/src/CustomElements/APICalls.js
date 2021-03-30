@@ -2,7 +2,7 @@
 class APICalls {
 
     constructor() {
-        this._BASEPATH = "/services/jsp-api/api/"
+        this._BASEPATH = "https://" + window.location.hostname + "/services/jsp-api/api/"
         this._CMPATH = this._BASEPATH + "user/configmap"
         this._UIPATH = this._BASEPATH + "ui/configmap"
         this._SIZESPATH = this._BASEPATH + "sizes"

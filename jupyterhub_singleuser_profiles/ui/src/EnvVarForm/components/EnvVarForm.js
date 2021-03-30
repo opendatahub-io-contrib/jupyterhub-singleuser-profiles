@@ -31,15 +31,38 @@ class EnvVarForm extends React.Component {
     }
 
     onBlur(e) {
+        // TODO: Implement duplicate key checking
         var container = this.envVarContainer.current
-        var vars = {}
+        var vars = []
+        var keys = []
         for (var i = 0; i < container.children.length; i++) {
             var keyValuePair = container.children[i]
             var key = keyValuePair.getElementsByClassName("KeyForm")[0]
             var value = keyValuePair.getElementsByClassName("VarValueForm")[0]
-            if (key.value && value.value) {
-                vars[key.value] = value.value
+            var type = keyValuePair.getElementsByClassName("VarCheckbox")[0]
+            keys.push(key.value)
+            // If key already exists change color to red and block adding
+            if (keys.indexOf(key.value) !== keys.lastIndexOf(key.value)) {
+                key.parentElement.style.color = "red"
+                continue
             }
+            else {
+                key.parentElement.style.color = "black"
+            }
+            if (type.checked === true) {
+                type = "password"
+            }
+            else {
+                type = "text"
+            }
+            if (key.value && value.value) {
+                vars.push({
+                    "name":key.value,
+                    "value": value.value,
+                    "type": type
+                })
+            }
+
         }
         this.setState({envvars: vars}, function() {this.sendVars()})
     }
@@ -50,10 +73,10 @@ class EnvVarForm extends React.Component {
         this.onBlur()
     }
 
-    makeFormItem(key, value, index) {
+    makeFormItem(key, value, type, index) {
         const newItem = [
             <div onBlur={(e) => this.onBlur(e)} className="VarGridDiv">
-                <VarForm var_key={key} value={value} blurFunc={this.onBlur} formIndex={index}/>
+                <VarForm var_key={key} value={value} text_type={type} blurFunc={this.onBlur} formIndex={index}/>
             </div>,
             <Button className="InnerGap" variant='danger' onClick={(e) => this.removeForm(e)}>
                 Remove
@@ -64,7 +87,7 @@ class EnvVarForm extends React.Component {
 
     addForm(e){
         //Frequently used variables could also be entered as a list if there are too many of them.
-        var newItem = this.makeFormItem('variable_name', 'variable_value', this.state.index.toString())
+        var newItem = this.makeFormItem('', '', 'text', this.state.index.toString()) //key and value left empty
         this.setState(previousState => ({
             items: [...previousState.items, newItem]
         }));
@@ -73,8 +96,15 @@ class EnvVarForm extends React.Component {
     }
 
     renderForms() {
-        for (const [key, value] of Object.entries(this.state.envvars)) {
-            let newItem = this.makeFormItem(key, value, this.state.index.toString())
+        
+        var keys = []
+        for (var i = 0; i < this.state.envvars.length;i++) {
+            const envvar = this.state.envvars[i]
+            if (keys.indexOf(envvar['name']) > -1) {
+                continue
+            }
+            let newItem = this.makeFormItem(envvar['name'], envvar['value'], envvar['type'], this.state.index.toString())
+            keys.push(envvar['name'])
             this.setState(previousState => ({
                 items: [...previousState.items, newItem], index: this.state.index+1
             }), () => {console.log("Rendered item")});
@@ -84,7 +114,6 @@ class EnvVarForm extends React.Component {
     async sendVars(){
         var json = JSON.stringify({env: this.state.envvars})
         await this.API.APIPost(this.API._CMPATH, json)
-        console.log("Sent vars")
     }
 
     render () {

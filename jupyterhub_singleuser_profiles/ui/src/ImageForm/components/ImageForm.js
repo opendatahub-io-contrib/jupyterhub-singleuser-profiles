@@ -27,6 +27,11 @@ class ImageForm extends React.Component {
         this.setState({imageList: data}, () => this.isImageCorrect())
     }
 
+    async getDefaultImage(){
+        var data = await this.API.APIGet(this.API._IMAGEPATH+"/default")
+        this.setState({selectedValue: data}, () => this.postChange(this.state.selectedValue))
+    }
+
     componentDidMount() {
         this.loadConfigmap()
     }
@@ -38,8 +43,7 @@ class ImageForm extends React.Component {
             return
         }
         if (this.state.imageList.length > 0) {
-            this.setState({selectedValue: this.state.imageList[0]}, console.log("Set default image"))
-            this.postChange(this.state.imageList[0])
+            this.getDefaultImage()
         }     
     }
 
