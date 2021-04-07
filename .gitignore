@@ -5,6 +5,8 @@
 
 # production
 jupyterhub_singleuser_profiles/ui/build
+jupyterhub_singleuser_profiles/ui/node_modules
+jupyterhub_singleuser_profiles/ui/build
 
 # Dev files
 jupyterhub_singleuser_profiles/ui/.env.development.local
