@@ -4,7 +4,10 @@
 ./jupyterhub_singleuser_profiles/ui/node_modules
 
 # production
-./jupyterhub_singleuser_profiles/ui/build
-package-lock.json
 jupyterhub_singleuser_profiles/ui/build
-jupyterhub_singleuser_profiles/ui/node_modules
+
+# Dev files
+jupyterhub_singleuser_profiles/ui/.env.development.local
+jupyterhub_singleuser_profiles/ui-orig
+jupyterhub_singleuser_profiles/ui-orig/build
+jupyterhub_singleuser_profiles/ui-orig/node_modules

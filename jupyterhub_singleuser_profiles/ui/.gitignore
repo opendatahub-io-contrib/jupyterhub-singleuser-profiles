@@ -1,0 +1,12 @@
+# testing
+/coverage
+
+# production
+/build
+
+*stats.json
+
+.env*.local
+
+node_modules
+yarn.lock
