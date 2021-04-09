@@ -96,3 +96,7 @@
 ## Release 0.2.2 (2021-03-29T12:36:14)
 ### Improvements
 * Added additional ids in VarForm for selenium tests
+
+## Release 0.2.3 (2021-04-09T18:28:44)
+### Features
+* Only set gpu if the key exists in profile
