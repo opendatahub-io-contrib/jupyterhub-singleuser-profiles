@@ -195,7 +195,8 @@ class SingleuserProfiles(object):
     profile1["services"] = {**profile1.get('services', {}), **profile2.get('services', {})}
     profile1["node_tolerations"] = profile1.get("node_tolerations", []) + profile2.get("node_tolerations", [])
     profile1["node_affinity"] = {**profile1.get('node_affinity', {}), **profile2.get('node_affinity', {})}
-    profile1["gpu"] = profile2.get("gpu", 0)
+    if profile2.get("gpu"):
+      profile1["gpu"] = profile2.get("gpu")
 
     profile1['resources'] = parse_resources(profile1['resources'])
 
