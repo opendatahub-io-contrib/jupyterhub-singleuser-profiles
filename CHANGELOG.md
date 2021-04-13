@@ -79,3 +79,24 @@
 ### Features
 * Set the MEM_LIMIT env var to real memory limit
 * Force the UI to use https for API calls
+
+## Release 0.2.0 (2021-03-24T10:59:02)
+### Features
+* Changed how envvars are stored
+### Improvements
+* Removed debug logs in EnvVarForm
+* Rework how env vars and secrets are stored
+### Other
+* Restructure code for user info rework
+
+## Release 0.2.1 (2021-03-24T16:03:57)
+### Features
+* Deep copy the default CM to prevent pointer issues
+
+## Release 0.2.2 (2021-03-29T12:36:14)
+### Improvements
+* Added additional ids in VarForm for selenium tests
+
+## Release 0.2.3 (2021-04-09T18:28:44)
+### Features
+* Only set gpu if the key exists in profile

@@ -30,7 +30,7 @@ class Images(object):
     def append_option(self, image, result):
         name = image.metadata.name
         if not image.status.tags:
-            return ''
+            return
         for tag in image.status.tags:
             selected = ""
             image_tag = "%s:%s" % (name, tag.tag)
@@ -54,6 +54,6 @@ class Images(object):
         else:
             for i in imagestream_list.items:
                 if i.metadata.name == image_name:
-                    return yaml.load(i.metadata.annotations)
+                    return dict(i.metadata.annotations)
 
         return result

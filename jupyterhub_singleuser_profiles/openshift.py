@@ -1,11 +1,14 @@
 import os
+import sys
 import base64
 import yaml
 import kubernetes
 import logging
 from kubernetes.client.rest import ApiException
 from openshift.dynamic import DynamicClient
-from kubernetes.client import V1ObjectMeta, V1ConfigMap, V1Secret
+from kubernetes.client import V1ObjectMeta, V1ConfigMap, V1Secret, V1EnvVar, V1SecretKeySelector, V1ConfigMapKeySelector, V1EnvVarSource
+import urllib3
+urllib3.disable_warnings()
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -19,7 +22,12 @@ class OpenShift(object):
     if not self.namespace:
       with open(os.path.join(service_account_path, 'namespace')) as fp:
           self.namespace = fp.read().strip()
-    kubernetes.config.load_incluster_config()
+
+    try:
+      kubernetes.config.load_incluster_config()
+    except Exception as e:
+      kubernetes.config.load_kube_config()
+
     self.api_client = kubernetes.client.CoreV1Api()
 
     configuration = kubernetes.client.Configuration()
@@ -42,38 +50,53 @@ class OpenShift(object):
     _LOGGER.info("Found these additional Config Maps: %s" % config_maps_list)
     return config_maps_list
 
-  def read_config_map(self, config_map_name, key_name="profile"):
+  def read_config_map(self, config_map_name, key_name=None):
+    result = {}
     try:
       config_map = self.api_client.read_namespaced_config_map(config_map_name, self.namespace)
     except ApiException as e:
       if e.status != 404:
-        _LOGGER.error(e)
-      return {}
+        _LOGGER.error("Error reading a config map %s: %s" % (secret_name, e))
+      return result
 
-    config_map_yaml = yaml.load(config_map.data[key_name])
-    return config_map_yaml
+    if key_name:
+      result = yaml.load(config_map.data[key_name])
+    else:
+      result = config_map.data
+    return result
 
-  def read_secret(self, secret_name, key_name="profile"):
+  def read_secret(self, secret_name, key_name=None):
+    result = {}
     try:
       secret = self.api_client.read_namespaced_secret(secret_name, self.namespace)
     except ApiException as e:
       if e.status != 404:
-        _LOGGER.error(e)
-      return {}
+        _LOGGER.error("Error reading a secret %s: %s" % (secret_name, e))
+      return result
     if secret.data:
-      base64_secret = secret.data[key_name]
-      base64_bytes = base64_secret.encode('ascii')
-      secret_bytes = base64.b64decode(base64_bytes)
-      content = secret_bytes.decode('ascii')
-      secret_yaml = yaml.load(content)
-    else:
-      secret_yaml = {}
-    return secret_yaml
+      if key_name:
+        content = self.decode_secret(secret.data[key_name])
+        result = yaml.load(content)
+      else:
+        result = dict([(key, self.decode_secret(value)) for key, value in secret.data.items()])
 
-  def write_config_map(self, config_map_name, key_name, data):
+    return result
+
+  def decode_secret(self, data):
+    base64_bytes = data.encode('utf8')
+    secret_bytes = base64.b64decode(base64_bytes)
+    content = secret_bytes.decode('utf8')
+
+    return content
+
+
+  def write_config_map(self, config_map_name, data, key_name=None):
     cm = V1ConfigMap()
     cm.metadata = V1ObjectMeta(name=config_map_name, labels={'app': 'jupyterhub'})
-    cm.data = {key_name: yaml.dump(data, default_flow_style=False)}
+    if key_name:
+      cm.data = {key_name: yaml.dump(data, default_flow_style=False)}
+    else:
+      cm.data = data
     try:
       api_response = self.api_client.replace_namespaced_config_map(config_map_name, self.namespace, cm)
     except ApiException as e:
@@ -85,10 +108,13 @@ class OpenShift(object):
       else:
         raise
 
-  def write_secret(self, secret_name, key_name, data):
+  def write_secret(self, secret_name, data, key_name=None):
     secret = V1Secret()
     secret.metadata = V1ObjectMeta(name=secret_name, labels={'app': 'jupyterhub'})
-    secret.string_data = {key_name: yaml.dump(data, default_flow_style=False)} #stringData instead of data here to make kubernetes parse this as a string without base64 encoding
+    if key_name:
+      secret.string_data = {key_name: yaml.dump(data, default_flow_style=False)} #stringData instead of data here to make kubernetes parse this as a string without base64 encoding
+    else:
+      secret.string_data = data
     try:
       api_response = self.api_client.replace_namespaced_secret(secret_name, self.namespace, secret)
     except ApiException as e:
@@ -104,3 +130,18 @@ class OpenShift(object):
     imagestreams = self.oapi_client.resources.get(kind='ImageStream', api_version='image.openshift.io/v1')
     imagestream_list = imagestreams.get(namespace=self.namespace, label_selector=label)
     return imagestream_list
+
+  def create_pod_mapping(self, name, data, secret=False):
+    result = []
+    for item in data:
+      env_var = V1EnvVar(name=item['name'])
+      if secret:
+        ref = V1SecretKeySelector(item['name'], name)
+        env_var.value_from = V1EnvVarSource(secret_key_ref=ref)
+      else:
+        ref = V1ConfigMapKeySelector(item['name'], name)
+        env_var.value_from = V1EnvVarSource(config_map_key_ref=ref)
+
+      result.append(kubernetes.client.ApiClient().sanitize_for_serialization(env_var)) #We need to sanitize the V1EnvVar to be able to serialize it later
+
+    return result
