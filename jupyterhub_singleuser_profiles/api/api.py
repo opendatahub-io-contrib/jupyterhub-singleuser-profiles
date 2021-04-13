@@ -86,6 +86,10 @@ def get_images(*args, **kwargs):
     return images
 
 @authenticated
+def get_image_info(image_name, *args, **kwargs):
+    return _PROFILES.get_image_info(image_name)
+
+@authenticated
 def get_default_image(*args, **kwargs):
     _PROFILES.load_profiles()
     default_image = _PROFILES.images.get_default()

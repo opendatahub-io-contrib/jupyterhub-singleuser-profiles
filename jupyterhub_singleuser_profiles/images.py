@@ -27,6 +27,16 @@ class Images(object):
 
         return ''
 
+    def get_info(self, image_name):
+        imagestream_list = self.openshift.get_imagestreams(IMAGE_LABEL+'=true')
+
+        if len(imagestream_list.items) == 0:
+            return None
+        else:
+            for i in imagestream_list.items:
+                if i.metadata.name == image_name:
+                    return dict(i.metadata.annotations)
+
     def append_option(self, image, result):
         name = image.metadata.name
         if not image.status.tags:
