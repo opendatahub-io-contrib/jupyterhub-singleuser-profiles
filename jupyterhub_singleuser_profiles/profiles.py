@@ -57,7 +57,7 @@ class SingleuserProfiles(object):
       for cm_name in profiles_config_maps:
         config_map_yaml = self.openshift.read_config_map(cm_name, key_name)
         if config_map_yaml:
-          self.sizes.extend(config_map_yaml.get("sizes", [self.empty_profile()]))
+          self.sizes.extend(config_map_yaml.get("sizes", []))
           self.profiles.extend(config_map_yaml.get("profiles", [self.empty_profile()]))
         else:
           _LOGGER.error("Could not find config map %s" % cm_name)
