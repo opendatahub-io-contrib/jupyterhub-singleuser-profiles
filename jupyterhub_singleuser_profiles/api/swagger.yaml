@@ -55,7 +55,7 @@ paths:
           content:
             application/json:
               schema:
-                type: string
+                $ref: "#/components/schemas/UIConfig"
 
   /api/images:
     get:
@@ -132,75 +132,168 @@ paths:
 components:
   schemas:
     configmap:
+      title: ConfigMap
       type: object
       properties:
         env:
           type: array
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+              type:
+                type: string
         gpu:
           type: integer
         last_selected_image:
           type: string
         last_selected_size:
           type: string
-    
-    ui:
+    UIConfig:
+      title: UIConfig
       type: object
       properties:
-        envVarConfig:
-          type: object
-          properties:
-            enabled:
-              type: boolean
-            freq_keys:
-              type: array
         gpuConfig:
-          $ref: "#/components/schemas/gpuConfig"
+          title: Gpuconfig
+          default: {}
+          allOf:
+          - "$ref": "#/components/schemas/GpuConfig"
         imageConfig:
-          type: object
-          properties:
-            blacklist: 
-              type: array
-            whitelist: 
-              type: array
-            sort:
-              type: string
+          title: Imageconfig
+          default: {}
+          allOf:
+          - "$ref": "#/components/schemas/ImageConfig"
         sizeConfig:
-          type: object
-          properties:
-            enabled:
-              type: boolean
+          title: Sizeconfig
+          default: {}
+          allOf:
+          - "$ref": "#/components/schemas/SizeConfig"
+        envVarConfig:
+          title: Envvarconfig
+          default: {}
+          allOf:
+          - "$ref": "#/components/schemas/EnvVarConfig"
 
-        
-    gpuConfig:
-      type: object
-      properties:
-        enabled:
-          type: boolean
-        gpuCheckbox:
-          $ref: "#/components/schemas/gpuCheckbox"
-        gpuInput:
-          $ref: "#/components/schemas/gpuInput"
-        gpuDropdown:
-          $ref: "#/components/schemas/gpuDropdown"
-
-
-    gpuCheckbox:
+    GpuCheckbox:
+      title: GpuCheckbox
       type: object
       properties:
         value:
+          title: Value
+          default: 1
           type: integer
-    
-    gpuDropdown:
+    GpuDropdown:
+      title: GpuDropdown
       type: object
       properties:
         start:
+          title: Start
+          default: 0
           type: integer
         end:
+          title: End
+          default: 1
           type: integer
-    
-    gpuInput:
+    GpuInput:
+      title: GpuInput
       type: object
       properties:
         limit:
+          title: Limit
+          default: 1
           type: integer
-              
+    GpuConfig:
+      title: GpuConfig
+      type: object
+      properties:
+        enabled:
+          title: Enabled
+          default: true
+          type: boolean
+        type:
+          title: Type
+          type: string
+        gpuCheckbox:
+          "$ref": "#/components/schemas/GpuCheckbox"
+        gpuDropdown:
+          "$ref": "#/components/schemas/GpuDropdown"
+        gpuInput:
+          "$ref": "#/components/schemas/GpuInput"
+    ImageConfigSort:
+      title: ImageConfigSort
+      description: An enumeration.
+      enum:
+      - name
+      - version
+      type: string
+    ImageConfig:
+      title: ImageConfig
+      type: object
+      properties:
+        blacklist:
+          title: Blacklist
+          default: []
+          type: array
+          items: {}
+        whitelist:
+          title: Whitelist
+          default: []
+          type: array
+          items: {}
+        sort:
+          "$ref": "#/components/schemas/ImageConfigSort"
+    SizeConfig:
+      title: SizeConfig
+      type: object
+      properties:
+        enabled:
+          title: Enabled
+          default: true
+          type: boolean
+    EnvVarType:
+      title: EnvVarType
+      description: An enumeration.
+      enum:
+      - text
+      - password
+      type: string
+    EnvVar:
+      title: EnvVar
+      type: object
+      properties:
+        name:
+          title: Name
+          type: string
+        type:
+          "$ref": "#/components/schemas/EnvVarType"
+      required:
+      - name
+      - type
+    EnvVarCategory:
+      title: EnvVarCategory
+      type: object
+      properties:
+        name:
+          title: Name
+          type: string
+        variables:
+          title: Variables
+          type: array
+          items:
+            "$ref": "#/components/schemas/EnvVar"
+      required:
+      - name
+    EnvVarConfig:
+      title: EnvVarConfig
+      type: object
+      properties:
+        enabled:
+          title: Enabled
+          default: true
+          type: boolean
+        categories:
+          title: Categories
+          type: array
+          items:
+            "$ref": "#/components/schemas/EnvVarCategory"

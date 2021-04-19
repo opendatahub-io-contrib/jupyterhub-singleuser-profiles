@@ -61,7 +61,7 @@ class SingleuserProfiles(object):
         if config_map_yaml:
           self.sizes.extend(config_map_yaml.get("sizes", [self.empty_profile()]))
           self.profiles.extend(config_map_yaml.get("profiles", [self.empty_profile()]))
-          self.ui = config_map_yaml.get("ui", [self.empty_profile()])
+          self.ui = {**self.ui, **config_map_yaml.get("ui", {})}
         else:
           _LOGGER.error("Could not find config map %s" % cm_name)
       if len(self.profiles) == 0:

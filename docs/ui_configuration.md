@@ -17,7 +17,15 @@ ui:
     sizeConfig:
         enabled: false
     envVarConfig:
-        freq_keys: [frequent_variable1, frequent_variable2]
+        enabled: true
+        categories:
+        - name: Amazon S3
+          variables:
+          - name:  AWS_ACCESS_KEY_ID
+            type: password
+          - name:  AWS_SECRET_ACCESS_Key
+            type: password
+        
 ```
 
 ## Example
@@ -84,9 +92,11 @@ Currently the ui configuration section is able to expose the following informati
     ```
     - A list of environment variables for "frequently used" environment variable dropdown. (Type can be omitted, in which case it defaults to text)
     ```
-    freq_keys:
-        - name: var1
-          type: password
-        - name: var2
-          type: text
+    categories:
+    - name: {string}
+      variables:
+      - name: {string}
+        type: {"password" || "text"}
+      - name: {string}
+        type: {"password" || "text"}
     ```
