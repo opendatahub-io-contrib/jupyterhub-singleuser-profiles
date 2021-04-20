@@ -45,6 +45,18 @@ paths:
               schema:
                 $ref: '#/components/schemas/configmap'
 
+  /ui/config:
+    get:
+      operationId: jupyterhub_singleuser_profiles.api.api.get_ui_config
+      summary: Get a part of the main ConfigMap containing information about the UI
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UIConfig"
+
   /api/images:
     get:
       operationId: jupyterhub_singleuser_profiles.api.api.get_images
@@ -120,13 +132,168 @@ paths:
 components:
   schemas:
     configmap:
+      title: ConfigMap
       type: object
       properties:
         env:
           type: array
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+              type:
+                type: string
         gpu:
           type: integer
         last_selected_image:
           type: string
         last_selected_size:
           type: string
+    UIConfig:
+      title: UIConfig
+      type: object
+      properties:
+        gpuConfig:
+          title: Gpuconfig
+          default: {}
+          allOf:
+          - "$ref": "#/components/schemas/GpuConfig"
+        imageConfig:
+          title: Imageconfig
+          default: {}
+          allOf:
+          - "$ref": "#/components/schemas/ImageConfig"
+        sizeConfig:
+          title: Sizeconfig
+          default: {}
+          allOf:
+          - "$ref": "#/components/schemas/SizeConfig"
+        envVarConfig:
+          title: Envvarconfig
+          default: {}
+          allOf:
+          - "$ref": "#/components/schemas/EnvVarConfig"
+
+    GpuCheckbox:
+      title: GpuCheckbox
+      type: object
+      properties:
+        value:
+          title: Value
+          default: 1
+          type: integer
+    GpuDropdown:
+      title: GpuDropdown
+      type: object
+      properties:
+        start:
+          title: Start
+          default: 0
+          type: integer
+        end:
+          title: End
+          default: 1
+          type: integer
+    GpuInput:
+      title: GpuInput
+      type: object
+      properties:
+        limit:
+          title: Limit
+          default: 1
+          type: integer
+    GpuConfig:
+      title: GpuConfig
+      type: object
+      properties:
+        enabled:
+          title: Enabled
+          default: true
+          type: boolean
+        type:
+          title: Type
+          type: string
+        gpuCheckbox:
+          "$ref": "#/components/schemas/GpuCheckbox"
+        gpuDropdown:
+          "$ref": "#/components/schemas/GpuDropdown"
+        gpuInput:
+          "$ref": "#/components/schemas/GpuInput"
+    ImageConfigSort:
+      title: ImageConfigSort
+      description: An enumeration.
+      enum:
+      - name
+      - version
+      type: string
+    ImageConfig:
+      title: ImageConfig
+      type: object
+      properties:
+        blacklist:
+          title: Blacklist
+          default: []
+          type: array
+          items: {}
+        whitelist:
+          title: Whitelist
+          default: []
+          type: array
+          items: {}
+        sort:
+          "$ref": "#/components/schemas/ImageConfigSort"
+    SizeConfig:
+      title: SizeConfig
+      type: object
+      properties:
+        enabled:
+          title: Enabled
+          default: true
+          type: boolean
+    EnvVarType:
+      title: EnvVarType
+      description: An enumeration.
+      enum:
+      - text
+      - password
+      type: string
+    EnvVar:
+      title: EnvVar
+      type: object
+      properties:
+        name:
+          title: Name
+          type: string
+        type:
+          "$ref": "#/components/schemas/EnvVarType"
+      required:
+      - name
+      - type
+    EnvVarCategory:
+      title: EnvVarCategory
+      type: object
+      properties:
+        name:
+          title: Name
+          type: string
+        variables:
+          title: Variables
+          type: array
+          items:
+            "$ref": "#/components/schemas/EnvVar"
+      required:
+      - name
+    EnvVarConfig:
+      title: EnvVarConfig
+      type: object
+      properties:
+        enabled:
+          title: Enabled
+          default: true
+          type: boolean
+        categories:
+          title: Categories
+          type: array
+          items:
+            "$ref": "#/components/schemas/EnvVarCategory"

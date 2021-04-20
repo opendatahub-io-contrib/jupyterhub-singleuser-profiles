@@ -4,6 +4,7 @@ requests
 jsonpath-rw
 connexion[swagger-ui]
 connexion
+pydantic
 jinja2
 escapism
 tornado
