@@ -38,13 +38,14 @@ class ImageForm extends React.Component {
     
     // Checks if received image belongs to current list, and if not, selects first image of list as default
     isImageCorrect() {
-        console.log("Entered image check function")
-        if (this.state.imageList.includes(this.state.selectedValue)) {
-            return
+        if (this.state.selectedValue.length > 0) {
+            if (this.state.imageList.includes(this.state.selectedValue)) {
+                return
+            }
+            if (this.state.imageList.length > 0) {
+                this.getDefaultImage()
+            }
         }
-        if (this.state.imageList.length > 0) {
-            this.getDefaultImage()
-        }     
     }
 
     async postChange(text) {
@@ -54,7 +55,6 @@ class ImageForm extends React.Component {
         this.setState({selectedValue: text})
         var json = JSON.stringify({last_selected_image: text})
         await this.API.APIPost(this.API._CMPATH, json)
-        console.log("Sent image")
     }
 
     render () {

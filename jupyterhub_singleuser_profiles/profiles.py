@@ -10,6 +10,7 @@ from .service import Service
 from .utils import escape, parse_resources
 from .sizes import Sizes
 from .images import Images
+from .ui_config import UIConfig
 from .openshift import OpenShift
 from .user import User
 
@@ -51,14 +52,16 @@ class SingleuserProfiles(object):
   def load_profiles(self, secret_name="jupyter-singleuser-profiles", filename=None, key_name="jupyterhub-singleuser-profiles.yaml", username=None):
     self.profiles = []
     self.sizes = []
+    self.ui = {}
     if self.openshift.api_client:
       profiles_config_maps = [secret_name]
       profiles_config_maps.extend(sorted(self.openshift.get_config_maps_matching_label()))
       for cm_name in profiles_config_maps:
         config_map_yaml = self.openshift.read_config_map(cm_name, key_name)
         if config_map_yaml:
-          self.sizes.extend(config_map_yaml.get("sizes", [self.empty_profile()]))
+          self.sizes.extend(config_map_yaml.get("sizes", []))
           self.profiles.extend(config_map_yaml.get("profiles", [self.empty_profile()]))
+          self.ui = {**self.ui, **config_map_yaml.get("ui", {})}
         else:
           _LOGGER.error("Could not find config map %s" % cm_name)
       if len(self.profiles) == 0:
@@ -131,6 +134,10 @@ class SingleuserProfiles(object):
 
   def clean_services(self, spawner, user):
     self.service.delete_reference_cm(user)
+
+  def get_ui_configuration(self):
+    ui = UIConfig(self.ui)
+    return ui.validate_ui_cm()
 
   def get_sizes_form(self, username=None):
     if not self.profiles:

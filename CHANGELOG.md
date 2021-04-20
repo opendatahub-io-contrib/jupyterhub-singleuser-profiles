@@ -100,3 +100,7 @@
 ## Release 0.2.3 (2021-04-09T18:28:44)
 ### Features
 * Only set gpu if the key exists in profile
+
+## Release 0.2.4 (2021-04-13T17:47:36)
+### Features
+* Fix the logic around setting default image
