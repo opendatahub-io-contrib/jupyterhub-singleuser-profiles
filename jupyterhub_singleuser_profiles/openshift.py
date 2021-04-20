@@ -126,6 +126,14 @@ class OpenShift(object):
       else:
         raise
 
+  def get_gpu_number(self):
+    result = 0
+    nodes = self.oapi_client.resources.get(kind='Node', api_version='v1')
+    node_list = nodes.get()
+    for node in node_list.items:
+      result += int(node.metadata.labels.get('nvidia.com/gpu.count', 0))
+    return result      
+    
   def get_imagestreams(self, label=None):
     imagestreams = self.oapi_client.resources.get(kind='ImageStream', api_version='image.openshift.io/v1')
     imagestream_list = imagestreams.get(namespace=self.namespace, label_selector=label)
