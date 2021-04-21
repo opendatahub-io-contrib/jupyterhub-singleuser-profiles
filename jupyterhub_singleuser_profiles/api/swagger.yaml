@@ -45,7 +45,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/configmap'
 
-  /ui/config:
+  /api/ui/config:
     get:
       operationId: jupyterhub_singleuser_profiles.api.api.get_ui_config
       summary: Get a part of the main ConfigMap containing information about the UI
