@@ -1,6 +1,7 @@
-from pydantic import BaseModel, ValidationError, validator
+from pydantic import BaseModel, ValidationError, validator, root_validator
 from typing import Dict, Any, Optional, List
 from enum import Enum
+from .openshift import OpenShift
 import json
 import logging
 import yaml
@@ -20,9 +21,39 @@ class GpuInput(BaseModel):
 class GpuConfig(BaseModel):
     enabled: Optional[bool] = True
     type: Optional[str] = None
+    clusterGpuCount: int = 0
     gpuCheckbox: Optional[GpuCheckbox]
     gpuDropdown: Optional[GpuDropdown]
     gpuInput: Optional[GpuInput]
+
+    @root_validator(pre=True)
+    def check_cluster_gpus(cls, values):
+        if values.get('clusterGpuCount') == 0:
+            values['enabled'] = False
+        return values
+
+    @validator('gpuDropdown')
+    def gpu_max_count_dropdown(cls, v, values, **kwargs):
+        max = values['clusterGpuCount']
+        if v.end:
+            if v.end > max:
+                v.end = max
+        else:
+            v.end = max
+
+        return v
+
+    @validator('gpuInput')
+    def gpu_max_count_input(cls, v, values, **kwargs):
+        max = values['clusterGpuCount']
+        if v.limit:
+            if v.limit > max:
+                v.limit = max
+        else:
+            v.limit = max
+
+        return v
+
 
     @classmethod
     def create(cls, dict_:Dict[str, Any]) -> "GpuConfig":
@@ -80,11 +111,16 @@ class UIConfigModel(BaseModel):
 
 class UIConfig():
 
-    def __init__(self, ui_cfg):
+    def __init__(self, ui_cfg, openshift):
         self.ui_cfg = ui_cfg
+        self.openshift = openshift
     
     def validate_ui_cm(self):
         # Unmodified or empty ui_config is a list istead of dict
+
+        if self.ui_cfg.get('gpuConfig'):
+            self.ui_cfg['gpuConfig']['clusterGpuCount'] = self.openshift.get_gpu_number()
+
         try:
             for key, value in self.ui_cfg.items():
                 if value is None:
