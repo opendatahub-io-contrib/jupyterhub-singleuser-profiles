@@ -136,7 +136,7 @@ class SingleuserProfiles(object):
     self.service.delete_reference_cm(user)
 
   def get_ui_configuration(self):
-    ui = UIConfig(self.ui)
+    ui = UIConfig(self.ui, self.openshift)
     return ui.validate_ui_cm()
 
   def get_sizes_form(self, username=None):
