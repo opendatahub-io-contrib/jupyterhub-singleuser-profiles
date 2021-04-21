@@ -116,3 +116,7 @@
 * Gather image annotation data
 * Testing pydantic library
 * Added ui_config
+
+## Release 0.3.1 (2021-04-21T20:50:54)
+### Features
+* Add api prefix to UI andpoint
