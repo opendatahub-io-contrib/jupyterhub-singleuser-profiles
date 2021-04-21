@@ -39,9 +39,12 @@ class ImageForm extends React.Component {
     // Checks if received image belongs to current list, and if not, selects first image of list as default
     isImageCorrect() {
         if (this.state.selectedValue.length > 0) {
-            if (this.state.imageList.includes(this.state.selectedValue)) {
-                return
+            for (var i = 0; i < this.state.imageList.length; i++) {
+                if (this.state.imageList[i]['name'] == this.state.selectedValue) {
+                    return
+                }
             }
+
             if (this.state.imageList.length > 0) {
                 this.getDefaultImage()
             }
@@ -64,7 +67,7 @@ class ImageForm extends React.Component {
                     <FormGroup>
                         <DropBtn onMouseEnter={() => this.loadImages()} innerClass="ImageDropdown" text={this.state.selectedValue} defaultText="No images available">
                             {this.state.imageList.map((value, index) => (
-                                <Dropdown.Item className="DropdownItem" id={value} onMouseDown={(e) => this.postChange(e)} eventKey={index.toString()}>{value}</Dropdown.Item>
+                                <Dropdown.Item className="DropdownItem" id={value.name} onMouseDown={(e) => this.postChange(e)} eventKey={index.toString()}>{value.name}</Dropdown.Item>
                                 )
                             )}
                         </DropBtn>
