@@ -152,6 +152,9 @@ class SingleuserProfiles(object):
   def get_sizes(self):
     return self.sizes
 
+  def get_image_info(self, image_name):
+    return self.images.get_info(image_name)
+
   @classmethod
   def empty_profile(self):
     return {

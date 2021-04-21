@@ -73,6 +73,27 @@ paths:
                       type: string
                   - type: string
   
+  /api/images/{image_name}:
+    get:
+      operationId: jupyterhub_singleuser_profiles.api.api.get_image_info
+      summary: Get human readable image information in a json.
+      parameters:
+        - name: image_name
+          in: path
+          required: true
+          description: Name of the image
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ImageInfo"
+        '404':
+          description: Image not found
+
   /api/images/default:
     get:
       operationId: jupyterhub_singleuser_profiles.api.api.get_default_image
@@ -297,3 +318,50 @@ components:
           type: array
           items:
             "$ref": "#/components/schemas/EnvVarCategory"
+    ImageInfo:
+      title: ImageInfo
+      type: object
+      properties:
+        description:
+          title: Description
+          type: string
+        url:
+          title: Url
+          type: string
+        name:
+          title: Name
+          type: string
+        tag_specific:
+          "$ref": "#/components/schemas/ImageTagInfo"
+      required:
+      - tag_specific
+    NameVersionPair:
+      title: NameVersionPair
+      type: object
+      properties:
+        name:
+          title: Name
+          type: string
+        version:
+          title: Version
+          type: string
+      required:
+      - name
+      - version
+    ImageTagInfo:
+      title: ImageTagInfo
+      type: object
+      properties:
+        software:
+          title: Software
+          type: array
+          items:
+            "$ref": "#/components/schemas/NameVersionPair"
+        dependencies:
+          title: Dependencies
+          type: array
+          items:
+            "$ref": "#/components/schemas/NameVersionPair"
+      required:
+      - software
+      - dependencies
