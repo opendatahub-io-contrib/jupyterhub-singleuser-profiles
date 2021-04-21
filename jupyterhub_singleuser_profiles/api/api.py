@@ -52,6 +52,15 @@ def authenticated(f):
 
     return decorated
 
+@app.before_request
+def before_request():
+    if request.is_secure:
+        return
+
+    url = request.url.replace("http://", "https://", 1)
+    code = 301
+    return redirect(url, code=code)
+
 @authenticated
 def whoami(user):
     return Response(
