@@ -1,20 +1,30 @@
 import * as React from 'react';
 import { Button, ButtonVariant, Select, SelectOption, SelectVariant } from '@patternfly/react-core';
 import { MinusCircleIcon } from '@patternfly/react-icons';
-import { VariableRow } from './types';
-import { EnvVarType } from '../utils/types';
+import { CUSTOM_VARIABLE, VariableRow } from './types';
+import { EnvVarCategoryType, EnvVarType } from '../utils/types';
 import EnvVariablesVariable from './EnvVariablesVariable';
 
 type EnvVariablesRowProps = {
   variableRow: VariableRow;
+  categories: EnvVarCategoryType[];
   onUpdate: (updatedRow?: VariableRow) => void;
   onBlur: () => void;
 };
 
-const EnvVariablesRow: React.FC<EnvVariablesRowProps> = ({ variableRow, onUpdate, onBlur }) => {
+const EnvVariablesRow: React.FC<EnvVariablesRowProps> = ({
+  variableRow,
+  categories,
+  onUpdate,
+  onBlur,
+}) => {
   const [typeDropdownOpen, setTypeDropdownOpen] = React.useState<boolean>(false);
+  const categoryOptions = categories.map((category) => (
+    <SelectOption value={category.name} key={category.name} />
+  ));
   const selectOptions = [
-    <SelectOption value={variableRow.variableType} key={variableRow.variableType} />,
+    <SelectOption value={CUSTOM_VARIABLE} key={CUSTOM_VARIABLE} />,
+    ...categoryOptions,
   ];
 
   const removeVariables = () => {
@@ -34,6 +44,27 @@ const EnvVariablesRow: React.FC<EnvVariablesRowProps> = ({ variableRow, onUpdate
     }
   };
 
+  const updateVariableType = (newType: string) => {
+    const newCategory = categories.find((category) => category.name === newType);
+    const variables =
+      newCategory?.variables.map((variable) => {
+        return {
+          name: variable.name,
+          type: variable.type,
+          value: '',
+        };
+      }) ?? [];
+
+    const updatedRow: VariableRow = {
+      variableType: newType,
+      variables: variables,
+      errors: {},
+    };
+
+    onUpdate(updatedRow);
+    setTypeDropdownOpen(false);
+  };
+
   return (
     <div className="jsp-spawner__env-var-form__var-row">
       <Select
@@ -43,7 +74,7 @@ const EnvVariablesRow: React.FC<EnvVariablesRowProps> = ({ variableRow, onUpdate
         onToggle={() => setTypeDropdownOpen(!typeDropdownOpen)}
         aria-labelledby="container-size"
         selections={variableRow.variableType}
-        onSelect={(e, selection) => onUpdate({ ...variableRow, variableType: selection as string })}
+        onSelect={(e, selection) => updateVariableType(selection as string)}
       >
         {selectOptions}
       </Select>

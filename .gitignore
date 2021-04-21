@@ -1,15 +1,2 @@
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
-# dependencies
-./jupyterhub_singleuser_profiles/ui/node_modules
-
-# production
-jupyterhub_singleuser_profiles/ui/build
-jupyterhub_singleuser_profiles/ui/node_modules
-jupyterhub_singleuser_profiles/ui/build
-
-# Dev files
-jupyterhub_singleuser_profiles/ui/.env.development.local
-jupyterhub_singleuser_profiles/ui-orig
-jupyterhub_singleuser_profiles/ui-orig/build
-jupyterhub_singleuser_profiles/ui-orig/node_modules

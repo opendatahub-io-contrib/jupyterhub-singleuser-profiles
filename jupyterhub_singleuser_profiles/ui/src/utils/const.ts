@@ -7,4 +7,5 @@ export const CM_PATH = 'user/configmap';
 export const SIZES_PATH = 'sizes';
 export const IMAGE_PATH = 'images';
 export const DEFAULT_IMAGE_PATH = 'images/default';
+export const UI_CONFIG_PATH = 'ui/config';
 export const SINGLE_SIZE_PATH = 'size';

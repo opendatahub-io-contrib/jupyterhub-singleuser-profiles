@@ -3,13 +3,17 @@ import { Button, ButtonVariant, Form } from '@patternfly/react-core';
 import { PlusCircleIcon } from '@patternfly/react-icons';
 import { APIGet, APIPost } from '../utils/APICalls';
 import { CM_PATH } from '../utils/const';
-import { UserConfigMapType, EnvVarType } from '../utils/types';
+import { UserConfigMapType, EnvVarType, UiConfigType } from '../utils/types';
 import { CUSTOM_VARIABLE, EMPTY_KEY, VariableRow } from './types';
 import EnvVariablesRow from './EnvVariablesRow';
 
 import './EnvVarForm.scss';
 
-const EnvVarForm: React.FC = () => {
+type ImageFormProps = {
+  uiConfig: UiConfigType;
+};
+
+const EnvVarForm: React.FC<ImageFormProps> = ({ uiConfig }) => {
   const [variableRows, setVariableRows] = React.useState<VariableRow[]>([]);
   const [savedEnvJson, setSavedEnvJson] = React.useState<string>('');
 
@@ -105,6 +109,7 @@ const EnvVarForm: React.FC = () => {
     return variableRows.map((row, index) => (
       <EnvVariablesRow
         key={index}
+        categories={uiConfig.envVarConfig?.categories || []}
         variableRow={row}
         onUpdate={(updatedRow) => onUpdateRow(index, updatedRow)}
         onBlur={postEnvChange}

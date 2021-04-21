@@ -1,15 +1,19 @@
 import * as React from 'react';
-import { Button, ButtonVariant, Popover, Radio } from '@patternfly/react-core';
-import { OutlinedQuestionCircleIcon, ExternalLinkAltIcon } from '@patternfly/react-icons';
+import { Popover, Radio } from '@patternfly/react-core';
+import { OutlinedQuestionCircleIcon } from '@patternfly/react-icons';
 import { APIGet, APIPost } from '../utils/APICalls';
 import { CM_PATH, DEFAULT_IMAGE_PATH, IMAGE_PATH } from '../utils/const';
-import { UserConfigMapType } from '../utils/types';
+import { ImageType, ImageSoftwareType, UserConfigMapType, UiConfigType } from '../utils/types';
 
 import './ImageForm.scss';
 
-const ImageForm: React.FC = () => {
+type ImageFormProps = {
+  uiConfig: UiConfigType;
+};
+
+const ImageForm: React.FC<ImageFormProps> = ({ uiConfig }) => {
   const [selectedValue, setSelectedValue] = React.useState<string>();
-  const [imageList, setImageList] = React.useState<string[]>();
+  const [imageList, setImageList] = React.useState<ImageType[]>();
 
   const postChange = (text) => {
     const json = JSON.stringify({ last_selected_image: text });
@@ -23,7 +27,7 @@ const ImageForm: React.FC = () => {
         setSelectedValue(data['last_selected_image'] || '');
       }
     });
-    APIGet(IMAGE_PATH).then((data: string[]) => {
+    APIGet(IMAGE_PATH).then((data: ImageType[]) => {
       if (!cancelled) {
         setImageList(data);
       }
@@ -40,7 +44,7 @@ const ImageForm: React.FC = () => {
       return;
     }
 
-    if (selectedValue && imageList.includes(selectedValue)) {
+    if (selectedValue && imageList.find((image) => image.name === selectedValue)) {
       return;
     }
 
@@ -63,9 +67,20 @@ const ImageForm: React.FC = () => {
     }
   };
 
-  // TODO: Update Image response to include the description and requirments
+  const getNameVersionString = (software: ImageSoftwareType): string => {
+    const versionString = software?.version ? ` ${software?.version}` : '';
+    return `${software.name}${versionString}`;
+  };
+
+  const getDescriptionForImage = (image: ImageType): string => {
+    const softwareDescriptions = image.content.software.map((software) =>
+      getNameVersionString(software),
+    );
+    return softwareDescriptions.join(', ');
+  };
+
   const getImagePopover = (image) => {
-    if (!image.requirements) {
+    if (!image.content?.dependencies?.length) {
       return null;
     }
     return (
@@ -77,20 +92,14 @@ const ImageForm: React.FC = () => {
             <span className="jsp-spawner__image-options__packages-popover__title">
               Packages included:
             </span>
-            {image.requirements.map((requirement) => (
+            {image.content.dependencies.map((dependency) => (
               <span
-                key={requirement}
+                key={dependency.name}
                 className="jsp-spawner__image-options__packages-popover__package"
               >
-                {requirement}
+                {getNameVersionString(dependency)}
               </span>
             ))}
-            <Button variant={ButtonVariant.link}>
-              <span className="jsp-spawner__image-options__packages-popover__link-text">
-                Learn more about preinstalled packages
-              </span>
-              <ExternalLinkAltIcon className="jsp-spawner__image-options__packages-popover__link-icon" />
-            </Button>
           </>
         }
       >
@@ -102,19 +111,19 @@ const ImageForm: React.FC = () => {
   const selectOptions =
     imageList?.map((image) => (
       <Radio
-        key={image}
-        id={image}
-        name={image}
+        key={image.name}
+        id={image.name}
+        name={image.display_name}
         className="jsp-spawner__image-options__option"
         label={
           <span className="jsp-spawner__image-options__title">
-            {image}
+            {image.display_name}
             {getImagePopover(image)}
           </span>
         }
-        description={image.description}
-        isChecked={image === selectedValue}
-        onChange={(checked: boolean) => handleSelection(image, checked)}
+        description={getDescriptionForImage(image)}
+        isChecked={image.name === selectedValue}
+        onChange={(checked: boolean) => handleSelection(image.name, checked)}
       />
     )) ?? [];
 
