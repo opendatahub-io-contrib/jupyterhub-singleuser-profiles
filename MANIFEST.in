@@ -1,2 +1,3 @@
 include jupyterhub_singleuser_profiles/api/*.yaml
+include requirements.txt
 recursive-include jupyterhub_singleuser_profiles/ui *
