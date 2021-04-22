@@ -7,19 +7,19 @@ import EnvVarForm from '../EnvVarForm/EnvVarForm';
 import { APIGet } from '../utils/APICalls';
 import { UI_CONFIG_PATH } from '../utils/const';
 import { UiConfigType } from '../utils/types';
-import { mockData } from '../__mock__/mockData';
 
 const App: React.FC = () => {
   const [uiConfig, setUiConfig] = React.useState<UiConfigType>();
   React.useEffect(() => {
     let cancelled = false;
 
-    APIGet(UI_CONFIG_PATH).then((data: UiConfigType) => {
-      console.dir(data);
-      setUiConfig(data);
-    }).catch(() => {
-      setUiConfig(mockData[UI_CONFIG_PATH]);
-    });
+    APIGet(UI_CONFIG_PATH)
+      .then((data: UiConfigType) => {
+        if (!cancelled) {
+          setUiConfig(data);
+        }
+      })
+      .catch(() => {});
 
     return () => {
       cancelled = true;
@@ -40,9 +40,7 @@ const App: React.FC = () => {
       </div>
       <ImageForm uiConfig={uiConfig} />
       <SizesForm uiConfig={uiConfig} />
-      {uiConfig.envVarConfig?.enabled !== false && (
-        <EnvVarForm uiConfig={uiConfig} />
-      )}
+      {uiConfig.envVarConfig?.enabled !== false && <EnvVarForm uiConfig={uiConfig} />}
       <div className="jsp-spawner__buttons-bar">
         <input
           type="submit"
