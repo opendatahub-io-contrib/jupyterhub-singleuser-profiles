@@ -2,7 +2,7 @@
 
 The admin has the ability to configure most parts of the UI to some extent.
 
-The Ui configuration section has this structure by default:
+The UI configuration section has this structure by default:
 
 ```
 ui:
@@ -42,9 +42,11 @@ Similarly, if you wanted to make certain images, (ex. minimal-notebook:v0.1 and 
 ```
 ## Features
 
-Currently the ui configuration section is able to expose the following information through the API:
+Currently the UI configuration section is able to expose the following information through the API:
 
-- Images
+## Images
+
+### Configuration
     - Black/White listing the images (i.e. ODH deploys all imagestreams and admin can influence what is visible)
     ```
     whitelist: {[image1, image2, ...]}
@@ -54,12 +56,18 @@ Currently the ui configuration section is able to expose the following informati
     ```
     sort: {'name' || 'version'}
     ```
-- Sizes
+## Sizes
+
+### Configuration
     - enable/disable 
     ```
     enabled: {true || false}
     ```
-- Gpu
+## Gpu
+
+Currently, you can set 3 different visual styles of the GPU. For each of these styles, it is neccessary to set the limits for GPU amount. These limits are also checked against the actual amount of GPUs on the node, to prevent requesting more GPUs than are available.
+
+### Configuration
     - enable/disable 
     ```
     enabled: {true || false}
@@ -85,7 +93,13 @@ Currently the ui configuration section is able to expose the following informati
             gpuInput:
                 limit: {int}
         ```          
-- Env Vars
+## Env Vars
+
+The environment variable (`EnvVar`) field mainly allows the admin to set up '`EnvVar` Groups', which show up in the UI as choices in the `EnvVar` dropdown.
+
+If an `EnvVar` is of type 'password' it defaults as a secret in the UI, hiding its text and it gets written in a secret instead of a configmap.
+
+### Configuration
     - enable/disable 
     ```
     enabled: {true || false}

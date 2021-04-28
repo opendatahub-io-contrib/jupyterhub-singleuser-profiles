@@ -116,6 +116,26 @@ sizes:
       limits:
         memory: "8Gi"
         cpu: "8"
+ui:
+  gpuConfig:
+      type: dropdown
+      gpuDropdown:
+          start: 1
+          end: 10
+  imageConfig:
+      blacklist: [unavailable_image1:v0.1, unavailable_image2:v0.2]
+      sort: 'name'
+  sizeConfig:
+      enabled: false
+  envVarConfig:
+      enabled: true
+      categories:
+      - name: Amazon S3
+        variables:
+        - name:  AWS_ACCESS_KEY_ID
+          type: password
+        - name:  AWS_SECRET_ACCESS_Key
+          type: password
 ```
 
 * **profiles** is a list of profile objects

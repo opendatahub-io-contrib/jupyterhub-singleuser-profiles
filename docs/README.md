@@ -7,5 +7,7 @@ The `ConfigMap` this library reads is divided into several sections, each config
 - [Sizes](./sizes.md)
 - [Volumes](./volumes.md)
 - [Images](./images.md)
+- [UI Configuration](./ui_configuration.md)
+- [Testing](./testing.md)
 - [API/UI](./api.md)
 - [How To Use](./howtouse.md)
