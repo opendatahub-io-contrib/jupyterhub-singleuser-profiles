@@ -226,7 +226,7 @@ class SingleuserProfiles(object):
         if gpu_mode == self.GPU_MODE_PRIVILEGED:
           pod.spec.security_context.privileged = True
 
-    return pod
+    return None
 
   @classmethod
   def generate_volume_path(self, mountPath, default_mount_path, volume_name):
