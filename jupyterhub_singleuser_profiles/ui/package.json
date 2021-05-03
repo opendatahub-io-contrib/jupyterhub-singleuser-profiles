@@ -43,7 +43,7 @@
     "@patternfly/react-tokens": "^4.10.2",
     "classnames": "^2.2.6",
     "dompurify": "^2.2.6",
-    "node-gyp": "^7.1.2",
+    "node-gyp": "^3.8.0",
     "node-sass": "^4.14.1",
     "react": "^16.13.1",
     "react-dom": "^16.13.1"
