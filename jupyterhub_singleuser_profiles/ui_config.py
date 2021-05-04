@@ -19,7 +19,7 @@ class GpuInput(BaseModel):
     limit: int = 1
 
 class GpuConfig(BaseModel):
-    enabled: Optional[bool] = True
+    enabled: bool = False
     type: Optional[str] = None
     clusterGpuCount: int = 0
     gpuCheckbox: Optional[GpuCheckbox]
@@ -104,10 +104,10 @@ class EnvVarConfig(BaseModel):
     categories: List[EnvVarCategory] = None
 
 class UIConfigModel(BaseModel):
-    gpuConfig: Optional[GpuConfig] = {}
-    imageConfig: Optional[ImageConfig] = {}
-    sizeConfig: Optional[SizeConfig] = {}
-    envVarConfig: Optional[EnvVarConfig] = {}
+    gpuConfig: GpuConfig = GpuConfig()
+    imageConfig: ImageConfig = ImageConfig()
+    sizeConfig: SizeConfig = SizeConfig()
+    envVarConfig: EnvVarConfig = EnvVarConfig()
 
 class UIConfig():
 
