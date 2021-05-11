@@ -47,52 +47,52 @@ Currently the UI configuration section is able to expose the following informati
 ## Images
 
 ### Configuration
-    - Black/White listing the images (i.e. ODH deploys all imagestreams and admin can influence what is visible)
-    ```
-    whitelist: {[image1, image2, ...]}
-    blacklist: {[image1, image2, ...]}
-    ```
-    - Sorting of the images (by name, version
-    ```
-    sort: {'name' || 'version'}
-    ```
+- Black/White listing the images (i.e. ODH deploys all imagestreams and admin can influence what is visible)
+```
+whitelist: {[image1, image2, ...]}
+blacklist: {[image1, image2, ...]}
+```
+- Sorting of the images (by name, version)
+```
+sort: {'name' || 'version'}
+```
 ## Sizes
 
 ### Configuration
-    - enable/disable 
-    ```
-    enabled: {true || false}
-    ```
+- enable/disable 
+```
+enabled: {true || false}
+```
 ## Gpu
 
 Currently, you can set 3 different visual styles of the GPU. For each of these styles, it is neccessary to set the limits for GPU amount. These limits are also checked against the actual amount of GPUs on the node, to prevent requesting more GPUs than are available.
 
 ### Configuration
-    - enable/disable 
+- enable/disable 
+```
+enabled: {true || false}
+```
+- Change visual style to either:
+    - Dropdown (With a set range of values) 
     ```
-    enabled: {true || false}
+    type: dropdown
+    gpuDropdown:
+        range:
+            start: {int}
+            end: {int}
     ```
-    - Change visual style to either:
-        - Dropdown (With a set range of values) 
-        ```
-        type: dropdown
-        gpuDropdown:
-            range:
-                start: {int}
-                end: {int}
-        ```
-        - Checkbox (With a set number) 
-        ```
-        type: checkbox
-            gpuCheckbox:
-                value: {int}
-        ```
-        - Input (with a set limit)
-        ```
-        type: input
-            gpuInput:
-                limit: {int}
-        ```          
+    - Checkbox (With a set number) 
+    ```
+    type: checkbox
+        gpuCheckbox:
+            value: {int}
+    ```
+    - Input (with a set limit)
+    ```
+    type: input
+        gpuInput:
+            limit: {int}
+    ```          
 ## Env Vars
 
 The environment variable (`EnvVar`) field mainly allows the admin to set up '`EnvVar` Groups', which show up in the UI as choices in the `EnvVar` dropdown.
@@ -100,17 +100,17 @@ The environment variable (`EnvVar`) field mainly allows the admin to set up '`En
 If an `EnvVar` is of type 'password' it defaults as a secret in the UI, hiding its text and it gets written in a secret instead of a configmap.
 
 ### Configuration
-    - enable/disable 
-    ```
-    enabled: {true || false}
-    ```
-    - A list of environment variables for "frequently used" environment variable dropdown. (Type can be omitted, in which case it defaults to text)
-    ```
-    categories:
+- enable/disable 
+```
+enabled: {true || false}
+```
+- A list of environment variables for "frequently used" environment variable dropdown. (Type can be omitted, in which case it defaults to text)
+```
+categories:
+- name: {string}
+    variables:
     - name: {string}
-      variables:
-      - name: {string}
-        type: {"password" || "text"}
-      - name: {string}
-        type: {"password" || "text"}
-    ```
+    type: {"password" || "text"}
+    - name: {string}
+    type: {"password" || "text"}
+```

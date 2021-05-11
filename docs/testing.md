@@ -19,7 +19,7 @@ If your quay.io username is different from your github username, it is changeabl
 
 ## JSP + Jupyterhub-odh
 
-To test jsp changes hat require modifying the [jupyterhub-odh](https://github.com/opendatahub-io/jupyterhub-odh) repository follow these steps:
+To test jsp changes that require modifying the [jupyterhub-odh](https://github.com/opendatahub-io/jupyterhub-odh) repository follow these steps:
 
 1. Create forks of both the [JSP repository](https://github.com/opendatahub-io/jupyterhub-singleuser-profiles) and the [jupyterhub-odh repository](https://github.com/opendatahub-io/jupyterhub-odh)
 2. Apply the required changes.
@@ -44,4 +44,6 @@ Any errors of the API will appear in the main `jupyterhub` pod. To configure the
 
 To test the Spawner UI, follow the steps in the JSP section above. Then follow the jupyterhub `route`.
 
-Any arrors will appear in the console accessed with F12. Closer information about the error may be available in the `jupyterhub` pod.
+Any errors will appear in the console accessed with F12. Closer information about the error may be available in the `jupyterhub` pod.
+
+For further information such as local testing of the UI, follow instructions of the testing section of the [UI Readme](../jupyterhub_singleuser_profiles/ui/README.md#testing)
