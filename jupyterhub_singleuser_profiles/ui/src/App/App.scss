@@ -1,0 +1,65 @@
+.jsp-spawner {
+  margin: 0 var(--pf-global--spacer--2xl);
+
+  &__header {
+    color: var(--pf-global--Color--100);
+
+    &__title {
+      font-size: var(--pf-global--FontSize--2xl);
+    }
+
+    &__sub-title {
+      font-size: var(--pf-global--FontSize--md);
+      margin-top: var(--pf-global--spacer--sm);
+    }
+  }
+
+  &__option-section {
+    margin-top: var(--pf-global--spacer--lg);
+    border-top: 1px solid var(--pf-global--BorderColor--100);
+    padding-top: var(--pf-global--spacer--lg);
+    text-align: left;
+    width: 50%;
+    min-width: 622px;
+
+    &:first-of-type {
+      margin-top: 0;
+      border-top: 0;
+    }
+
+    &__title {
+      align-items: center;
+      display: flex;
+      font-size: var(--pf-global--FontSize--lg);
+
+      > svg {
+        margin-left: var(--pf-global--spacer--xs);
+      }
+    }
+  }
+
+  &__buttons-bar {
+    display: flex;
+    margin-top: var(--pf-global--spacer--xl);
+
+    .pf-c-button {
+      margin-left: var(--pf-global--spacer--xl);
+
+      &:first-of-type {
+        margin-left: 0;
+      }
+    }
+  }
+
+  &__submit-button {
+    margin-left: var(--pf-global--spacer--2xl);
+  }
+
+  // add specificity to prevent bootstrap overrides
+  .pf-c-check__input {
+    margin-top: var(--pf-c-check__input--MarginTop);
+  }
+  .pf-c-radio__input {
+    margin-top: var(--pf-c-radio__input--MarginTop);
+  }
+}
