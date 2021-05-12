@@ -36,9 +36,13 @@ def authenticated(f):
         token = request.headers.get(auth.auth_header_name)
         for_user = connexion.request.headers.get('For-User')
         if cookie:
-            user = auth.user_for_cookie(cookie)
+            user = auth.user_for_cookie(cookie, use_cache=True)
+            if not user:
+                user = auth.user_for_cookie(cookie, use_cache=False)
         elif token:
-            user = auth.user_for_token(token)
+            user = auth.user_for_token(token, use_cache=True)
+            if not user:
+                user = auth.user_for_token(token, use_cache=False)
         else:
             user = None
         if for_user and user.get('admin'):
@@ -48,7 +52,10 @@ def authenticated(f):
             return f(user=user, *args, **kwargs)
         else:
             # redirect to login url on failed auth
-            return redirect(auth.login_url + '?next=%s' % quote(request.path))
+            login_url = None #os.environ.get('JUPYTERHUB_LOGIN_URL')
+            if not login_url:
+                login_url = auth.login_url
+            return redirect(login_url + '?next=%s' % quote(request.path))
 
     return decorated
 
