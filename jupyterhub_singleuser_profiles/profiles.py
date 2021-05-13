@@ -27,6 +27,7 @@ class SingleuserProfiles(object):
   def __init__(self, namespace=None, verify_ssl=True, gpu_mode=None, service_account_path='/var/run/secrets/kubernetes.io/serviceaccount'):
     self.profiles = []
     self.namespace = None
+    self.gpu_types = []
     self.gpu_mode = gpu_mode
 
     self.openshift = OpenShift(namespace=namespace, verify_ssl=verify_ssl)
@@ -50,6 +51,7 @@ class SingleuserProfiles(object):
       self._gpu_mode = None
   
   def load_profiles(self, secret_name="jupyter-singleuser-profiles", filename=None, key_name="jupyterhub-singleuser-profiles.yaml", username=None):
+    self.gpu_types = []
     self.profiles = []
     self.sizes = []
     self.ui = {}
@@ -59,6 +61,7 @@ class SingleuserProfiles(object):
       for cm_name in profiles_config_maps:
         config_map_yaml = self.openshift.read_config_map(cm_name, key_name)
         if config_map_yaml:
+          self.gpu_types.extend(config_map_yaml.get("gpuTypes", []))
           self.sizes.extend(config_map_yaml.get("sizes", []))
           self.profiles.extend(config_map_yaml.get("profiles", [self.empty_profile()]))
           self.ui = {**self.ui, **config_map_yaml.get("ui", {})}
@@ -155,6 +158,9 @@ class SingleuserProfiles(object):
   def get_image_info(self, image_name):
     return self.images.get_info(image_name)
 
+  def get_gpu_types(self):
+    return self.gpu_types
+
   @classmethod
   def empty_profile(self):
     return {
@@ -212,8 +218,29 @@ class SingleuserProfiles(object):
 
     return profile1
 
+
   @classmethod
-  def apply_gpu_config(self, gpu_mode, gpu_count, pod):
+  def apply_pod_schedulers(self, node_tolerations, node_affinity, pod):
+
+    if not pod.spec.tolerations:
+      pod.spec.tolerations = node_tolerations
+    else:
+      pod.spec.tolerations.extend(node_tolerations)
+
+    if not pod.spec.affinity:
+      pod.spec.affinity = {}
+      pod.spec.affinity['nodeAffinity'] = node_affinity
+    else:
+      pod.spec.affinity['nodeAffinity'] = {**pod.spec.affinity.get('nodeAffinity', {}), **node_affinity}
+
+    return None
+
+  @classmethod
+  def apply_gpu_config(self, gpu_mode, profile, gpu_types, pod, selected_gpu_type):
+    gpu_count = profile.get('gpu', 0)
+    node_tolerations = []
+    node_affinity = {}
+
     if int(gpu_count) > 0:
       pod.spec.containers[0].resources.limits[_GPU_KEY] = str(gpu_count)
       pod.spec.containers[0].resources.requests[_GPU_KEY] = str(gpu_count)
@@ -226,7 +253,21 @@ class SingleuserProfiles(object):
         if gpu_mode == self.GPU_MODE_PRIVILEGED:
           pod.spec.security_context.privileged = True
 
-    return pod
+      if gpu_types:
+        # We currently do not have a way to select the type of GPU in the notebook spawner
+        # Our workaround for the time being is to apply all possible gpu tolerations
+        if selected_gpu_type == "ALL":
+          for gpu_type in gpu_types:
+            node_tolerations.extend(gpu_type.get('node_tolerations', []))
+        else:
+          for gpu_type in gpu_types:
+            if selected_gpu_type == gpu_type.get('type'):
+              node_tolerations.extend(gpu_type.get('node_tolerations', []))
+              break
+
+    self.apply_pod_schedulers(node_tolerations, node_affinity, pod)
+
+    return None
 
   @classmethod
   def generate_volume_path(self, mountPath, default_mount_path, volume_name):
@@ -251,7 +292,7 @@ class SingleuserProfiles(object):
     
 
   @classmethod
-  def apply_pod_profile(self, username, pod, profile, default_mount_path, gpu_mode=None):
+  def apply_pod_profile(self, username, pod, profile, gpu_types, default_mount_path, gpu_mode=None, selected_gpu_type="ALL"):
     api_client = kubernetes.client.ApiClient()
 
     pod.metadata.labels['jupyterhub.opendatahub.io/user'] = escape(username)
@@ -300,14 +341,6 @@ class SingleuserProfiles(object):
       mem_limit = resource_var.limits.get('memory', '')
       if mem_limit:
         pod.spec.containers[0].env.append(V1EnvVar(name='MEM_LIMIT', value=self.get_mem_limit(mem_limit)))
-      
-    if profile.get('node_tolerations'):
-        pod.spec.tolerations = profile.get('node_tolerations')
-
-    if profile.get('node_affinity'):
-        if not pod.spec.affinity:
-            pod.spec.affinity = {}
-        pod.spec.affinity['nodeAffinity'] = profile.get('node_affinity')
 
     for c in pod.spec.containers:
       update = False
@@ -330,6 +363,11 @@ class SingleuserProfiles(object):
       if not update:
         env.append(V1EnvVar(_JUPYTERHUB_USER_NAME_ENV, username))
 
-    self.apply_gpu_config(gpu_mode, profile.get('gpu', 0), pod)
+    self.apply_gpu_config(gpu_mode, profile, gpu_types, pod, selected_gpu_type)
 
-    return pod  
+    node_tolerations = profile.get('node_tolerations', [])
+    node_affinity = profile.get('node_affinity', {})
+
+    self.apply_pod_schedulers(node_tolerations, node_affinity, pod)
+
+    return pod

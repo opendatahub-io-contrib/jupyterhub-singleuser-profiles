@@ -114,3 +114,10 @@ data:
           limits:
             memory: "8Gi"
             cpu: "8"
+    gpuTypes:
+    - type: default
+      node_tolerations:
+        - key: default_gpu_taint
+          operator: Equal
+          value: label_target_value
+          effect: NoSchedule
