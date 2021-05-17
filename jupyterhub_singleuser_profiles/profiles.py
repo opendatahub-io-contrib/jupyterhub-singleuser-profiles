@@ -170,18 +170,7 @@ class SingleuserProfiles(object):
       "env": {},
       "node_tolerations": [],
       "node_affinity": {},
-      "resources": {
-        "requests": {
-          "memory": None,
-          "cpu": None
-        },
-        "limits": {
-          "memory": None,
-          "cpu": None
-        },
-        "mem_limit": None,
-        "cpu_limit": None
-      },
+      "resources": {},
       "services": {}
     }
 
