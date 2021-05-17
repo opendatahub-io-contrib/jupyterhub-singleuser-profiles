@@ -120,3 +120,21 @@
 ## Release 0.3.1 (2021-04-21T20:50:54)
 ### Features
 * Add api prefix to UI andpoint
+
+## Release 0.4.0 (2021-05-17T13:32:36)
+### Features
+* Add support for custom GPU taints
+* Use JUPYTERHUB_LOGIN_URL instead of default and try get user info without cache
+* Added a sort function based on label to images
+* Disable GPU config by default
+* Enable switching custom env variable to a secret
+* Fix for hiding sizes correctly based on enabled flags
+* Use ui/config for spawner options
+* Update UI
+* Change apply_gpu_config return value
+* Update UI
+* Refactor Images
+* Remove resources from empty_profile to prevent overriding
+* include requirements.txt in manifest.in for source build
+### Improvements
+* Update image order annotation to match others
