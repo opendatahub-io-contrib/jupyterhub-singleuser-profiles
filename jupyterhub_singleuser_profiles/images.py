@@ -14,7 +14,7 @@ DISPLAY_NAME_ANNOTATION = 'opendatahub.io/notebook-image-name'
 URL_ANNOTATION = 'opendatahub.io/notebook-image-url'
 SOFTWARE_ANNOTATION = 'opendatahub.io/notebook-software'
 DEPENDENCIES_ANNOTATION = 'opendatahub.io/notebook-python-dependencies'
-IMAGE_ORDER_ANNOTATION = 'opendatahub.io/image-order'
+IMAGE_ORDER_ANNOTATION = 'opendatahub.io/notebook-image-order'
 
 
 class NameVersionPair(BaseModel):
