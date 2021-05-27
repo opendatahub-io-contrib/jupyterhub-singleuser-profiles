@@ -138,3 +138,7 @@
 * include requirements.txt in manifest.in for source build
 ### Improvements
 * Update image order annotation to match others
+
+## Release 0.4.1 (2021-05-27T13:08:54)
+### Bug Fixes
+* Avoid throwing exception when tag.annotations are not set
