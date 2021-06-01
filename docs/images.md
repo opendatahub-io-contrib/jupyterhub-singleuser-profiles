@@ -22,7 +22,7 @@ To provide more information about the image to the user, or sort the images, it 
 - `opendatahub.io/notebook-image-desc`: Image description
 - `opendatahub.io/notebook-image-name`: Human readable name
 - `opendatahub.io/notebook-image-url`: Url of image
-- `opendatahub.io/notebook-image-order`: Sets the order in which images appear within UI, defaults to last place.
+- `opendatahub.io/notebook-image-order`: Sets the order in which images appear within UI, defaults to position number 100
 ### Tag Specific
 - `opendatahub.io/notebook-software`: list of software within notebook
 - `opendatahub.io/notebook-python-dependencies`: list of dependencies

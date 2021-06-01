@@ -30,10 +30,6 @@ To test jsp changes that require modifying the [jupyterhub-odh](https://github.c
 7. Look for the `uri` value under `source`, Change it to your fork adress. Then add a `ref` value under `uri`, which will contain the name of your branch.
 8. Start the build. When the build finishes, redeploy the jupyterhub pod.
 
-### Notes
-
-- If you are missing the `jupyterhub-img` `BuildConfig`,
-
 ## API
 
 To test the API of the JSP library the same steps apply. Following these steps, it is necessary to go to the jupyterhub `route`. To get to the debug UI of the AI use the following link: `<jupyterhub route>/services/api/ui`

@@ -110,7 +110,7 @@ categories:
 - name: {string}
     variables:
     - name: {string}
-    type: {"password" || "text"}
+      type: {"password" || "text"}
     - name: {string}
-    type: {"password" || "text"}
+      type: {"password" || "text"}
 ```

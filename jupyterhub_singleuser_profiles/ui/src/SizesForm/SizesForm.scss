@@ -1,0 +1,18 @@
+.jsp-spawner__size_options {
+  &__title {
+    font-weight: var(--pf-global--FontWeight--bold);
+    margin-top: var(--pf-global--spacer--md);
+    &:first-of-type {
+      margin-top: var(--pf-global--spacer--sm);
+    }
+
+    > svg {
+      margin-left: var(--pf-global--spacer--xs);
+    }
+  }
+
+  &__select {
+    margin-top: var(--pf-global--spacer--sm);
+    max-width: 400px;
+  }
+}
