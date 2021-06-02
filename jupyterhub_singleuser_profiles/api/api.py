@@ -52,7 +52,7 @@ def authenticated(f):
             return f(user=user, *args, **kwargs)
         else:
             # redirect to login url on failed auth
-            login_url = None #os.environ.get('JUPYTERHUB_LOGIN_URL')
+            login_url = os.environ.get('JUPYTERHUB_LOGIN_URL')
             if not login_url:
                 login_url = auth.login_url
             return redirect(login_url + '?next=%s' % quote(request.path))
