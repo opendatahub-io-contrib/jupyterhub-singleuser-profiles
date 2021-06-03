@@ -142,3 +142,8 @@
 ## Release 0.4.1 (2021-05-27T13:08:54)
 ### Bug Fixes
 * Avoid throwing exception when tag.annotations are not set
+
+## Release 0.4.2 (2021-06-03T13:43:09)
+### Features
+* Enable the JUPYTERHUB_LOGIN_URL for login redirect
+* Default the display name to imagestream name
