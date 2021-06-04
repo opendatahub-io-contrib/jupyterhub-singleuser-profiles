@@ -49,7 +49,11 @@ class Images(object):
         return image_list[0].name if len(image_list) else None
 
     def tag_exists(self, tag_name, imagestream):
-        for tag in imagestream.status.tags:
+        """
+        Check that tag_name exists in .status.tags. This handles situations where the tag exists but .spec.tags[] does not.
+        """
+        imagestream_status_tags = imagestream.status.get('tags', [])
+        for tag in imagestream_status_tags:
             if tag_name == tag.tag:
                 return True
 
