@@ -33,6 +33,7 @@ class ImageInfo(BaseModel):
     content: ImageTagInfo
     default: bool = False
     order: int = 100
+    build_status: str
 
 class Images(object):
     def __init__(self, openshift, namespace):
@@ -47,6 +48,14 @@ class Images(object):
                 return image.name
 
         return image_list[0].name if len(image_list) else None
+    
+    def get_image_build_status(self, imagestream_name):
+        build_list = self.openshift.get_builds()
+        for build in build_list.items:
+            #if imagestream_name in build.metadata.name:
+            if imagestream_name == build.spec.output.to.name:
+                return build.status.get('phase', 'Unknown')
+        return 'Unknown'
 
     def tag_exists(self, tag_name, imagestream):
         """
@@ -94,7 +103,8 @@ class Images(object):
                                         dependencies=json.loads(tag_annotations.get(DEPENDENCIES_ANNOTATION, "[]"))
                                     ),
                                     default=bool(strtobool(annotations.get(DEFAULT_IMAGE_ANNOTATION, "False"))),
-                                    order=int(annotations.get(IMAGE_ORDER_ANNOTATION, 100))
+                                    order=int(annotations.get(IMAGE_ORDER_ANNOTATION, 100)),
+                                    build_status=self.get_image_build_status(imagestream_name)
                                     ))
 
         result.sort(key=self.check_place)
