@@ -15,6 +15,18 @@ paths:
       responses:
         '200':
           description: OK
+  
+  /api/instance:
+    get:
+      operationId: jupyterhub_singleuser_profiles.api.api.get_instance
+      summary: Get current cluster version and segment key
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Instance'
 
   /api/user/configmap:
     get:
@@ -365,3 +377,13 @@ components:
       required:
       - software
       - dependencies
+    Instance:
+      title: Instance
+      type: object
+      properties:
+        segment_key:
+          title: Segment key
+          type: string
+        cluster_id:
+          title: Cluster ID
+          type: string

@@ -141,6 +141,15 @@ class SingleuserProfiles(object):
   def get_ui_configuration(self):
     ui = UIConfig(self.ui, self.openshift)
     return ui.validate_ui_cm()
+  
+  def get_instance(self):
+    segment_key = self.openshift.read_secret("rhods-segment-key")
+    cluster_version = self.openshift.get_cluster_version("version")
+    return {
+      'segment_key': segment_key,
+      'cluster_id': cluster_version.spec.get('clusterID')
+    }
+    
 
   def get_sizes_form(self, username=None):
     if not self.profiles:
