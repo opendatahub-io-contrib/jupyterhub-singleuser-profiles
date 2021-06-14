@@ -15,6 +15,7 @@ URL_ANNOTATION = 'opendatahub.io/notebook-image-url'
 SOFTWARE_ANNOTATION = 'opendatahub.io/notebook-software'
 DEPENDENCIES_ANNOTATION = 'opendatahub.io/notebook-python-dependencies'
 IMAGE_ORDER_ANNOTATION = 'opendatahub.io/notebook-image-order'
+DEPRECATION_ANNOTATION = 'opendatahub.io/notebook-deprecation-date'
 
 
 class NameVersionPair(BaseModel):
@@ -33,6 +34,7 @@ class ImageInfo(BaseModel):
     content: ImageTagInfo
     default: bool = False
     order: int = 100
+    deprecation_date: Optional[str] = '1.1.99'
 
 class Images(object):
     def __init__(self, openshift, namespace):
@@ -94,7 +96,8 @@ class Images(object):
                                         dependencies=json.loads(tag_annotations.get(DEPENDENCIES_ANNOTATION, "[]"))
                                     ),
                                     default=bool(strtobool(annotations.get(DEFAULT_IMAGE_ANNOTATION, "False"))),
-                                    order=int(annotations.get(IMAGE_ORDER_ANNOTATION, 100))
+                                    order=int(annotations.get(IMAGE_ORDER_ANNOTATION, 100)),
+                                    deprecation_date=tag_annotations.get(DEPRECATION_ANNOTATION)
                                     ))
 
         result.sort(key=self.check_place)
