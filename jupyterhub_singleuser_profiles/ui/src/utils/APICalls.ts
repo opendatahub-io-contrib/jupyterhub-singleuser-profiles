@@ -32,19 +32,20 @@ export const APIGet = (target: string): Promise<any> => {
     return Promise.resolve(mockData[target]);
   }
 
-  return new Promise((resolve) => {
+  return new Promise((resolve, reject) => {
     const url = getRequestPath(target);
     fetch(url, { method: 'GET', headers: headers })
       .then((response) => {
         if (response.ok) {
           resolve(response.json());
         } else {
-          throw new Error('Failed to fetch ' + target + response);
+          reject('Failed to fetch ' + target + response);
         }
       })
       .catch((err) => {
         console.error(`Unable to Fetch ${target}`);
         console.dir(err);
+        reject(err.message);
       });
   });
 };
@@ -62,15 +63,19 @@ export const APIPost = (target: string, json: string): Promise<void> => {
     return Promise.resolve();
   }
 
-  return new Promise((resolve) => {
-    fetch(getRequestPath(target), { method: 'POST', body: json, headers: headers }).then(
-      (response) => {
+  return new Promise((resolve, reject) => {
+    fetch(getRequestPath(target), { method: 'POST', body: json, headers: headers })
+      .then((response) => {
         if (response.ok) {
           resolve();
         } else {
-          throw new Error('Failed to send ' + target);
+          reject('Failed to send ' + target);
         }
-      },
-    );
+      })
+      .catch((err) => {
+        console.error(`Unable to send ${target}`);
+        console.dir(err);
+        reject(err.message);
+      });
   });
 };
