@@ -13,10 +13,10 @@ class GpuCheckbox(BaseModel):
 
 class GpuDropdown(BaseModel):
     start: int = 0
-    end: int = 1
+    end: int = None
 
 class GpuInput(BaseModel):
-    limit: int = 1
+    limit: int = None
 
 class GpuConfig(BaseModel):
     enabled: bool = False
@@ -41,6 +41,9 @@ class GpuConfig(BaseModel):
         else:
             v.end = max
 
+        if not v.end:
+            v.end = 1
+
         return v
 
     @validator('gpuInput')
@@ -51,6 +54,9 @@ class GpuConfig(BaseModel):
                 v.limit = max
         else:
             v.limit = max
+
+        if not v.limit:
+            v.limit = 1
 
         return v
 
