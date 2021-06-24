@@ -96,7 +96,7 @@ class Images(object):
 
                 result.append(ImageInfo(description=annotations.get(DESCRIPTION_ANNOTATION),
                                     url=annotations.get(URL_ANNOTATION),
-                                    display_name=annotations.get(DISPLAY_NAME_ANNOTATION) or imagestream_name,
+                                    display_name=annotations.get(DISPLAY_NAME_ANNOTATION, imagestream_name),
                                     name=imagestream_name,
                                     content=ImageTagInfo(
                                         software=json.loads(tag_annotations.get(SOFTWARE_ANNOTATION, "[]")),\
