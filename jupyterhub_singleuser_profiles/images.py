@@ -49,10 +49,13 @@ class Images(object):
         return image_list[0].name if len(image_list) else None
 
     def tag_exists(self, tag_name, imagestream):
-        for tag in imagestream.status.tags:
-            if tag_name == tag.tag:
-                return True
 
+        try:
+            for tag in imagestream.status.tags:
+                if tag_name == tag.tag:
+                    return True
+        except:
+            print(f"ImageStream tags were not found for {imagestream.metadata.name}")
         return False
 
     def check_place(self, imagestream):
