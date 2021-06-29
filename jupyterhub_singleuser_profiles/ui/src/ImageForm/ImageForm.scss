@@ -10,8 +10,30 @@
     }
   }
   &__title {
+    &-version {
+      margin-left: var(--pf-global--spacer--xs);
+    }
     > svg {
       margin-left: var(--pf-global--spacer--xs);
+    }
+  }
+  &__tags {
+    margin: 0 var(--pf-global--spacer--md);
+    .pf-c-button.pf-m-tertiary {
+      --pf-c-button--after--BorderColor: transparent;
+      padding-left: 2px;
+      > svg {
+        margin-right: var(--pf-global--spacer--xs);
+      }
+    }
+  }
+  &__tag-versions {
+    margin: 0 var(--pf-global--spacer--md);
+    .jsp-spawner__image-options__option:not(:last-of-type) {
+      margin-bottom: var(--pf-global--spacer--sm);
+    }
+    .pf-c-label {
+      margin-left: var(--pf-global--spacer--sm);
     }
   }
   &__packages-popover {
