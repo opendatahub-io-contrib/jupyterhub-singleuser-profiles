@@ -144,6 +144,11 @@ class OpenShift(object):
     cluster_version =  cluster_versions.get(name=name, namespace=self.namespace)
     return cluster_version
 
+  def get_builds(self):
+    builds = self.oapi_client.resources.get(kind='Build', api_version='build.openshift.io/v1')
+    build_list = builds.get(namespace=self.namespace)
+    return build_list
+
   def create_pod_mapping(self, name, data, secret=False):
     result = []
     for item in data:

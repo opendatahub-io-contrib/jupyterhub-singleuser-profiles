@@ -15,25 +15,33 @@ URL_ANNOTATION = 'opendatahub.io/notebook-image-url'
 SOFTWARE_ANNOTATION = 'opendatahub.io/notebook-software'
 DEPENDENCIES_ANNOTATION = 'opendatahub.io/notebook-python-dependencies'
 IMAGE_ORDER_ANNOTATION = 'opendatahub.io/notebook-image-order'
+RECOMMENDED_ANNOTATION = 'opendatahub.io/notebook-image-recommended'
 
 
 class NameVersionPair(BaseModel):
     name: str
     version: str
 
-class ImageTagInfo(BaseModel):
+class TagContent(BaseModel):
     software: Optional[List[NameVersionPair]]
     dependencies: Optional[List[NameVersionPair]]
 
+class ImageTagInfo(BaseModel):
+    name: str
+    content: TagContent
+    recommended: bool
+    
+
 class ImageInfo(BaseModel):
+    name: str
+    tags: List[ImageTagInfo]
     description: Optional[str]
     url: Optional[str]
     display_name: Optional[str]
-    name: str
-    content: ImageTagInfo
     default: bool = False
     order: int = 100
-
+    build_status: str
+    
 class Images(object):
     def __init__(self, openshift, namespace):
         self.openshift = openshift
@@ -47,6 +55,14 @@ class Images(object):
                 return image.name
 
         return image_list[0].name if len(image_list) else None
+    
+    def get_image_build_status(self, imagestream_name):
+        build_list = self.openshift.get_builds()
+        for build in build_list.items:
+            #if imagestream_name in build.metadata.name:
+            if imagestream_name == build.spec.output.to.name:
+                return build.status.get('phase', 'Unknown')
+        return 'Unknown'
 
     def tag_exists(self, tag_name, imagestream):
         """
@@ -65,8 +81,9 @@ class Images(object):
     def load(self):
         result = []
         imagestream_list = self.openshift.get_imagestreams(IMAGE_LABEL+'=true')
-
+        
         for i in imagestream_list.items:
+            tag_list = []
             annotations = {}
             if i.metadata.annotations:
                 annotations = i.metadata.annotations
@@ -85,17 +102,23 @@ class Images(object):
                 # Default name if there is no display name annotation
                 imagestream_name = "%s:%s" % (i.metadata.name, tag.name)
 
-                result.append(ImageInfo(description=annotations.get(DESCRIPTION_ANNOTATION),
-                                    url=annotations.get(URL_ANNOTATION),
-                                    display_name=annotations.get(DISPLAY_NAME_ANNOTATION) or imagestream_name,
-                                    name=imagestream_name,
-                                    content=ImageTagInfo(
-                                        software=json.loads(tag_annotations.get(SOFTWARE_ANNOTATION, "[]")),\
-                                        dependencies=json.loads(tag_annotations.get(DEPENDENCIES_ANNOTATION, "[]"))
-                                    ),
-                                    default=bool(strtobool(annotations.get(DEFAULT_IMAGE_ANNOTATION, "False"))),
-                                    order=int(annotations.get(IMAGE_ORDER_ANNOTATION, 100))
-                                    ))
+                tag_list.append(ImageTagInfo(content=TagContent(
+                                                software=json.loads(tag_annotations.get(SOFTWARE_ANNOTATION, "[]")),
+                                                dependencies=json.loads(tag_annotations.get(DEPENDENCIES_ANNOTATION, "[]"))
+                                            ),
+                                            name=tag.name,
+                                            recommended=tag_annotations.get(RECOMMENDED_ANNOTATION, False)
+                ))
+
+            result.append(ImageInfo(description=annotations.get(DESCRIPTION_ANNOTATION),
+                                url=annotations.get(URL_ANNOTATION),
+                                display_name=annotations.get(DISPLAY_NAME_ANNOTATION) or imagestream_name,
+                                name=i.metadata.name,
+                                tags=tag_list,
+                                default=bool(strtobool(annotations.get(DEFAULT_IMAGE_ANNOTATION, "False"))),
+                                order=int(annotations.get(IMAGE_ORDER_ANNOTATION, 100)),
+                                build_status=self.get_image_build_status(imagestream_name)
+                                ))
 
         result.sort(key=self.check_place)
 

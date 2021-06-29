@@ -72,18 +72,14 @@ paths:
   /api/images:
     get:
       operationId: jupyterhub_singleuser_profiles.api.api.get_images
-      summary: Get an array of strings of image names (not capable of returning pure json)
+      summary: Get a full list of all images and their tags.
       responses:
         '200':
           description: OK
           content:
             application/json:
               schema:
-                oneOf:
-                  - type: array
-                    items:
-                      type: string
-                  - type: string
+                $ref: '#components/schemas/ImageInfo'
   
   /api/images/{image_name}:
     get:
@@ -334,19 +330,38 @@ components:
       title: ImageInfo
       type: object
       properties:
+        name:
+          title: Name
+          type: string
+        tags:
+          title: Tags
+          type: array
+          items:
+            "$ref": "#/components/schemas/ImageTagInfo"
         description:
           title: Description
           type: string
         url:
           title: Url
           type: string
-        name:
-          title: Name
+        display_name:
+          title: Display Name
           type: string
-        tag_specific:
-          "$ref": "#/components/schemas/ImageTagInfo"
+        default:
+          title: Default
+          default: false
+          type: boolean
+        order:
+          title: Order
+          default: 100
+          type: integer
+        build_status:
+          title: Build Status
+          type: string
       required:
-      - tag_specific
+      - name
+      - tags
+      - build_status
     NameVersionPair:
       title: NameVersionPair
       type: object
@@ -360,8 +375,8 @@ components:
       required:
       - name
       - version
-    ImageTagInfo:
-      title: ImageTagInfo
+    TagContent:
+      title: TagContent
       type: object
       properties:
         software:
@@ -374,9 +389,22 @@ components:
           type: array
           items:
             "$ref": "#/components/schemas/NameVersionPair"
+    ImageTagInfo:
+      title: ImageTagInfo
+      type: object
+      properties:
+        name:
+          title: Name
+          type: string
+        content:
+          "$ref": "#/components/schemas/TagContent"
+        recommended:
+          title: Recommended
+          type: boolean
       required:
-      - software
-      - dependencies
+      - name
+      - content
+      - recommended
     Instance:
       title: Instance
       type: object
@@ -387,3 +415,4 @@ components:
         cluster_id:
           title: Cluster ID
           type: string
+      
