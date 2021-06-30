@@ -24,7 +24,7 @@ export const mockData: MockDataType = {
       build_status: 'Unknown',
       default: false,
       description:
-        'Jupyter notebook image with a set of data science libraries that advanced AI/ML notebooks will use as a base image to provide a standard for libraries avialable in all notebooks',
+        'Jupyter notebook image with a set of data science libraries that advanced AI/ML notebooks will use as a base image to provide a standard for libraries available in all notebooks',
       display_name: 'Standard Data Science',
       name: 's2i-generic-data-science-notebook',
       order: 100,

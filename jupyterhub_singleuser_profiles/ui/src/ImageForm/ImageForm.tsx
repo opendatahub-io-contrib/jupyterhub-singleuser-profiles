@@ -1,11 +1,9 @@
 import * as React from 'react';
-import { Radio } from '@patternfly/react-core';
 import { APIGet, APIPost } from '../utils/APICalls';
 import { CM_PATH, DEFAULT_IMAGE_PATH, IMAGE_PATH } from '../utils/const';
-import { ImageType, UserConfigMapType, UiConfigType, ImageTagType } from '../utils/types';
-import ImageVersions from './ImageVersions';
-import { getDescriptionForTag } from './imageUtils';
-import ImageTagPopover from './ImageTagPopover';
+import { ImageType, UserConfigMapType, UiConfigType } from '../utils/types';
+import { getDefaultTag } from './imageUtils';
+import ImageSelector from './ImageSelector';
 
 import './ImageForm.scss';
 
@@ -78,94 +76,48 @@ const ImageForm: React.FC<ImageFormProps> = () => {
     };
   }, [selectedImageTag, imageList]);
 
-  const getDefaultTag = (image: ImageType): ImageTagType => {
-    if (image?.tags.length > 1) {
-      const defaultTag = image.tags.find((tag) => tag.recommended);
-      if (defaultTag) {
-        return defaultTag;
-      }
-    }
-    return image.tags[0];
-  };
-
   const handleSelection = (image: ImageType, tag: string, checked: boolean) => {
     if (checked) {
-      if (image.name !== selectedImageTag?.image) {
-        setSelectedImageTag({ image: image.name, tag: getDefaultTag(image).name });
-      } else {
-        setSelectedImageTag({ image: image.name, tag });
-      }
-      postChange(`${image}:${tag}`);
+      setSelectedImageTag({ image: image.name, tag });
+      postChange(`${image.name}:${tag}`);
     }
   };
-
-  const getTagForImage = (image: ImageType): ImageTagType => {
-    let tag;
-    if (image.tags.length > 1) {
-      if (image.name === selectedImageTag?.image && selectedImageTag?.tag) {
-        tag = image.tags.find((tag) => tag.name === selectedImageTag?.tag);
-      } else {
-        tag = getDefaultTag(image);
-      }
-    }
-    return tag || image.tags[0];
-  };
-
-  const getImageTagVersion = (image: ImageType): string => {
-    if (image?.tags.length > 1) {
-      const defaultTag = getDefaultTag(image);
-      if (image.name === selectedImageTag?.image && selectedImageTag?.tag) {
-        return `${selectedImageTag?.tag} ${
-          selectedImageTag?.tag === defaultTag?.name ? ' (default)' : ''
-        }`;
-      }
-      return defaultTag?.name ?? image.tags[0].name;
-    }
-    return '';
-  };
-
-  const getImagePopover = (image: ImageType) => {
-    const tag = getTagForImage(image);
-    if (!tag?.content?.dependencies?.length) {
-      return null;
-    }
-    return <ImageTagPopover tag={tag} />;
-  };
-
-  const selectOptions =
-    imageList?.map((image) => (
-      <div key={image.name}>
-        <Radio
-          id={image.name}
-          name={image.display_name}
-          className="jsp-spawner__image-options__option"
-          label={
-            <span className="jsp-spawner__image-options__title">
-              {image.display_name}
-              {image.tags.length > 1 ? (
-                <span className="jsp-spawner__image-options__title-version">
-                  {getImageTagVersion(image)}
-                </span>
-              ) : null}
-              {getImagePopover(image)}
-            </span>
-          }
-          description={getDescriptionForTag(getTagForImage(image))}
-          isChecked={image.name === selectedImageTag?.image}
-          onChange={(checked: boolean) => handleSelection(image, '', checked)}
-        />
-        <ImageVersions
-          image={image}
-          selectedTag={image.name === selectedImageTag?.image ? selectedImageTag.tag : ''}
-          onSelect={(tagName, checked) => handleSelection(image, tagName, checked)}
-        />
-      </div>
-    )) ?? [];
 
   return (
     <div className="jsp-spawner__option-section">
       <div className="jsp-spawner__option-section__title">Notebook image</div>
-      <div className="jsp-spawner__image-options">{selectOptions}</div>
+      <div className="jsp-spawner__image-options">
+        <div className="jsp-spawner__image-options__group">
+          {imageList
+            ? imageList?.map((image, index) =>
+                index < Math.ceil(imageList.length / 2) ? (
+                  <ImageSelector
+                    key={image.name}
+                    image={image}
+                    selectedImage={selectedImageTag?.image}
+                    selectedTag={selectedImageTag?.tag}
+                    handleSelection={handleSelection}
+                  />
+                ) : null,
+              )
+            : null}
+        </div>
+        <div className="jsp-spawner__image-options__group">
+          {imageList
+            ? imageList?.map((image, index) =>
+                index >= Math.ceil(imageList.length / 2) ? (
+                  <ImageSelector
+                    key={image.name}
+                    image={image}
+                    selectedImage={selectedImageTag?.image}
+                    selectedTag={selectedImageTag?.tag}
+                    handleSelection={handleSelection}
+                  />
+                ) : null,
+              )
+            : null}
+        </div>
+      </div>
     </div>
   );
 };

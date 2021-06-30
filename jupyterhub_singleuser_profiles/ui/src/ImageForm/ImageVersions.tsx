@@ -3,7 +3,7 @@ import { Button, ButtonVariant, Label, Radio } from '@patternfly/react-core';
 import { AngleRightIcon, AngleDownIcon, StarIcon } from '@patternfly/react-icons';
 import { ImageType } from '../utils/types';
 import ImageTagPopover from './ImageTagPopover';
-import { getDescriptionForTag } from './imageUtils';
+import { getDescriptionForTag, getVersion } from './imageUtils';
 
 type ImageVersionsProps = {
   image: ImageType;
@@ -16,13 +16,6 @@ const ImageVersions: React.FC<ImageVersionsProps> = ({ image, selectedTag, onSel
   if (image.tags.length < 2) {
     return null;
   }
-
-  const getVersion = (version: string): string => {
-    if (version.startsWith('v') || version.startsWith('V')) {
-      return version.slice(1);
-    }
-    return version;
-  };
 
   return (
     <div className="jsp-spawner__image-options__tags">
