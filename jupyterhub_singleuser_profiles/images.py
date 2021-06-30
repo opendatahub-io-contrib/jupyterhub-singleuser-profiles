@@ -30,7 +30,7 @@ class ImageTagInfo(BaseModel):
     name: str
     content: TagContent
     recommended: bool
-    
+    build_status: str
 
 class ImageInfo(BaseModel):
     name: str
@@ -40,7 +40,6 @@ class ImageInfo(BaseModel):
     display_name: Optional[str]
     default: bool = False
     order: int = 100
-    build_status: str
     
 class Images(object):
     def __init__(self, openshift, namespace):
@@ -107,17 +106,17 @@ class Images(object):
                                                 dependencies=json.loads(tag_annotations.get(DEPENDENCIES_ANNOTATION, "[]"))
                                             ),
                                             name=tag.name,
-                                            recommended=tag_annotations.get(RECOMMENDED_ANNOTATION, False)
+                                            recommended=tag_annotations.get(RECOMMENDED_ANNOTATION, False),
+                                            build_status=self.get_image_build_status(imagestream_name)
                 ))
 
             result.append(ImageInfo(description=annotations.get(DESCRIPTION_ANNOTATION),
                                 url=annotations.get(URL_ANNOTATION),
-                                display_name=annotations.get(DISPLAY_NAME_ANNOTATION) or imagestream_name,
+                                display_name=annotations.get(DISPLAY_NAME_ANNOTATION) or i.metadata.name,
                                 name=i.metadata.name,
                                 tags=tag_list,
                                 default=bool(strtobool(annotations.get(DEFAULT_IMAGE_ANNOTATION, "False"))),
                                 order=int(annotations.get(IMAGE_ORDER_ANNOTATION, 100)),
-                                build_status=self.get_image_build_status(imagestream_name)
                                 ))
 
         result.sort(key=self.check_place)
