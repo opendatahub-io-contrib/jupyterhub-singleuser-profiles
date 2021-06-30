@@ -90,6 +90,10 @@ class Images(object):
             if i.spec.tags:
                 imagestream_tags = i.spec.tags
 
+            if len(imagestream_tags) == 0:
+                _LOGGER.warning(f'{i.metadata.name} does not have any tags')
+                continue
+
             for tag in imagestream_tags:
                 if not self.tag_exists(tag.name, i):
                     continue
@@ -112,7 +116,7 @@ class Images(object):
 
             result.append(ImageInfo(description=annotations.get(DESCRIPTION_ANNOTATION),
                                 url=annotations.get(URL_ANNOTATION),
-                                display_name=annotations.get(DISPLAY_NAME_ANNOTATION) or i.metadata.name,
+                                display_name=annotations.get(DISPLAY_NAME_ANNOTATION) or imagestream_name,
                                 name=i.metadata.name,
                                 tags=tag_list,
                                 default=bool(strtobool(annotations.get(DEFAULT_IMAGE_ANNOTATION, "False"))),
