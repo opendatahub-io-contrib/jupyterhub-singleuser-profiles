@@ -138,6 +138,11 @@ class OpenShift(object):
     imagestreams = self.oapi_client.resources.get(kind='ImageStream', api_version='image.openshift.io/v1')
     imagestream_list = imagestreams.get(namespace=self.namespace, label_selector=label)
     return imagestream_list
+  
+  def get_cluster_version(self, name):
+    cluster_versions = self.oapi_client.resources.get(kind='ClusterVersion', api_version='config.openshift.io/v1')
+    cluster_version =  cluster_versions.get(name=name, namespace=self.namespace)
+    return cluster_version
 
   def get_builds(self):
     builds = self.oapi_client.resources.get(kind='Build', api_version='build.openshift.io/v1')
