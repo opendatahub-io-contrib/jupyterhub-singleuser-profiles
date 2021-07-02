@@ -19,8 +19,7 @@
     border-top: 1px solid var(--pf-global--BorderColor--100);
     padding-top: var(--pf-global--spacer--lg);
     text-align: left;
-    width: 50%;
-    min-width: 622px;
+    max-width: 768px;
 
     &:first-of-type {
       margin-top: 0;

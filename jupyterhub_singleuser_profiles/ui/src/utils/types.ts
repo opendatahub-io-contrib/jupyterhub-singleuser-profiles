@@ -44,15 +44,24 @@ export type ImageSoftwareType = {
   version?: string;
 };
 
-export type ImageType = {
-  description: string;
-  url: string;
-  display_name: string;
-  name: string;
+export type ImageTagType = {
   content: {
     software: ImageSoftwareType[];
     dependencies: ImageSoftwareType[];
   };
+  name: string;
+  recommended: boolean;
+};
+
+export type ImageType = {
+  description: string | null;
+  url: string | null;
+  display_name: string;
+  name: string;
+  build_status: string | null;
+  default: boolean | undefined;
+  order: number;
+  tags: ImageTagType[];
 };
 
 export type SizeDescription = {

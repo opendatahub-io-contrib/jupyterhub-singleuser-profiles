@@ -1,4 +1,4 @@
-import { CM_PATH, SIZES_PATH, IMAGE_PATH, SINGLE_SIZE_PATH, UI_CONFIG_PATH } from '../utils/const';
+import { CM_PATH, SIZES_PATH, IMAGE_PATH, UI_CONFIG_PATH } from '../utils/const';
 import { ImageType, SizeDescription, UiConfigType, UserConfigMapType } from '../utils/types';
 
 type MockDataType = {
@@ -15,51 +15,212 @@ export const mockData: MockDataType = {
   [CM_PATH]: {
     env: [],
     gpu: 0,
-    last_selected_image: 's2i-spark-minimal-notebook:py36-spark2.4.5-hadoop2.7.3',
+    last_selected_image: 's2i-generic-data-science-notebook:v0.0:4',
     last_selected_size: 'Default',
   },
   [SIZES_PATH]: ['Small', 'Medium', 'Large'],
   [IMAGE_PATH]: [
     {
+      build_status: 'Unknown',
+      default: false,
       description:
-        'Jupyter notebook image with a set of data science libraries that advanced AI/ML notebooks will use as a base image to provide a standard for libraries avialable in all notebooks',
-      url: 'https://github.com/thoth-station/s2i-generic-data-science-notebook',
+        'Jupyter notebook image with a set of data science libraries that advanced AI/ML notebooks will use as a base image to provide a standard for libraries available in all notebooks',
       display_name: 'Standard Data Science',
-      name: 's2i-generic-data-science-notebook:v0.0.3',
-      content: {
-        software: [
-          {
-            name: 'Python',
-            version: 'v3.8.3',
+      name: 's2i-generic-data-science-notebook',
+      order: 100,
+      tags: [
+        {
+          content: {
+            dependencies: [
+              {
+                name: 'Boto3',
+                version: '1.17.11',
+              },
+              {
+                name: 'Kafka-Python',
+                version: '2.0.2',
+              },
+              {
+                name: 'Matplotlib',
+                version: '3.1.3',
+              },
+              {
+                name: 'Numpy',
+                version: '1.20.3',
+              },
+              {
+                name: 'Pandas',
+                version: '1.2.4',
+              },
+              {
+                name: 'Scipy',
+                version: '1.6.3',
+              },
+            ],
+            software: [
+              {
+                name: 'Python',
+                version: 'v3.8.3',
+              },
+            ],
           },
-        ],
-        dependencies: [
-          {
-            name: 'Boto3',
-            version: '1.17.11',
+          name: 'v0.0.4',
+          recommended: false,
+        },
+      ],
+      url: 'https://github.com/thoth-station/s2i-generic-data-science-notebook',
+    },
+    {
+      build_status: 'Unknown',
+      default: false,
+      description: 'Jupyter notebook image with Elyra-AI installed',
+      display_name: 'Elyra Notebook Image',
+      name: 's2i-lab-elyra',
+      order: 100,
+      tags: [
+        {
+          content: {
+            dependencies: [],
+            software: [],
           },
-          {
-            name: 'Kafka-Python',
-            version: '2.0.2',
+          name: 'v0.0.8',
+          recommended: false,
+        },
+      ],
+      url: 'https://github.com/thoth-station/s2i-lab-elyra',
+    },
+    {
+      build_status: 'Unknown',
+      default: false,
+      description:
+        'Jupyter notebook image with minimal dependency set to start experimenting with Jupyter environment.',
+      display_name: 'Minimal Python',
+      name: 's2i-minimal-notebook',
+      order: 10,
+      tags: [
+        {
+          content: {
+            dependencies: [
+              {
+                name: 'JupyterLab',
+                version: '3.0.14',
+              },
+              {
+                name: 'Notebook',
+                version: '6.3.0',
+              },
+            ],
+            software: [
+              {
+                name: 'Python',
+                version: 'v3.8.3',
+              },
+            ],
           },
-          {
-            name: 'Matplotlib',
-            version: '3.1.3',
+          name: 'v0.0.14',
+          recommended: true,
+        },
+        {
+          content: {
+            dependencies: [
+              {
+                name: 'JupyterLab',
+                version: '2.2.4',
+              },
+              {
+                name: 'Notebook',
+                version: '6.2.0',
+              },
+            ],
+            software: [
+              {
+                name: 'Python',
+                version: 'v3.6.8',
+              },
+            ],
           },
-          {
-            name: 'Numpy',
-            version: '1.20.2',
+          name: 'v0.0.7',
+          recommended: false,
+        },
+      ],
+      url: 'https://github.com/thoth-station/s2i-minimal-notebook',
+    },
+    {
+      build_status: 'Unknown',
+      default: false,
+      description:
+        'Jupyter notebook image containing basic dependencies for data science and machine learning work.',
+      display_name: 'SciPy Notebook Image',
+      name: 's2i-scipy-notebook',
+      order: 100,
+      tags: [
+        {
+          content: {
+            dependencies: [],
+            software: [],
           },
-          {
-            name: 'Pandas',
-            version: '1.2.3',
+          name: 'v0.0.2',
+          recommended: false,
+        },
+      ],
+      url: 'https://github.com/thoth-station/s2i-minimal-notebook',
+    },
+    {
+      build_status: 'Unknown',
+      default: false,
+      description: null,
+      display_name: 'Minimal Python with Apache Spark',
+      name: 's2i-spark-minimal-notebook',
+      order: 100,
+      tags: [
+        {
+          content: {
+            dependencies: [],
+            software: [],
           },
-          {
-            name: 'Scipy',
-            version: '1.6.2',
+          name: 'py36-spark2.4.5-hadoop2.7.3',
+          recommended: false,
+        },
+      ],
+      url: null,
+    },
+    {
+      build_status: 'Unknown',
+      default: false,
+      description: null,
+      display_name: 'Minimal Python with Apache Spark and SciPy',
+      name: 's2i-spark-scipy-notebook',
+      order: 100,
+      tags: [
+        {
+          content: {
+            dependencies: [],
+            software: [],
           },
-        ],
-      },
+          name: '3.6',
+          recommended: false,
+        },
+      ],
+      url: null,
+    },
+    {
+      build_status: 'Unknown',
+      default: false,
+      description: 'Jupyter notebook image containing dependencies for training Tensorflow models.',
+      display_name: 'Tensorflow Notebook Image',
+      name: 's2i-tensorflow-notebook',
+      order: 100,
+      tags: [
+        {
+          content: {
+            dependencies: [],
+            software: [],
+          },
+          name: 'v0.0.2',
+          recommended: false,
+        },
+      ],
+      url: 'https://github.com/thoth-station/s2i-tensorflow-notebook',
     },
   ],
   ['size/Small']: {
