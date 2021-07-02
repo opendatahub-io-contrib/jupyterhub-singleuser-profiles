@@ -1,5 +1,22 @@
 import { ImageSoftwareType, ImageTagType, ImageType } from '../utils/types';
 
+const runningStatuses = ['pending', 'running', 'cancelled'];
+const failedStatuses = ['error', 'failed'];
+
+export const isImageBuildInProgress = (image: ImageType): boolean => {
+  const inProgressTag = image.tags.find((tag) =>
+    runningStatuses.includes(tag.build_status?.toLowerCase() ?? ''),
+  );
+  return !!inProgressTag;
+};
+
+export const isImageTagBuildValid = (tag: ImageTagType): boolean => {
+  return (
+    !runningStatuses.includes(tag.build_status?.toLowerCase() ?? '') &&
+    !failedStatuses.includes(tag.build_status?.toLowerCase() ?? '')
+  );
+};
+
 export const getVersion = (version?: string, prefix?: string): string => {
   if (!version) {
     return '';
@@ -22,6 +39,14 @@ export const getDescriptionForTag = (imageTag: ImageTagType): string => {
 
 export const getDefaultTag = (image: ImageType): ImageTagType => {
   if (image?.tags.length > 1) {
+    const validTags = image.tags.filter((tag) => isImageTagBuildValid(tag));
+    if (validTags.length) {
+      const defaultTag = validTags.find((tag) => tag.recommended);
+      if (defaultTag) {
+        return defaultTag;
+      }
+      return validTags[0];
+    }
     const defaultTag = image.tags.find((tag) => tag.recommended);
     if (defaultTag) {
       return defaultTag;
@@ -60,4 +85,3 @@ export const getImageTagVersion = (
   }
   return '';
 };
-

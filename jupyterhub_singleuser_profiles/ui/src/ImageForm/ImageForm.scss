@@ -45,6 +45,9 @@
     .pf-c-label {
       margin-left: var(--pf-global--spacer--sm);
     }
+    .pf-c-radio {
+      margin-bottom: var(--pf-global--spacer--sm);
+    }
   }
   &__packages-popover {
     min-width: initial !important;

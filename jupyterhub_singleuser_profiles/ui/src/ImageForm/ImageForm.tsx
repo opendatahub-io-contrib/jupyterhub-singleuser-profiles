@@ -1,8 +1,15 @@
 import * as React from 'react';
+import { Alert } from '@patternfly/react-core';
+import { ExternalLinkAltIcon } from '@patternfly/react-icons';
 import { APIGet, APIPost } from '../utils/APICalls';
-import { CM_PATH, DEFAULT_IMAGE_PATH, IMAGE_PATH } from '../utils/const';
+import {
+  ABOUT_NOTEBOOK_IMAGES_LINK,
+  CM_PATH,
+  DEFAULT_IMAGE_PATH,
+  IMAGE_PATH,
+} from '../utils/const';
 import { ImageType, UserConfigMapType, UiConfigType } from '../utils/types';
-import { getDefaultTag } from './imageUtils';
+import { isImageBuildInProgress } from './imageUtils';
 import ImageSelector from './ImageSelector';
 
 import './ImageForm.scss';
@@ -86,6 +93,20 @@ const ImageForm: React.FC<ImageFormProps> = () => {
   return (
     <div className="jsp-spawner__option-section">
       <div className="jsp-spawner__option-section__title">Notebook image</div>
+      {imageList?.find((image) => isImageBuildInProgress(image)) ? (
+        <Alert isInline title="Additional Notebook images installing">
+          Installation of all Notebook images can take up to 40 minutes. each image becomes
+          available ot select once its installation completes.
+          {ABOUT_NOTEBOOK_IMAGES_LINK ? (
+            <div className="jsp-spawner__option-section__learn-more">
+              <a href={ABOUT_NOTEBOOK_IMAGES_LINK} target="_blank" rel="noopener noreferrer">
+                Learn more about predefined Notebook images
+                <ExternalLinkAltIcon />
+              </a>
+            </div>
+          ) : null}
+        </Alert>
+      ) : null}
       <div className="jsp-spawner__image-options">
         <div className="jsp-spawner__image-options__group">
           {imageList
