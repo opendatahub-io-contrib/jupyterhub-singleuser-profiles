@@ -35,6 +35,15 @@
         margin-left: var(--pf-global--spacer--xs);
       }
     }
+    &__learn-more {
+      margin-top: var(--pf-global--spacer--sm);
+      svg {
+        margin-left: var(--pf-global--spacer--xs);
+      }
+    }
+    .pf-c-alert {
+      margin-top: var(--pf-global--spacer--md);
+    }
   }
 
   &__buttons-bar {

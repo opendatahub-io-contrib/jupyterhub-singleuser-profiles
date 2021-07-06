@@ -51,6 +51,7 @@ export type ImageTagType = {
   };
   name: string;
   recommended: boolean;
+  build_status: string | null;
 };
 
 export type ImageType = {
@@ -58,7 +59,6 @@ export type ImageType = {
   url: string | null;
   display_name: string;
   name: string;
-  build_status: string | null;
   default: boolean | undefined;
   order: number;
   tags: ImageTagType[];

@@ -21,15 +21,15 @@ export const mockData: MockDataType = {
   [SIZES_PATH]: ['Small', 'Medium', 'Large'],
   [IMAGE_PATH]: [
     {
-      build_status: 'Unknown',
       default: false,
       description:
         'Jupyter notebook image with a set of data science libraries that advanced AI/ML notebooks will use as a base image to provide a standard for libraries available in all notebooks',
       display_name: 'Standard Data Science',
       name: 's2i-generic-data-science-notebook',
-      order: 100,
+      order: 30,
       tags: [
         {
+          build_status: 'Unknown',
           content: {
             dependencies: [
               {
@@ -67,11 +67,49 @@ export const mockData: MockDataType = {
           name: 'v0.0.4',
           recommended: false,
         },
+        {
+          build_status: 'Unknown',
+          content: {
+            dependencies: [
+              {
+                name: 'Boto3',
+                version: '1.17.11',
+              },
+              {
+                name: 'Kafka-Python',
+                version: '2.0.2',
+              },
+              {
+                name: 'Matplotlib',
+                version: '3.1.3',
+              },
+              {
+                name: 'Numpy',
+                version: '1.20.3',
+              },
+              {
+                name: 'Pandas',
+                version: '1.2.4',
+              },
+              {
+                name: 'Scipy',
+                version: '1.6.3',
+              },
+            ],
+            software: [
+              {
+                name: 'Python',
+                version: 'v3.8.3',
+              },
+            ],
+          },
+          name: 'v0.0.24',
+          recommended: true,
+        },
       ],
       url: 'https://github.com/thoth-station/s2i-generic-data-science-notebook',
     },
     {
-      build_status: 'Unknown',
       default: false,
       description: 'Jupyter notebook image with Elyra-AI installed',
       display_name: 'Elyra Notebook Image',
@@ -79,9 +117,15 @@ export const mockData: MockDataType = {
       order: 100,
       tags: [
         {
+          build_status: 'Unknown',
           content: {
             dependencies: [],
-            software: [],
+            software: [
+              {
+                name: 'Python',
+                version: 'v3.8.7',
+              },
+            ],
           },
           name: 'v0.0.8',
           recommended: false,
@@ -90,7 +134,6 @@ export const mockData: MockDataType = {
       url: 'https://github.com/thoth-station/s2i-lab-elyra',
     },
     {
-      build_status: 'Unknown',
       default: false,
       description:
         'Jupyter notebook image with minimal dependency set to start experimenting with Jupyter environment.',
@@ -99,6 +142,7 @@ export const mockData: MockDataType = {
       order: 10,
       tags: [
         {
+          build_status: 'Running',
           content: {
             dependencies: [
               {
@@ -121,6 +165,7 @@ export const mockData: MockDataType = {
           recommended: true,
         },
         {
+          build_status: 'Unknown',
           content: {
             dependencies: [
               {
@@ -146,7 +191,6 @@ export const mockData: MockDataType = {
       url: 'https://github.com/thoth-station/s2i-minimal-notebook',
     },
     {
-      build_status: 'Unknown',
       default: false,
       description:
         'Jupyter notebook image containing basic dependencies for data science and machine learning work.',
@@ -155,9 +199,15 @@ export const mockData: MockDataType = {
       order: 100,
       tags: [
         {
+          build_status: 'Failed',
           content: {
             dependencies: [],
-            software: [],
+            software: [
+              {
+                name: 'Python',
+                version: 'v3.8.7',
+              },
+            ],
           },
           name: 'v0.0.2',
           recommended: false,
@@ -166,7 +216,6 @@ export const mockData: MockDataType = {
       url: 'https://github.com/thoth-station/s2i-minimal-notebook',
     },
     {
-      build_status: 'Unknown',
       default: false,
       description: null,
       display_name: 'Minimal Python with Apache Spark',
@@ -174,6 +223,7 @@ export const mockData: MockDataType = {
       order: 100,
       tags: [
         {
+          build_status: 'Unknown',
           content: {
             dependencies: [],
             software: [],
@@ -185,7 +235,6 @@ export const mockData: MockDataType = {
       url: null,
     },
     {
-      build_status: 'Unknown',
       default: false,
       description: null,
       display_name: 'Minimal Python with Apache Spark and SciPy',
@@ -193,18 +242,32 @@ export const mockData: MockDataType = {
       order: 100,
       tags: [
         {
+          build_status: 'Unknown',
+          content: {
+            dependencies: [],
+            software: [
+              {
+                name: 'Python',
+                version: 'v3.8.7',
+              },
+            ],
+          },
+          name: '3.6',
+          recommended: false,
+        },
+        {
+          build_status: 'Unknown',
           content: {
             dependencies: [],
             software: [],
           },
-          name: '3.6',
-          recommended: false,
+          name: '3.5.2',
+          recommended: true,
         },
       ],
       url: null,
     },
     {
-      build_status: 'Unknown',
       default: false,
       description: 'Jupyter notebook image containing dependencies for training Tensorflow models.',
       display_name: 'Tensorflow Notebook Image',
@@ -212,9 +275,19 @@ export const mockData: MockDataType = {
       order: 100,
       tags: [
         {
+          build_status: 'Unknown',
           content: {
             dependencies: [],
-            software: [],
+            software: [
+              {
+                name: 'Python',
+                version: 'v3.8.7',
+              },
+              {
+                name: 'Tensorflow CPU',
+                version: 'v2.4.0',
+              },
+            ],
           },
           name: 'v0.0.2',
           recommended: false,
