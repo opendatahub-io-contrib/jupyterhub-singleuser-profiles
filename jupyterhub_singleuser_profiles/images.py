@@ -8,14 +8,14 @@ from typing import List, Optional
 
 _LOGGER = logging.getLogger(__name__)
 IMAGE_LABEL = 'opendatahub.io/notebook-image'
-DEFAULT_IMAGE_ANNOTATION = 'opendatahub.io/default-image'
+DEFAULT_IMAGE_ANNOTATION = 'opendatahub.io/default-image' #Used to find a default image is a user does not select any image
 DESCRIPTION_ANNOTATION = 'opendatahub.io/notebook-image-desc'
 DISPLAY_NAME_ANNOTATION = 'opendatahub.io/notebook-image-name'
 URL_ANNOTATION = 'opendatahub.io/notebook-image-url'
 SOFTWARE_ANNOTATION = 'opendatahub.io/notebook-software'
 DEPENDENCIES_ANNOTATION = 'opendatahub.io/notebook-python-dependencies'
 IMAGE_ORDER_ANNOTATION = 'opendatahub.io/notebook-image-order'
-RECOMMENDED_ANNOTATION = 'opendatahub.io/notebook-image-recommended'
+RECOMMENDED_ANNOTATION = 'opendatahub.io/notebook-image-recommended' #Used by UI to pick the right tag if user only selected an image, not image+tag
 
 
 class NameVersionPair(BaseModel):
@@ -31,6 +31,7 @@ class ImageTagInfo(BaseModel):
     content: TagContent
     recommended: bool
     build_status: str
+    default: bool = False
 
 class ImageInfo(BaseModel):
     name: str
@@ -38,7 +39,6 @@ class ImageInfo(BaseModel):
     description: Optional[str]
     url: Optional[str]
     display_name: Optional[str]
-    default: bool = False
     order: int = 100
     
 class Images(object):
@@ -50,10 +50,14 @@ class Images(object):
         image_list = self.load()
 
         for image in image_list:
-            if image.default:
-                return image.name
+            for tag in image.tags:
+                if tag.default:
+                    return self.get_default_image_tag(image)
 
-        return image_list[0].name if len(image_list) else None
+        return self.get_default_image_tag(image_list[0]) if len(image_list) else None
+
+    def get_default_image_tag(self, image):
+        return "%s:%s" % (image.name, image.tags[0].name) if len(image.tags) else None
     
     def get_image_build_status(self, imagestream_name):
         build_list = self.openshift.get_builds()
@@ -111,7 +115,8 @@ class Images(object):
                                             ),
                                             name=tag.name,
                                             recommended=tag_annotations.get(RECOMMENDED_ANNOTATION, False),
-                                            build_status=self.get_image_build_status(imagestream_name)
+                                            build_status=self.get_image_build_status(imagestream_name),
+                                            default=bool(strtobool(tag_annotations.get(DEFAULT_IMAGE_ANNOTATION, "False")))
                 ))
 
             result.append(ImageInfo(description=annotations.get(DESCRIPTION_ANNOTATION),
@@ -119,7 +124,6 @@ class Images(object):
                                 display_name=annotations.get(DISPLAY_NAME_ANNOTATION) or imagestream_name,
                                 name=i.metadata.name,
                                 tags=tag_list,
-                                default=bool(strtobool(annotations.get(DEFAULT_IMAGE_ANNOTATION, "False"))),
                                 order=int(annotations.get(IMAGE_ORDER_ANNOTATION, 100)),
                                 ))
 
