@@ -15,7 +15,7 @@ type ImageVersionsProps = {
 
 const ImageVersions: React.FC<ImageVersionsProps> = ({ image, selectedTag, onSelect }) => {
   const [open, setOpen] = React.useState<boolean>(false);
-  if (image.tags.length < 2) {
+  if (!image.tags || image.tags.length < 2) {
     return null;
   }
 
@@ -36,9 +36,9 @@ const ImageVersions: React.FC<ImageVersionsProps> = ({ image, selectedTag, onSel
               });
               return (
                 <Radio
-                  key={tag.name}
-                  id={tag.name}
-                  name={tag.name}
+                  key={`${image.name}:${tag.name}`}
+                  id={`${image.name}:${tag.name}`}
+                  name={`${image.name}:${tag.name}`}
                   className={classes}
                   isDisabled={disabled}
                   label={

@@ -1,10 +1,11 @@
+import compareVersions from 'compare-versions';
 import { ImageSoftwareType, ImageTagType, ImageType } from '../utils/types';
 
 const runningStatuses = ['pending', 'running', 'cancelled'];
 const failedStatuses = ['error', 'failed'];
 
 export const isImageBuildInProgress = (image: ImageType): boolean => {
-  const inProgressTag = image.tags.find((tag) =>
+  const inProgressTag = image.tags?.find((tag) =>
     runningStatuses.includes(tag.build_status?.toLowerCase() ?? ''),
   );
   return !!inProgressTag;
@@ -30,37 +31,49 @@ export const getVersion = (version?: string, prefix?: string): string => {
 export const getNameVersionString = (software: ImageSoftwareType): string =>
   `${software.name}${getVersion(software.version, ' v')}`;
 
-export const getDescriptionForTag = (imageTag: ImageTagType): string => {
-  const softwareDescriptions = imageTag.content.software.map((software) =>
+export const getDescriptionForTag = (imageTag?: ImageTagType): string => {
+  if (!imageTag) {
+    return '';
+  }
+  const softwareDescriptions = imageTag.content?.software.map((software) =>
     getNameVersionString(software),
-  );
+  ) ?? [''];
   return softwareDescriptions.join(', ');
 };
 
-export const getDefaultTag = (image: ImageType): ImageTagType => {
-  if (image?.tags.length > 1) {
-    const validTags = image.tags.filter((tag) => isImageTagBuildValid(tag));
-    if (validTags.length) {
-      const defaultTag = validTags.find((tag) => tag.recommended);
-      if (defaultTag) {
-        return defaultTag;
-      }
-      return validTags[0];
-    }
-    const defaultTag = image.tags.find((tag) => tag.recommended);
-    if (defaultTag) {
-      return defaultTag;
-    }
+export const getDefaultTag = (image: ImageType): ImageTagType | undefined => {
+  if (!image.tags) {
+    return undefined;
   }
-  return image.tags[0];
+
+  if (image.tags?.length <= 1) {
+    return image.tags[0];
+  }
+
+  const validTags = image.tags.filter((tag) => isImageTagBuildValid(tag));
+  const tags = validTags.length ? validTags : image.tags;
+
+  // Return the recommended tag or the default tag
+  const defaultTag = tags.find((tag) => tag.recommended) || tags.find((tag) => tag.default);
+  if (defaultTag) {
+    return defaultTag;
+  }
+
+  // Return the most recent version
+  return tags.sort((a, b) => compareVersions(b.name, a.name))[0];
 };
 
 export const getTagForImage = (
   image: ImageType,
   selectedImage?: string,
   selectedTag?: string,
-): ImageTagType => {
+): ImageTagType | undefined => {
   let tag;
+
+  if (!image.tags) {
+    return undefined;
+  }
+
   if (image.tags.length > 1) {
     if (image.name === selectedImage && selectedTag) {
       tag = image.tags.find((tag) => tag.name === selectedTag);
@@ -71,11 +84,15 @@ export const getTagForImage = (
   return tag || image.tags[0];
 };
 
+// Only returns a version string if there are multiple tags
 export const getImageTagVersion = (
   image: ImageType,
   selectedImage?: string,
   selectedTag?: string,
 ): string => {
+  if (!image.tags) {
+    return '';
+  }
   if (image?.tags.length > 1) {
     const defaultTag = getDefaultTag(image);
     if (image.name === selectedImage && selectedTag) {

@@ -5,12 +5,16 @@ import { ImageTagType } from '../utils/types';
 import { getNameVersionString } from './imageUtils';
 
 type ImageTagPopoverProps = {
-  tag: ImageTagType;
+  tag?: ImageTagType;
   description?: string;
 };
 
 const ImageTagPopover: React.FC<ImageTagPopoverProps> = ({ tag, description }) => {
   const [isVisible, setIsVisible] = React.useState(false);
+  const dependencies = tag?.content?.dependencies ?? [];
+  if (!description && !dependencies.length) {
+    return null;
+  }
   return (
     <Popover
       className="jsp-spawner__image-options__packages-popover"
@@ -31,12 +35,12 @@ const ImageTagPopover: React.FC<ImageTagPopoverProps> = ({ tag, description }) =
               {description}
             </span>
           ) : null}
-          {tag.content?.dependencies?.length > 0 ? (
+          {dependencies.length > 0 ? (
             <>
               <span className="jsp-spawner__image-options__packages-popover__package-title">
                 Packages included:
               </span>
-              {tag.content.dependencies.map((dependency) => (
+              {dependencies.map((dependency) => (
                 <span
                   key={dependency.name}
                   className="jsp-spawner__image-options__packages-popover__package"

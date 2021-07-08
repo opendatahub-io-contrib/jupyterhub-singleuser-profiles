@@ -25,7 +25,7 @@ const ImageSelector: React.FC<ImageSelectorProps> = ({
   handleSelection,
 }) => {
   const currentTag = getTagForImage(image, selectedImage, selectedTag);
-
+  const tags = image.tags || [];
   const getImagePopover = (image: ImageType) => {
     if (!image.description && !currentTag?.content?.dependencies?.length) {
       return null;
@@ -33,7 +33,7 @@ const ImageSelector: React.FC<ImageSelectorProps> = ({
     return <ImageTagPopover tag={currentTag} description={image.description || undefined} />;
   };
 
-  const disabled = image.tags.every((tag) => !isImageTagBuildValid(tag));
+  const disabled = tags.every((tag) => !isImageTagBuildValid(tag));
   const optionClasses = classNames('jsp-spawner__image-options__option', {
     'm-is-disabled': disabled,
   });
@@ -48,7 +48,7 @@ const ImageSelector: React.FC<ImageSelectorProps> = ({
         label={
           <span className="jsp-spawner__image-options__title">
             {image.display_name}
-            {image.tags.length > 1 ? (
+            {tags.length > 1 ? (
               <span className="jsp-spawner__image-options__title-version">
                 {getImageTagVersion(image, selectedImage, selectedTag)}
               </span>
@@ -58,7 +58,7 @@ const ImageSelector: React.FC<ImageSelectorProps> = ({
         }
         description={getDescriptionForTag(currentTag)}
         isChecked={image.name === selectedImage}
-        onChange={(checked: boolean) => handleSelection(image, currentTag.name, checked)}
+        onChange={(checked: boolean) => handleSelection(image, currentTag?.name || '', checked)}
       />
       <ImageVersions
         image={image}
