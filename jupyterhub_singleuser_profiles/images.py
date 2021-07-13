@@ -71,10 +71,10 @@ class Images(object):
         """
         Check that tag_name exists in .status.tags. This handles situations where the tag exists but .spec.tags[] does not.
         """
-        imagestream_status_tags = imagestream.status.get('tags', [])
-        for tag in imagestream_status_tags:
-            if tag_name == tag.tag:
-                return True
+        if imagestream.status:
+            for tag in imagestream.status.get('tags', []):
+                if tag_name == tag.tag:
+                    return True
 
         return False
 
