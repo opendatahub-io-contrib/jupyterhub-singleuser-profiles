@@ -21,7 +21,7 @@
     text-align: left;
     max-width: 768px;
 
-    &:first-of-type {
+    &.m-is-top {
       margin-top: 0;
       border-top: 0;
     }

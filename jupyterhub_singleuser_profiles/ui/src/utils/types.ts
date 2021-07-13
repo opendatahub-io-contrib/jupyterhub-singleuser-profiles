@@ -33,7 +33,7 @@ export type EnvVarType = {
 };
 
 export type UserConfigMapType = {
-  env: EnvVarType[];
+  env?: EnvVarType[];
   gpu: number;
   last_selected_image: string;
   last_selected_size: string;
@@ -45,12 +45,13 @@ export type ImageSoftwareType = {
 };
 
 export type ImageTagType = {
-  content: {
+  content?: {
     software: ImageSoftwareType[];
     dependencies: ImageSoftwareType[];
   };
   name: string;
   recommended: boolean;
+  default: boolean | undefined;
   build_status: string | null;
 };
 
@@ -59,9 +60,8 @@ export type ImageType = {
   url: string | null;
   display_name: string;
   name: string;
-  default: boolean | undefined;
   order: number;
-  tags: ImageTagType[];
+  tags?: ImageTagType[];
 };
 
 export type SizeDescription = {

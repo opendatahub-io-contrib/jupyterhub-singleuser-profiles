@@ -21,7 +21,7 @@ type ImageFormProps = {
 const getValuesFromImageName = (imageName: string): { image: string; tag: string } => {
   const index = imageName?.indexOf(':');
   return {
-    image: index > 0 ? imageName.slice(0, index) : imageName,
+    image: index > 0 ? imageName.slice(0, index) : imageName || '',
     tag: index > 0 ? imageName.slice(index + 1) : '',
   };
 };
@@ -62,18 +62,35 @@ const ImageForm: React.FC<ImageFormProps> = () => {
 
     // If the previous are valid, we are good
     const currentImage = imageList.find((image) => image.name === selectedImageTag.image);
-    const currentTag = currentImage?.tags.find((tag) => tag.name === selectedImageTag.tag);
+    const currentTag = currentImage?.tags?.find((tag) => tag.name === selectedImageTag.tag);
     if (currentImage && currentTag) {
       return;
     }
 
     // Fetch the defaults and use them
     APIGet(DEFAULT_IMAGE_PATH).then((data: string) => {
-      if (!cancelled && data) {
-        const values = getValuesFromImageName(data);
-        if (values.image && values.tag) {
+      if (!cancelled) {
+        if (data) {
+          // Use the default image path set
+          const values = getValuesFromImageName(data);
+          if (values.image && values.tag) {
+            setSelectedImageTag(values);
+            postChange(data);
+            return;
+          }
+        }
+
+        // Default not set or not found, find the default tag and set it as selected
+        const defaultImage = imageList.find(
+          (image) => image.tags?.find((tag) => tag.default) ?? false,
+        );
+        if (defaultImage) {
+          const values = {
+            image: defaultImage.name,
+            tag: defaultImage.tags?.find((tag) => tag.default)?.name ?? '',
+          };
           setSelectedImageTag(values);
-          postChange(data);
+          postChange(`${values.image}:${values.tag}`);
         }
       }
     });
@@ -91,7 +108,7 @@ const ImageForm: React.FC<ImageFormProps> = () => {
   };
 
   return (
-    <div className="jsp-spawner__option-section">
+    <div className="jsp-spawner__option-section m-is-top">
       <div className="jsp-spawner__option-section__title">Notebook image</div>
       {imageList?.find((image) => isImageBuildInProgress(image)) ? (
         <Alert isInline title="Additional Notebook images installing">
