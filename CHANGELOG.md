@@ -162,3 +162,9 @@
 ### Improvements
 * Added recommended tags and changed structure of images
 * Handle config load errors and config loading state
+
+## Release 0.5.1 (2021-07-13T08:35:31)
+### Features
+* Use the default tag if there is no prev or default image
+* Check for the empty status
+* Append tag name to the default image
