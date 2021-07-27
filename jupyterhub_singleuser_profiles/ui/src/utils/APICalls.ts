@@ -13,8 +13,8 @@ const getForUser = () => {
   // @ts-ignore
   const jhdata = window.jhdata;
 
-  if (jhdata?.['for_user']) {
-    return jhdata['for_user'];
+  if (jhdata?.['user']) {
+    return jhdata['user'];
   }
   return null;
 };
