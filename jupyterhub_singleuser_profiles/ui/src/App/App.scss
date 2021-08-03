@@ -19,10 +19,9 @@
     border-top: 1px solid var(--pf-global--BorderColor--100);
     padding-top: var(--pf-global--spacer--lg);
     text-align: left;
-    width: 50%;
-    min-width: 622px;
+    max-width: 768px;
 
-    &:first-of-type {
+    &.m-is-top {
       margin-top: 0;
       border-top: 0;
     }
@@ -35,6 +34,15 @@
       > svg {
         margin-left: var(--pf-global--spacer--xs);
       }
+    }
+    &__learn-more {
+      margin-top: var(--pf-global--spacer--sm);
+      svg {
+        margin-left: var(--pf-global--spacer--xs);
+      }
+    }
+    .pf-c-alert {
+      margin-top: var(--pf-global--spacer--md);
     }
   }
 

@@ -58,10 +58,7 @@ const EnvVariablesVariable: React.FC<EnvVariablesVariableProps> = ({
           onBlur={onBlur}
         />
       </FormGroup>
-      <FormGroup
-        fieldId={`${variable.name}-value`}
-        label="Variable value"
-      >
+      <FormGroup fieldId={`${variable.name}-value`} label="Variable value">
         <div className="jsp-spawner__env-var-form__var-row__vars__value">
           <TextInput
             id={`${variable.name}-value`}

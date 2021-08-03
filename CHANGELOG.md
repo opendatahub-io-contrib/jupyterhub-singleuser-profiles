@@ -142,3 +142,29 @@
 ## Release 0.4.1 (2021-05-27T13:08:54)
 ### Bug Fixes
 * Avoid throwing exception when tag.annotations are not set
+
+## Release 0.4.2 (2021-06-03T13:43:09)
+### Features
+* Enable the JUPYTERHUB_LOGIN_URL for login redirect
+* Default the display name to imagestream name
+
+## Release 0.5.0 (2021-07-08T11:22:03)
+### Features
+* Fix to save changes on env variable deletion (#164)
+* UI: Indicate notebooks are still being built (#163)
+* Handle multiple version of notebooks (#162)
+* Skip imagestreams which don't have any tags
+* Move buildstatus to ImageTagInfo
+* Fix the UI config for GPU number dropdown
+* Add segment key and clusterversion
+* Added a build_status value for each notebook image
+* Add default empty list before loop in tag_exists
+### Improvements
+* Added recommended tags and changed structure of images
+* Handle config load errors and config loading state
+
+## Release 0.5.1 (2021-07-13T08:35:31)
+### Features
+* Use the default tag if there is no prev or default image
+* Check for the empty status
+* Append tag name to the default image

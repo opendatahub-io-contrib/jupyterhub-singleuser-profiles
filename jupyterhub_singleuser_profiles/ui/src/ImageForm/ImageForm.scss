@@ -1,23 +1,58 @@
 .jsp-spawner__image-options {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  column-gap: var(--pf-global--spacer--4xl);
-  row-gap: var(--pf-global--spacer--md);
-  margin-top: var(--pf-global--spacer--md);
+  @media (min-width: 768px) {
+    display: flex;
+    flex-direction: row;
+    gap: 20px;
+  }
+
+  &__group {
+    min-width: 350px;
+  }
+  &__image {
+    margin-top: var(--pf-global--spacer--md);
+  }
   &__option {
     .pf-c-radio__label {
       white-space: nowrap;
     }
   }
   &__title {
+    &-version {
+      margin-left: var(--pf-global--spacer--xs);
+    }
     > svg {
       margin-left: var(--pf-global--spacer--xs);
+    }
+    .pf-c-label {
+      margin-top: -3px;
+    }
+  }
+  &__tags {
+    margin: 0 var(--pf-global--spacer--md);
+    .pf-c-button.pf-m-tertiary {
+      --pf-c-button--after--BorderColor: transparent;
+      padding-left: 2px;
+      > svg {
+        margin-right: var(--pf-global--spacer--xs);
+      }
+    }
+  }
+  &__tag-versions {
+    margin: 0 var(--pf-global--spacer--md);
+    .jsp-spawner__image-options__option:not(:last-of-type) {
+      margin-bottom: var(--pf-global--spacer--sm);
+    }
+    .pf-c-label {
+      margin-left: var(--pf-global--spacer--sm);
+    }
+    .pf-c-radio {
+      margin-bottom: var(--pf-global--spacer--sm);
     }
   }
   &__packages-popover {
     min-width: initial !important;
     .pf-c-popover__content {
-      max-width: 210px;
+      max-width: 275px;
       overflow-x: hidden;
       > .pf-c-button {
         padding-left: 0;
@@ -28,7 +63,12 @@
       padding-right: var(--pf-global--spacer--lg) !important;
     }
     &__title {
-      display: block;
+      display: inline-block;
+      font-weight: var(--pf-global--FontWeight--bold);
+      margin-bottom: var(--pf-global--spacer--sm);
+    }
+    &__package-title {
+      display: inline-block;
       font-weight: var(--pf-global--FontWeight--bold);
     }
     &__package {

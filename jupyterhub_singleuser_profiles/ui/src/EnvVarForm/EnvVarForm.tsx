@@ -36,8 +36,8 @@ const EnvVarForm: React.FC<ImageFormProps> = ({ uiConfig }) => {
     };
   }, []);
 
-  const postEnvChange = () => {
-    const env = variableRows.reduce((acc, row) => {
+  const postEnvChange = (updatedRows: VariableRow[]) => {
+    const env = updatedRows.reduce((acc, row) => {
       const rowVariables = row.variables.reduce(
         (variablesAcc: EnvVarType[], variable: EnvVarType) => {
           if (
@@ -69,6 +69,7 @@ const EnvVarForm: React.FC<ImageFormProps> = ({ uiConfig }) => {
     if (!updatedRow) {
       updatedRows.splice(index, 1);
       setVariableRows(updatedRows);
+      postEnvChange(updatedRows);
       return;
     }
 
@@ -112,7 +113,7 @@ const EnvVarForm: React.FC<ImageFormProps> = ({ uiConfig }) => {
         categories={uiConfig.envVarConfig?.categories || []}
         variableRow={row}
         onUpdate={(updatedRow) => onUpdateRow(index, updatedRow)}
-        onBlur={postEnvChange}
+        onBlur={() => postEnvChange(variableRows)}
       />
     ));
   };
