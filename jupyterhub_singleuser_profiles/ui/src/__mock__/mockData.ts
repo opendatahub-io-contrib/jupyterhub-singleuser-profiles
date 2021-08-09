@@ -197,6 +197,30 @@ export const mockData: MockDataType = {
           recommended: false,
           default: false,
         },
+        {
+          build_status: 'Unknown',
+          content: {
+            dependencies: [
+              {
+                name: 'JupyterLab',
+                version: '2.2.4',
+              },
+              {
+                name: 'Notebook',
+                version: '6.2.0',
+              },
+            ],
+            software: [
+              {
+                name: 'Python',
+                version: 'v3.6.8',
+              },
+            ],
+          },
+          name: 'v1.0.0',
+          recommended: false,
+          default: false,
+        },
       ],
       url: 'https://github.com/thoth-station/s2i-minimal-notebook',
     },
@@ -314,7 +338,7 @@ export const mockData: MockDataType = {
       tags: [
         {
           build_status: 'Unknown',
-          name: 'v0.0.2',
+          name: 'notag-3.8-badsemver-1.4.1',
           recommended: false,
           default: false,
         },
@@ -333,7 +357,7 @@ export const mockData: MockDataType = {
               },
             ],
           },
-          name: 'v0.0.3',
+          name: 'notag-3.8-badsemver-1.0.3',
           recommended: false,
           default: false,
         },

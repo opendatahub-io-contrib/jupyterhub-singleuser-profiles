@@ -1,11 +1,15 @@
 import * as React from 'react';
 import classNames from 'classnames';
-import compareVersions from 'compare-versions';
 import { Button, ButtonVariant, Label, Radio } from '@patternfly/react-core';
 import { AngleRightIcon, AngleDownIcon, StarIcon } from '@patternfly/react-icons';
 import { ImageType } from '../utils/types';
 import ImageTagPopover from './ImageTagPopover';
-import { getDescriptionForTag, getVersion, isImageTagBuildValid } from './imageUtils';
+import {
+  compareTagVersions,
+  getDescriptionForTag,
+  getVersion,
+  isImageTagBuildValid,
+} from './imageUtils';
 
 type ImageVersionsProps = {
   image: ImageType;
@@ -27,37 +31,35 @@ const ImageVersions: React.FC<ImageVersionsProps> = ({ image, selectedTag, onSel
       </Button>
       {open ? (
         <div className="jsp-spawner__image-options__tag-versions">
-          {image.tags
-            .sort((a, b) => compareVersions(b.name, a.name))
-            .map((tag) => {
-              const disabled = !isImageTagBuildValid(tag);
-              const classes = classNames('jsp-spawner__image-options__option', {
-                'm-is-disabled': disabled,
-              });
-              return (
-                <Radio
-                  key={`${image.name}:${tag.name}`}
-                  id={`${image.name}:${tag.name}`}
-                  name={`${image.name}:${tag.name}`}
-                  className={classes}
-                  isDisabled={disabled}
-                  label={
-                    <span className="jsp-spawner__image-options__title">
-                      Version{` ${getVersion(tag.name)}`}
-                      <ImageTagPopover tag={tag} />
-                      {tag.recommended ? (
-                        <Label color="blue" icon={<StarIcon />}>
-                          Recommended
-                        </Label>
-                      ) : null}
-                    </span>
-                  }
-                  description={getDescriptionForTag(tag)}
-                  isChecked={tag.name === selectedTag}
-                  onChange={(checked: boolean) => onSelect(tag.name, checked)}
-                />
-              );
-            })}
+          {image.tags.sort(compareTagVersions).map((tag) => {
+            const disabled = !isImageTagBuildValid(tag);
+            const classes = classNames('jsp-spawner__image-options__option', {
+              'm-is-disabled': disabled,
+            });
+            return (
+              <Radio
+                key={`${image.name}:${tag.name}`}
+                id={`${image.name}:${tag.name}`}
+                name={`${image.name}:${tag.name}`}
+                className={classes}
+                isDisabled={disabled}
+                label={
+                  <span className="jsp-spawner__image-options__title">
+                    Version{` ${getVersion(tag.name)}`}
+                    <ImageTagPopover tag={tag} />
+                    {tag.recommended ? (
+                      <Label color="blue" icon={<StarIcon />}>
+                        Recommended
+                      </Label>
+                    ) : null}
+                  </span>
+                }
+                description={getDescriptionForTag(tag)}
+                isChecked={tag.name === selectedTag}
+                onChange={(checked: boolean) => onSelect(tag.name, checked)}
+              />
+            );
+          })}
         </div>
       ) : null}
     </div>

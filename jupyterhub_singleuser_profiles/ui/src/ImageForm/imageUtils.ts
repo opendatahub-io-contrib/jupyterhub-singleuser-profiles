@@ -4,6 +4,13 @@ import { ImageSoftwareType, ImageTagType, ImageType } from '../utils/types';
 const runningStatuses = ['pending', 'running', 'cancelled'];
 const failedStatuses = ['error', 'failed'];
 
+export const compareTagVersions = (a: ImageTagType, b: ImageTagType): number => {
+  if (compareVersions.validate(a.name) && compareVersions.validate(b.name)) {
+    return compareVersions(b.name, a.name);
+  }
+  return b.name.localeCompare(a.name);
+};
+
 export const isImageBuildInProgress = (image: ImageType): boolean => {
   const inProgressTag = image.tags?.find((tag) =>
     runningStatuses.includes(tag.build_status?.toLowerCase() ?? ''),
@@ -60,7 +67,7 @@ export const getDefaultTag = (image: ImageType): ImageTagType | undefined => {
   }
 
   // Return the most recent version
-  return tags.sort((a, b) => compareVersions(b.name, a.name))[0];
+  return tags.sort(compareTagVersions)[0];
 };
 
 export const getTagForImage = (
