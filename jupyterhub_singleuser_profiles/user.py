@@ -17,9 +17,10 @@ class User(object):
   _TYPE_SECRET = "password"
   _TYPE_ENV = "text"
 
-  def __init__(self, openshift, default_image):
+  def __init__(self, openshift, default_image, notebook_namespace=None):
       self.openshift = openshift
       self._DEFAULT_IMAGE = default_image
+      self.notebook_namespace = notebook_namespace
 
   # THis method is going to be removed in the future
   def fix_if_legacy(self, username, cm):
@@ -65,12 +66,12 @@ class User(object):
 
   def save_envs(self, username, data):
     name = self._USER_ENVS_TEMPLATE % escape(username)
-    self.openshift.write_config_map(name, self.get_envs_from_data(data))
+    self.openshift.write_config_map(name, self.get_envs_from_data(data), notebook_namespace=self.notebook_namespace)
 
   def get_envs(self, username, for_k8s=False):
     result = []
     name = self._USER_ENVS_TEMPLATE % escape(username)
-    data = self.openshift.read_config_map(name)
+    data = self.openshift.read_config_map(name, notebook_namespace=self.notebook_namespace)
     if data:
       result = [{"name": key, "type": self._TYPE_ENV, "value": value} for key, value in data.items()]
 
@@ -81,12 +82,12 @@ class User(object):
 
   def save_secrets(self, username, data):
     name = self._USER_ENVS_TEMPLATE % escape(username)
-    self.openshift.write_secret(name, self.get_secrets_from_data(data))
+    self.openshift.write_secret(name, self.get_secrets_from_data(data), notebook_namespace=self.notebook_namespace)
 
   def get_secrets(self, username, for_k8s=False):
     result = []
     name = self._USER_ENVS_TEMPLATE % escape(username)
-    data = self.openshift.read_secret(name)
+    data = self.openshift.read_secret(name, notebook_namespace=self.notebook_namespace)
     if data:
       result = [{"name": key, "type": self._TYPE_SECRET, "value": value} for key, value in data.items()]
 
