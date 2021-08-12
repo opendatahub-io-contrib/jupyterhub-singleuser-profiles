@@ -168,3 +168,11 @@
 * Use the default tag if there is no prev or default image
 * Check for the empty status
 * Append tag name to the default image
+
+## Release 0.6.0 (2021-08-12T14:11:59)
+### Features
+* Handle image tags with invalid semantic versions (#173)
+### Bug Fixes
+* fix username read issue in frontend API call (#172)
+### Improvements
+* [RHODS-1641] Add notebook_namespace parameter for cm and secrets
