@@ -50,10 +50,12 @@ class OpenShift(object):
     _LOGGER.info("Found these additional Config Maps: %s" % config_maps_list)
     return config_maps_list
 
-  def read_config_map(self, config_map_name, key_name=None):
+  def read_config_map(self, config_map_name, key_name=None, notebook_namespace=None):
     result = {}
     try:
-      config_map = self.api_client.read_namespaced_config_map(config_map_name, self.namespace)
+      if notebook_namespace is None:
+        notebook_namespace = self.namespace
+      config_map = self.api_client.read_namespaced_config_map(config_map_name, notebook_namespace)
     except ApiException as e:
       if e.status != 404:
         _LOGGER.error("Error reading a config map %s: %s" % (secret_name, e))
@@ -65,10 +67,12 @@ class OpenShift(object):
       result = config_map.data
     return result
 
-  def read_secret(self, secret_name, key_name=None):
+  def read_secret(self, secret_name, key_name=None, notebook_namespace=None):
     result = {}
     try:
-      secret = self.api_client.read_namespaced_secret(secret_name, self.namespace)
+      if notebook_namespace is None:
+        notebook_namespace = self.namespace
+      secret = self.api_client.read_namespaced_secret(secret_name, notebook_namespace)
     except ApiException as e:
       if e.status != 404:
         _LOGGER.error("Error reading a secret %s: %s" % (secret_name, e))
@@ -90,37 +94,41 @@ class OpenShift(object):
     return content
 
 
-  def write_config_map(self, config_map_name, data, key_name=None):
+  def write_config_map(self, config_map_name, data, key_name=None, notebook_namespace=None):
     cm = V1ConfigMap()
     cm.metadata = V1ObjectMeta(name=config_map_name, labels={'app': 'jupyterhub'})
+    if notebook_namespace is None:
+      notebook_namespace = self.namespace
     if key_name:
       cm.data = {key_name: yaml.dump(data, default_flow_style=False)}
     else:
       cm.data = data
     try:
-      api_response = self.api_client.replace_namespaced_config_map(config_map_name, self.namespace, cm)
+      api_response = self.api_client.replace_namespaced_config_map(config_map_name, notebook_namespace, cm)
     except ApiException as e:
       if e.status == 404:
         try:
-          api_response = self.api_client.create_namespaced_config_map(self.namespace, cm)
+          api_response = self.api_client.create_namespaced_config_map(notebook_namespace, cm)
         except ApiException as e:
           _LOGGER.error("Exception when calling CoreV1Api->create_namespaced_config_map: %s\n" % e)
       else:
         raise
 
-  def write_secret(self, secret_name, data, key_name=None):
+  def write_secret(self, secret_name, data, key_name=None, notebook_namespace=None):
     secret = V1Secret()
     secret.metadata = V1ObjectMeta(name=secret_name, labels={'app': 'jupyterhub'})
+    if notebook_namespace is None:
+      notebook_namespace = self.namespace
     if key_name:
       secret.string_data = {key_name: yaml.dump(data, default_flow_style=False)} #stringData instead of data here to make kubernetes parse this as a string without base64 encoding
     else:
       secret.string_data = data
     try:
-      api_response = self.api_client.replace_namespaced_secret(secret_name, self.namespace, secret)
+      api_response = self.api_client.replace_namespaced_secret(secret_name, notebook_namespace, secret)
     except ApiException as e:
       if e.status == 404:
         try:
-          api_response = self.api_client.create_namespaced_secret(self.namespace, secret)
+          api_response = self.api_client.create_namespaced_secret(notebook_namespace, secret)
         except ApiException as e:
           _LOGGER.error("Exception when calling CoreV1Api->create_namespaced_secret: %s\n" % e)
       else:

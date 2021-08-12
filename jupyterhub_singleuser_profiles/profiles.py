@@ -24,7 +24,7 @@ _GPU_KEY = "nvidia.com/gpu"
 class SingleuserProfiles(object):
   GPU_MODE_SELINUX = "selinux"
   GPU_MODE_PRIVILEGED = "privileged"
-  def __init__(self, namespace=None, verify_ssl=True, gpu_mode=None, service_account_path='/var/run/secrets/kubernetes.io/serviceaccount'):
+  def __init__(self, namespace=None, notebook_namespace=None, verify_ssl=True, gpu_mode=None, service_account_path='/var/run/secrets/kubernetes.io/serviceaccount'):
     self.profiles = []
     self.namespace = None
     self.gpu_types = []
@@ -35,7 +35,7 @@ class SingleuserProfiles(object):
 
     self.service = Service(self.openshift, self.namespace)
     self.images = Images(self.openshift, namespace=namespace)
-    self.user = User(self.openshift, default_image=self.images.get_default())
+    self.user = User(self.openshift, default_image=self.images.get_default(), notebook_namespace=notebook_namespace)
 
   @property
   def gpu_mode(self):
