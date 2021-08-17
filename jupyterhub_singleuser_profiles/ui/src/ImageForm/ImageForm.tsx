@@ -9,7 +9,7 @@ import {
   IMAGE_PATH,
 } from '../utils/const';
 import { ImageType, UserConfigMapType, UiConfigType } from '../utils/types';
-import { isImageBuildInProgress } from './imageUtils';
+import { getDefaultTag, isImageBuildInProgress } from './imageUtils';
 import ImageSelector from './ImageSelector';
 
 import './ImageForm.scss';
@@ -67,33 +67,58 @@ const ImageForm: React.FC<ImageFormProps> = () => {
       return;
     }
 
-    // Fetch the defaults and use them
-    APIGet(DEFAULT_IMAGE_PATH).then((data: string) => {
-      if (!cancelled) {
-        if (data) {
-          // Use the default image path set
-          const values = getValuesFromImageName(data);
-          if (values.image && values.tag) {
+    const setFirstValidImage = () => {
+      let found = false;
+      let i = 0;
+      while (!found && i < imageList.length) {
+        const image = imageList?.[i++];
+        if (image) {
+          const tag = getDefaultTag(image);
+          if (tag) {
+            const values = { image: image.name, tag: tag.name };
             setSelectedImageTag(values);
-            postChange(data);
-            return;
+            postChange(`${values.image}:${values.tag}`);
+            found = true;
           }
         }
-
-        // Default not set or not found, find the default tag and set it as selected
-        const defaultImage = imageList.find(
-          (image) => image.tags?.find((tag) => tag.default) ?? false,
-        );
-        if (defaultImage) {
-          const values = {
-            image: defaultImage.name,
-            tag: defaultImage.tags?.find((tag) => tag.default)?.name ?? '',
-          };
-          setSelectedImageTag(values);
-          postChange(`${values.image}:${values.tag}`);
-        }
       }
-    });
+    };
+
+    // Fetch the defaults and use them
+    APIGet(DEFAULT_IMAGE_PATH)
+      .then((data: string) => {
+        if (!cancelled) {
+          if (data) {
+            // Use the default image path set
+            const values = getValuesFromImageName(data);
+            if (values.image && values.tag) {
+              setSelectedImageTag(values);
+              postChange(data);
+              return;
+            }
+          }
+
+          // Default not set or not found, find the default tag and set it as selected
+          const defaultImage = imageList.find(
+            (image) => image.tags?.find((tag) => tag.default) ?? false,
+          );
+          if (defaultImage) {
+            const values = {
+              image: defaultImage.name,
+              tag: defaultImage.tags?.find((tag) => tag.default)?.name ?? '',
+            };
+            setSelectedImageTag(values);
+            postChange(`${values.image}:${values.tag}`);
+            return;
+          }
+
+          // No defaults, choose the first valid image and tag
+          setFirstValidImage();
+        }
+      })
+      .catch(() => {
+        setFirstValidImage();
+      });
 
     return () => {
       cancelled = true;
@@ -112,8 +137,8 @@ const ImageForm: React.FC<ImageFormProps> = () => {
       <div className="jsp-spawner__option-section__title">Notebook image</div>
       {imageList?.find((image) => isImageBuildInProgress(image)) ? (
         <Alert isInline title="Additional Notebook images installing">
-          Installation of all Notebook images can take up to 40 minutes. each image becomes
-          available ot select once its installation completes.
+          Installation of all Notebook images can take up to 40 minutes. Each image becomes
+          available to select once its installation completes.
           {ABOUT_NOTEBOOK_IMAGES_LINK ? (
             <div className="jsp-spawner__option-section__learn-more">
               <a href={ABOUT_NOTEBOOK_IMAGES_LINK} target="_blank" rel="noopener noreferrer">
