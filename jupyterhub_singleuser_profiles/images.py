@@ -17,6 +17,7 @@ DEPENDENCIES_ANNOTATION = 'opendatahub.io/notebook-python-dependencies'
 IMAGE_ORDER_ANNOTATION = 'opendatahub.io/notebook-image-order'
 RECOMMENDED_ANNOTATION = 'opendatahub.io/notebook-image-recommended' #Used by UI to pick the right tag if user only selected an image, not image+tag
 
+BUILD_NUMBER = 'openshift.io/build.number'
 
 class NameVersionPair(BaseModel):
     name: str
@@ -58,14 +59,27 @@ class Images(object):
 
     def get_default_image_tag(self, image):
         return "%s:%s" % (image.name, image.tags[0].name) if len(image.tags) else None
+
+    def get_build_number(self, build):
+        if build is None:
+            return -1
+        return int(build.metadata.annotations.get(BUILD_NUMBER))
     
     def get_image_build_status(self, imagestream_name):
+        incomplete = ['Cancelled', 'Pending', 'New'] # Statuses greyed out by UI
         build_list = self.openshift.get_builds()
+        latest_build = None
         for build in build_list.items:
-            #if imagestream_name in build.metadata.name:
             if imagestream_name == build.spec.output.to.name:
-                return build.status.get('phase', 'Unknown')
-        return 'Unknown'
+                if build.status.get('phase') not in incomplete:
+                    if self.get_build_number(latest_build) < self.get_build_number(build):
+                        latest_build = build
+                if not latest_build:
+                    latest_build = build # To prevent having no build as output if incomplete build exists
+        if latest_build:
+            return latest_build.status.get('phase')
+        else:
+            return 'Unknown'  # If no builds exist, do not consider status
 
     def tag_exists(self, tag_name, imagestream):
         """
