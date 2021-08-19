@@ -1,4 +1,9 @@
 
+## Release 0.6.1 (2021-08-19T18:08:48)
+### Features
+* Change custom namespace gathering to allow unset namespace
+* Fix to ensure there is an initial image selection (#177)
+
 ## Release 0.0.2 (2021-01-05T17:02:05)
 ### Features
 * include thoth.yaml configuration for release maintainence
