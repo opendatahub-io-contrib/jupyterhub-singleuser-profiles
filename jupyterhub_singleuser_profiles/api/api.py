@@ -82,6 +82,10 @@ def whoami(user):
 def get_instance(*args, **kwargs):
     return _PROFILES.get_instance()
 
+#@authenticated
+#def get_size_capacity(*args, **kwargs):
+#    return _PROFILES.get_size_capacity()
+
 @authenticated
 def get_user_cm(user):
     cm = _PROFILES.user.get(user['name'])
