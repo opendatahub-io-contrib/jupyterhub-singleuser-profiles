@@ -134,13 +134,56 @@ class OpenShift(object):
       else:
         raise
 
-  def get_gpu_number(self):
-    result = 0
+  def get_nodes(self):
     nodes = self.oapi_client.resources.get(kind='Node', api_version='v1')
     node_list = nodes.get()
+    return node_list
+
+  def calc_cpu(self, cpu_str):
+    if cpu_str[-1] == 'm':
+      cpu = int(cpu_str[:-1])/1000
+    else:
+      cpu = int(cpu_str)
+    return cpu
+
+  # Returns memory in Gi
+  def calc_memory(self, memory_str):
+    if memory_str[-2:] == 'Ki':
+      memory = int(memory_str[:-2])/1000000 
+    elif memory_str[-2:] == 'Mi':
+      memory = int(memory_str[:-2])/1000
+    elif memory_str[-2:] == 'Gi':
+      memory = int(memory_str[:-2])
+    return memory
+
+  def get_gpu_number(self):
+    result = 0
+    node_list = self.get_nodes()
     for node in node_list.items:
       result += int(node.metadata.labels.get('nvidia.com/gpu.count', 0))
-    return result      
+    return result     
+
+  def get_node_capacity(self):
+    cpu = 0
+    cpu_alloc = 0
+    memory = 0
+    memory_alloc = 0
+    node_list = self.get_nodes()
+    for node in node_list.items:
+      cpu_str = node.status.capacity.get('cpu')
+      cpu += self.calc_cpu(cpu_str)
+      cpu_str = node.status.allocatable.get('cpu')
+      cpu_alloc += self.calc_cpu(cpu_str)
+      memory_str = node.status.capacity.get('memory')
+      memory += self.calc_memory(memory_str)
+      memory_str = node.status.allocatable.get('memory')
+      memory_alloc += self.calc_memory(memory_str)
+    return {
+      'cpu': cpu,
+      'allocatable_cpu': cpu_alloc,
+      'memory': memory,
+      'allocatable_memory': memory_alloc
+    }
     
   def get_imagestreams(self, label=None):
     imagestreams = self.oapi_client.resources.get(kind='ImageStream', api_version='image.openshift.io/v1')

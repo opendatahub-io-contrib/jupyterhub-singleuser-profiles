@@ -13,6 +13,7 @@ from .images import Images
 from .ui_config import UIConfig
 from .openshift import OpenShift
 from .user import User
+from jupyterhub_singleuser_profiles import sizes
 
 
 _LOGGER = logging.getLogger(__name__)
@@ -149,6 +150,9 @@ class SingleuserProfiles(object):
       'segment_key': segment_key,
       'cluster_id': cluster_version.spec.get('clusterID')
     }
+  
+  def get_size_capacity(self):
+    return self.openshift.get_node_capacity()
     
 
   def get_sizes_form(self, username=None):
