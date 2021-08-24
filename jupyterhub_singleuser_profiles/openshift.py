@@ -58,7 +58,7 @@ class OpenShift(object):
       config_map = self.api_client.read_namespaced_config_map(config_map_name, notebook_namespace)
     except ApiException as e:
       if e.status != 404:
-        _LOGGER.error("Error reading a config map %s: %s" % (secret_name, e))
+        _LOGGER.error("Error reading a config map %s: %s" % (config_map_name, e))
       return result
 
     if key_name:
