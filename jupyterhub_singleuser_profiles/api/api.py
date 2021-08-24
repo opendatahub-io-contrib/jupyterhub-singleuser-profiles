@@ -17,6 +17,8 @@ from flask import Response
 from jupyterhub.services.auth import HubAuth
 
 custom_notebook_namespace = os.environ.get('NOTEBOOK_NAMESPACE')
+if not custom_notebook_namespace:
+    custom_notebook_namespace = None;
 
 _PROFILES = SingleuserProfiles(notebook_namespace=custom_notebook_namespace, verify_ssl=False)
 _PROFILES.load_profiles()
