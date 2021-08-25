@@ -1,4 +1,9 @@
 
+## Release 0.6.2 (2021-08-25T14:47:37)
+### Features
+* Changed build status gathering to prevent issues
+* Set notebook namespace to None if it is empty
+
 ## Release 0.6.1 (2021-08-19T18:08:48)
 ### Features
 * Change custom namespace gathering to allow unset namespace
