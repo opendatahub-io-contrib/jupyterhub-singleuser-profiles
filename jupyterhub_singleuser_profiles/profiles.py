@@ -167,7 +167,7 @@ class SingleuserProfiles(object):
 
   def get_sizes(self):
     s = Sizes(self.sizes, self.openshift)
-    return self.sizes
+    return s.sizes
 
   def get_image_info(self, image_name):
     return self.images.get_info(image_name)

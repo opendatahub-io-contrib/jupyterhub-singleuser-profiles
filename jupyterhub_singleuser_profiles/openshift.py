@@ -140,20 +140,20 @@ class OpenShift(object):
     return node_list
 
   def calc_cpu(self, cpu_str):
-    if cpu_str[-1] == 'm':
-      cpu = int(cpu_str[:-1])/1000
+    if type(cpu_str) != int and cpu_str[-1] == 'm': #Can sometimes be int
+      cpu = float(cpu_str[:-1])/1000
     else:
-      cpu = int(cpu_str)
+      cpu = float(cpu_str)
     return cpu
 
   # Returns memory in Gi
   def calc_memory(self, memory_str):
     if memory_str[-2:] == 'Ki':
-      memory = int(memory_str[:-2])/1000000 
+      memory = float(memory_str[:-2])/1000000 
     elif memory_str[-2:] == 'Mi':
-      memory = int(memory_str[:-2])/1000
+      memory = float(memory_str[:-2])/1000
     elif memory_str[-2:] == 'Gi':
-      memory = int(memory_str[:-2])
+      memory = float(memory_str[:-2])
     return memory
 
   def get_gpu_number(self):
@@ -187,8 +187,8 @@ class OpenShift(object):
       'allocatable_memory': memory_alloc
       })
     node_cap_list.sort(key=lambda cap_dict:(cap_dict['allocatable_memory'],
-                                            cap_dict['memory'],
                                             cap_dict['allocatable_cpu'],
+                                            cap_dict['memory'],
                                             cap_dict['cpu']))
     return node_cap_list
     
