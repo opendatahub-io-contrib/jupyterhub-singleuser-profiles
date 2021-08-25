@@ -169,21 +169,28 @@ class OpenShift(object):
     memory = 0
     memory_alloc = 0
     node_list = self.get_nodes()
+    node_cap_list = []
     for node in node_list.items:
       cpu_str = node.status.capacity.get('cpu')
-      cpu += self.calc_cpu(cpu_str)
+      cpu = self.calc_cpu(cpu_str)
       cpu_str = node.status.allocatable.get('cpu')
-      cpu_alloc += self.calc_cpu(cpu_str)
+      cpu_alloc = self.calc_cpu(cpu_str)
       memory_str = node.status.capacity.get('memory')
-      memory += self.calc_memory(memory_str)
+      memory = self.calc_memory(memory_str)
       memory_str = node.status.allocatable.get('memory')
-      memory_alloc += self.calc_memory(memory_str)
-    return {
+      memory_alloc = self.calc_memory(memory_str)
+      
+      node_cap_list.append({
       'cpu': cpu,
       'allocatable_cpu': cpu_alloc,
       'memory': memory,
       'allocatable_memory': memory_alloc
-    }
+      })
+    node_cap_list.sort(key=lambda cap_dict:(cap_dict['allocatable_memory'],
+                                            cap_dict['memory'],
+                                            cap_dict['allocatable_cpu'],
+                                            cap_dict['cpu']))
+    return node_cap_list
     
   def get_imagestreams(self, label=None):
     imagestreams = self.oapi_client.resources.get(kind='ImageStream', api_version='image.openshift.io/v1')

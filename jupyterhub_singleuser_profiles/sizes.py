@@ -7,8 +7,9 @@ from .utils import parse_resources
 _LOGGER = logging.getLogger(__name__)
 
 class Sizes(object):
-    def __init__(self, sizes):
+    def __init__(self, sizes, openshift):
         self.sizes = sizes
+        self.openshift = openshift
 
     def get_size(self, size):
         result = {}
@@ -36,6 +37,24 @@ class Sizes(object):
             size = None
 
         return size
+
+    def add_warnings(self):
+
+        for size in self.sizes:
+            capacity_list = self.openshift.get_node_capacity()
+            mem = self.openshift.calc_memory(size['resource']['limits'].get('memory'))
+            cpu = self.openshift.calc_cpu(size['resource']['limits'].get('cpu'))
+            # Search sorted capacity list from lowest node capacity up
+            for node_cap in capacity_list:
+                if mem < node_cap['allocatable_memory'] and cpu < node_cap['allocatable_cpu']:
+                    size['warning'] = 'none'
+                    break
+                elif mem < node_cap['memory'] and cpu < node_cap['cpu']:
+                    size['warning'] = 'warn'
+                    break
+                else:
+                    size['warning'] = 'ignore'
+                        
 
     def get_form(self, last_size=None):
         template = """
