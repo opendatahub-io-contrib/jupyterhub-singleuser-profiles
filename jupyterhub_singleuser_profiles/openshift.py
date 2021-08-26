@@ -149,7 +149,7 @@ class OpenShift(object):
   # Returns memory in Gi
   def calc_memory(self, memory_str):
     if memory_str[-2:] == 'Ki':
-      memory = float(memory_str[:-2])/1000000 
+      memory = float(memory_str[:-2])/1000000
     elif memory_str[-2:] == 'Mi':
       memory = float(memory_str[:-2])/1000
     elif memory_str[-2:] == 'Gi':
@@ -161,7 +161,7 @@ class OpenShift(object):
     node_list = self.get_nodes()
     for node in node_list.items:
       result += int(node.metadata.labels.get('nvidia.com/gpu.count', 0))
-    return result     
+    return result
 
   def get_node_capacity(self):
     cpu = 0

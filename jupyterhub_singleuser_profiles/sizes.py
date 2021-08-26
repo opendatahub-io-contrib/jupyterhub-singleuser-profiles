@@ -5,14 +5,13 @@ from .utils import parse_resources
 
 
 _LOGGER = logging.getLogger(__name__)
-    
+
 class Sizes(object):
     def __init__(self, sizes, openshift):
         self._sizes = sizes
         self.openshift = openshift
 
     def add_label(self):
-
         for size in self._sizes:
             capacity_list = self.openshift.get_node_capacity()
             mem = self.openshift.calc_memory(size['resources']['limits'].get('memory'))
@@ -21,9 +20,6 @@ class Sizes(object):
             for node_cap in capacity_list:
                 if mem < node_cap['allocatable_memory'] and cpu < node_cap['allocatable_cpu']:
                     size['schedulable'] = True #Small enough
-                    break
-                elif mem < node_cap['memory'] and cpu < node_cap['cpu']:
-                    size['schedulable'] = None #Maybe (Warn user)
                     break
                 else:
                     size['schedulable'] = False #Too big (Do not show)
@@ -58,7 +54,7 @@ class Sizes(object):
         else:
             size = None
 
-        return size                        
+        return size
 
     def get_form(self, last_size=None):
         template = """

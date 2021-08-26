@@ -114,18 +114,6 @@ paths:
               schema:
                 type: string
 
-  # /api/sizes/capacity:
-  #   get:
-  #     operationId: jupyterhub_singleuser_profiles.api.api.get_size_capacity
-  #     summary: Get a json with sums of total and allocated resources of all nodes
-  #     responses:
-  #       '200':
-  #         description: OK
-  #         content:
-  #           application/json:
-  #             schema:
-  #               $ref: "#/components/schemas/SizeCap"
-
   /api/sizes:
     get:
       operationId: jupyterhub_singleuser_profiles.api.api.get_sizes
@@ -427,16 +415,3 @@ components:
         cluster_id:
           title: Cluster ID
           type: string
-    # SizeCap:
-    #   title: SizeCap
-    #   type: object
-    #   properties:
-    #     cpu:
-    #       type: integer
-    #     allocatable_cpu:
-    #       type: integer
-    #     memory:
-    #       type: integer
-    #     allocatable_memory:
-    #       type: integer
-      
