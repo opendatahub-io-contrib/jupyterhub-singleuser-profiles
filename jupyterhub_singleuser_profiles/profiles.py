@@ -13,6 +13,7 @@ from .images import Images
 from .ui_config import UIConfig
 from .openshift import OpenShift
 from .user import User
+from jupyterhub_singleuser_profiles import sizes
 
 
 _LOGGER = logging.getLogger(__name__)
@@ -109,7 +110,7 @@ class SingleuserProfiles(object):
       res = self.merge_profiles(res, p)
 
     if size:
-      s = Sizes(self.sizes)
+      s = Sizes(self.sizes, self.openshift)
       loaded_size = s.get_size(size)
       if loaded_size:
         res = self.merge_profiles(res, loaded_size)
@@ -149,20 +150,20 @@ class SingleuserProfiles(object):
       'segment_key': segment_key,
       'cluster_id': cluster_version.spec.get('clusterID')
     }
-    
 
   def get_sizes_form(self, username=None):
     if not self.profiles:
       self.load_profiles(username=username)
-    s = Sizes(self.sizes)
+    s = Sizes(self.sizes, self.openshift)
     return s.get_form(self.get_profile_by_name(_USER_CONFIG_PROFILE_NAME).get('last_selected_size'))
 
   def get_size(self, size):
-    s = Sizes(self.sizes)
+    s = Sizes(self.sizes, self.openshift)
     return s.get_size(size)
-    
+
   def get_sizes(self):
-    return self.sizes
+    s = Sizes(self.sizes, self.openshift)
+    return s.sizes
 
   def get_image_info(self, image_name):
     return self.images.get_info(image_name)

@@ -7,8 +7,28 @@ from .utils import parse_resources
 _LOGGER = logging.getLogger(__name__)
 
 class Sizes(object):
-    def __init__(self, sizes):
-        self.sizes = sizes
+    def __init__(self, sizes, openshift):
+        self._sizes = sizes
+        self.openshift = openshift
+
+    def add_label(self):
+        capacity_buffer = 0.9
+        for size in self._sizes:
+            capacity_list = self.openshift.get_node_capacity()
+            mem = self.openshift.calc_memory(size['resources']['requests'].get('memory'))
+            cpu = self.openshift.calc_cpu(size['resources']['requests'].get('cpu'))
+            # Search sorted capacity list from lowest node capacity up
+            for node_cap in capacity_list:
+                if mem < node_cap['allocatable_memory']*capacity_buffer and cpu < node_cap['allocatable_cpu']*capacity_buffer:
+                    size['schedulable'] = True #Pod small enough for node
+                    break
+                else:
+                    size['schedulable'] = False #Pod too big for all nodes (Do not show)
+
+    @property
+    def sizes(self):
+        self.add_label()
+        return self._sizes
 
     def get_size(self, size):
         result = {}

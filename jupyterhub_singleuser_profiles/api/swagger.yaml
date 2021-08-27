@@ -415,4 +415,3 @@ components:
         cluster_id:
           title: Cluster ID
           type: string
-      
