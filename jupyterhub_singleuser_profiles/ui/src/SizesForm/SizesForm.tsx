@@ -58,9 +58,9 @@ const SizesForm: React.FC<ImageFormProps> = ({ uiConfig }) => {
       return;
     }
     const promises = sizeList.map((size) => APIGet(`${SINGLE_SIZE_PATH}/${size}`));
-    Promise.all(promises).then((results) => {
+    Promise.all(promises).then((results: SizeDescription[]) => {
       if (!cancelled) {
-        setSizeDescriptions(results as SizeDescription[]);
+        setSizeDescriptions(results);
       }
     });
     return () => {
@@ -96,20 +96,30 @@ const SizesForm: React.FC<ImageFormProps> = ({ uiConfig }) => {
       ['Default'],
     );
 
-    const getDescription = (size: string): string => {
-      const description = sizeDescriptions?.find((desc) => desc?.name === size);
-      if (description) {
-        return (
-          `Limits: ${description.resources.limits.cpu} CPU, ${description.resources.limits.memory} Memory ` +
-          `Requests: ${description.resources.requests.cpu} CPU, ${description.resources.requests.memory} Memory`
+    return sizes.reduce((acc, size) => {
+      const sizeDescription = sizeDescriptions?.find((desc) => desc?.name === size);
+      if (!sizeDescription) {
+        acc.push(
+          <SelectOption
+            key={size}
+            value={size}
+            description="Resources set based on administrator configurations"
+          />,
+        );
+      } else if (sizeDescription.schedulable !== false) {
+        acc.push(
+          <SelectOption
+            key={size}
+            value={size}
+            description={
+              `Limits: ${sizeDescription.resources.limits.cpu} CPU, ${sizeDescription.resources.limits.memory} Memory ` +
+              `Requests: ${sizeDescription.resources.requests.cpu} CPU, ${sizeDescription.resources.requests.memory} Memory`
+            }
+          />,
         );
       }
-      return 'Resources set based on administrator configurations';
-    };
-
-    return sizes.map((size) => (
-      <SelectOption key={size} value={size} description={getDescription(size)} />
-    ));
+      return acc;
+    }, [] as React.ReactElement[]);
   }, [sizeList, sizeDescriptions]);
 
   const gpuOptions = React.useMemo(() => {
