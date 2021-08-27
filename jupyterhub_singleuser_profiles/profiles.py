@@ -150,10 +150,6 @@ class SingleuserProfiles(object):
       'segment_key': segment_key,
       'cluster_id': cluster_version.spec.get('clusterID')
     }
-  
-  #def get_size_capacity(self):
-  #  return self.openshift.get_node_capacity()
-    
 
   def get_sizes_form(self, username=None):
     if not self.profiles:

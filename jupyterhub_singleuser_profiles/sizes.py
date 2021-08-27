@@ -20,10 +20,10 @@ class Sizes(object):
             # Search sorted capacity list from lowest node capacity up
             for node_cap in capacity_list:
                 if mem < node_cap['allocatable_memory']*capacity_buffer and cpu < node_cap['allocatable_cpu']*capacity_buffer:
-                    size['schedulable'] = True #Small enough
+                    size['schedulable'] = True #Pod small enough for node
                     break
                 else:
-                    size['schedulable'] = False #Too big (Do not show)
+                    size['schedulable'] = False #Pod too big for all nodes (Do not show)
 
     @property
     def sizes(self):

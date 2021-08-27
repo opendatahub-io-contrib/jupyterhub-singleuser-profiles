@@ -140,7 +140,7 @@ class OpenShift(object):
     return node_list
 
   def calc_cpu(self, cpu_str):
-    if type(cpu_str) != int and cpu_str[-1] == 'm': #Can sometimes be int
+    if (type(cpu_str) != int and type(cpu_str) != float) and cpu_str[-1] == 'm': #Can sometimes be numeric
       cpu = float(cpu_str[:-1])/1000
     else:
       cpu = float(cpu_str)
@@ -171,14 +171,10 @@ class OpenShift(object):
     node_list = self.get_nodes()
     node_cap_list = []
     for node in node_list.items:
-      cpu_str = node.status.capacity.get('cpu')
-      cpu = self.calc_cpu(cpu_str)
-      cpu_str = node.status.allocatable.get('cpu')
-      cpu_alloc = self.calc_cpu(cpu_str)
-      memory_str = node.status.capacity.get('memory')
-      memory = self.calc_memory(memory_str)
-      memory_str = node.status.allocatable.get('memory')
-      memory_alloc = self.calc_memory(memory_str)
+      cpu = self.calc_cpu(node.status.capacity.get('cpu'))
+      cpu_alloc = self.calc_cpu(node.status.allocatable.get('cpu'))
+      memory = self.calc_memory(node.status.capacity.get('memory'))
+      memory_alloc = self.calc_memory(node.status.allocatable.get('memory'))
       
       node_cap_list.append({
       'cpu': cpu,
