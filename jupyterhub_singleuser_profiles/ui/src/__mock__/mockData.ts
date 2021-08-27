@@ -14,6 +14,7 @@ type MockDataType = {
   ['size/Small']: SizeDescription;
   ['size/Medium']: SizeDescription;
   ['size/Large']: SizeDescription;
+  ['size/Huge']: SizeDescription;
   [UI_CONFIG_PATH]: UiConfigType;
   [DEFAULT_IMAGE_PATH]: string;
 };
@@ -26,7 +27,7 @@ export const mockData: MockDataType = {
     last_selected_size: 'Default',
   },
   [DEFAULT_IMAGE_PATH]: 's2i-generic-data-science-notebook:v0.0.4',
-  [SIZES_PATH]: ['Small', 'Medium', 'Large'],
+  [SIZES_PATH]: ['Small', 'Medium', 'Large', 'Huge'],
   [IMAGE_PATH]: [
     {
       description:
@@ -390,6 +391,7 @@ export const mockData: MockDataType = {
         memory: '1Gi',
       },
     },
+    schedulable: true,
   },
   ['size/Medium']: {
     name: 'Medium',
@@ -403,6 +405,7 @@ export const mockData: MockDataType = {
         memory: '2Gi',
       },
     },
+    schedulable: true,
   },
   ['size/Large']: {
     name: 'Large',
@@ -416,6 +419,20 @@ export const mockData: MockDataType = {
         memory: '4Gi',
       },
     },
+  },
+  ['size/Huge']: {
+    name: 'Huge',
+    resources: {
+      limits: {
+        cpu: 16,
+        memory: '18Gi',
+      },
+      requests: {
+        cpu: 8,
+        memory: '8Gi',
+      },
+    },
+    schedulable: false,
   },
   [UI_CONFIG_PATH]: {
     envVarConfig: {
