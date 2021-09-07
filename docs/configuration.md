@@ -116,6 +116,26 @@ sizes:
       limits:
         memory: "8Gi"
         cpu: "8"
+ui:
+  gpuConfig:
+      type: dropdown
+      gpuDropdown:
+          start: 1
+          end: 10
+  imageConfig:
+      blacklist: [unavailable_image1:v0.1, unavailable_image2:v0.2]
+      sort: 'name'
+  sizeConfig:
+      enabled: false
+  envVarConfig:
+      enabled: true
+      categories:
+      - name: Amazon S3
+        variables:
+        - name:  AWS_ACCESS_KEY_ID
+          type: password
+        - name:  AWS_SECRET_ACCESS_Key
+          type: password
 ```
 
 * **profiles** is a list of profile objects
@@ -126,5 +146,7 @@ sizes:
 * **node_affinity** is an object containing node affinity definitions to be applied to the singleuser pod. See https://kubernetes.io/docs/concepts/configuration/assign-pod-node/ for more information.
 * **resources** is an object containing the memory and cpu requests and limits. Based on kubernetes structure. See: https://kubernetes.io/docs/concepts/configuration/manage-compute-resources-container/ (which are then applied to the singleuser pod)
 * **services** is an object of objects describing services which should be run with the Jupyter Single User Server. See details below
+* **sizes** is a list of sizes available to users on spawn, documented [here](./sizes.md)
+* **ui** defines the spawn user interface as defined [here](./ui_configuration.md)
 
 You can omit any section from the configuration. If you remove `images` section, the configuration will be matched to all images. If you remove `users` section, it will be matched to all users. This way, you can easily create a globals/default section which will be applied to all users and all images. Do not forget to put `globals first` in the list, otherwise defaults will overwrite other configuration - there is no magic, values from the last matched profile in the list will get applied.
