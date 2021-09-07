@@ -172,9 +172,6 @@ class SingleuserProfiles(object):
     s = Sizes(self.sizes, self.openshift)
     return s.sizes
 
-  def get_image_info(self, image_name):
-    return self.images.get_info(image_name)
-
   def get_gpu_types(self):
     return self.gpu_types
 
