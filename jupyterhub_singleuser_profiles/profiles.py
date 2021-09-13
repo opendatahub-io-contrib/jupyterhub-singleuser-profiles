@@ -233,7 +233,16 @@ class SingleuserProfiles(object):
       pod.spec.affinity['nodeAffinity'] = {**pod.spec.affinity.get('nodeAffinity', {}), **node_affinity}
 
     return None
+  
+  @classmethod
+  def apply_size_config(self, selected_size_name, pod):
+    s = Sizes(self.sizes, self.openshift)
+    selected_size = s.get_size(selected_size_name)
+    node_tolerations = selected_size.get('node_tolerations', [])
+    node_affinity = {}
 
+    self.apply_pod_schedulers(node_tolerations, node_affinity, pod)
+    
   @classmethod
   def apply_gpu_config(self, gpu_mode, profile, gpu_types, pod, selected_gpu_type):
     gpu_count = profile.get('gpu', 0)
@@ -291,7 +300,7 @@ class SingleuserProfiles(object):
     
 
   @classmethod
-  def apply_pod_profile(self, username, pod, profile, gpu_types, default_mount_path, gpu_mode=None, selected_gpu_type="ALL"):
+  def apply_pod_profile(self, username, pod, profile, gpu_types, default_mount_path, selected_size, gpu_mode=None, selected_gpu_type="ALL"):
     api_client = kubernetes.client.ApiClient()
 
     pod.metadata.labels['jupyterhub.opendatahub.io/user'] = escape(username)
@@ -363,6 +372,8 @@ class SingleuserProfiles(object):
         env.append(V1EnvVar(_JUPYTERHUB_USER_NAME_ENV, username))
 
     self.apply_gpu_config(gpu_mode, profile, gpu_types, pod, selected_gpu_type)
+
+    self.apply_size_config(selected_size, pod)
 
     node_tolerations = profile.get('node_tolerations', [])
     node_affinity = profile.get('node_affinity', {})
