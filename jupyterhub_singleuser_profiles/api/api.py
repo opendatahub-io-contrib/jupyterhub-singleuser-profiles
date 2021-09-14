@@ -102,6 +102,8 @@ def update_user_cm(user, body):
 def get_sizes(pure_json=False, *args, **kwargs):
     _PROFILES.load_profiles()
     sizes_json = _PROFILES.get_sizes()
+    if sizes_json == {}:
+        return 'Not Found', 404
     if pure_json:
         return sizes_json
     response = []
@@ -116,10 +118,6 @@ def get_images(*args, **kwargs):
     return images
 
 @authenticated
-def get_image_info(image_name, *args, **kwargs):
-    return _PROFILES.get_image_info(image_name)
-
-@authenticated
 def get_default_image(*args, **kwargs):
     _PROFILES.load_profiles()
     default_image = _PROFILES.images.get_default()
@@ -128,7 +126,10 @@ def get_default_image(*args, **kwargs):
 @authenticated
 def get_size_by_name(size_name, *args, **kwargs):
     _PROFILES.load_profiles()
-    return _PROFILES.get_size(size_name)
+    size_dict = _PROFILES.get_size(size_name)
+    if size_dict == {}:
+        return 'Not Found', 404
+    return size_dict
 
 app = connexion.App(__name__, specification_dir='.', options={'swagger_ui':True})
 app.add_api('swagger.yaml')

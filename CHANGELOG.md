@@ -1,4 +1,16 @@
 
+## Release 0.6.3 (2021-09-07T17:03:03)
+### Features
+* Correct swagger api
+* Hide and un-schedulable sizes from the Size selection (#188)
+* Label all sizes to show if they will be schedulable on the cluster (#187)
+* Updated docs to reflect changes in jsp-wrapper
+* Updated the documentation
+### Bug Fixes
+* Add error message on incorrect cm
+### Non-functional
+* Updated annotations and testing
+
 ## Release 0.6.2 (2021-08-25T14:47:37)
 ### Features
 * Changed build status gathering to prevent issues

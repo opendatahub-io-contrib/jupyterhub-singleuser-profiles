@@ -11,5 +11,8 @@ The `ConfigMap` this library reads is divided into several sections, each config
 - [Volumes](./docs/volumes.md)
 - [Images](./docs/images.md)
 - [API/UI](./docs/api.md)
+- [Configuring the UI](./docs/ui_configuration.md)
+- [GPU Tolerations](./docs/gpu_tolerations.md)
+- [Testing](./docs/testing.md)
 - [Example Configuration](./docs/configuration.md)
 - [How To Use](./docs/howtouse.md)

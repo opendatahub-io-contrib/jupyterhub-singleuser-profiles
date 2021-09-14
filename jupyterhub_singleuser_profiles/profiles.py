@@ -62,6 +62,13 @@ class SingleuserProfiles(object):
       for cm_name in profiles_config_maps:
         config_map_yaml = self.openshift.read_config_map(cm_name, key_name)
         if config_map_yaml:
+          if type(config_map_yaml) != dict:
+            message = '''
+            ConfigMap %s is incorrect - content must be object, not list.
+            Please review configuration documentation for the 
+            jupyterhub-singleuser-profiles library.
+            '''%cm_name
+            raise TypeError(message)
           self.gpu_types.extend(config_map_yaml.get("gpuTypes", []))
           self.sizes.extend(config_map_yaml.get("sizes", []))
           self.profiles.extend(config_map_yaml.get("profiles", [self.empty_profile()]))
@@ -164,9 +171,6 @@ class SingleuserProfiles(object):
   def get_sizes(self):
     s = Sizes(self.sizes, self.openshift)
     return s.sizes
-
-  def get_image_info(self, image_name):
-    return self.images.get_info(image_name)
 
   def get_gpu_types(self):
     return self.gpu_types

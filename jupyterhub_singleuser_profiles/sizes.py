@@ -36,9 +36,6 @@ class Sizes(object):
             if s['name'] == size:
                 result = self._parse(s)
 
-        if not result:
-            result = {}
-
         return result
 
     def _parse(self, size):
