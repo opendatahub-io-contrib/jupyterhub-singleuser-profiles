@@ -36,7 +36,7 @@ class SingleuserProfiles(object):
 
     self.service = Service(self.openshift, self.namespace)
     self.images = Images(self.openshift, namespace=namespace)
-    self.user = User(self.openshift, default_image=self.images.get_default(), notebook_namespace=notebook_namespace)
+    self.user = User(self.openshift, images=self.images, notebook_namespace=notebook_namespace)
 
   @property
   def gpu_mode(self):
