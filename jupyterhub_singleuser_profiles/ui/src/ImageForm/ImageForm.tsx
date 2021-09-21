@@ -2,23 +2,30 @@ import * as React from 'react';
 import { Alert } from '@patternfly/react-core';
 import { ExternalLinkAltIcon } from '@patternfly/react-icons';
 import { APIGet, APIPost } from '../utils/APICalls';
-import {
-  ABOUT_NOTEBOOK_IMAGES_LINK,
-  CM_PATH,
-  DEFAULT_IMAGE_PATH,
-  IMAGE_PATH,
-} from '../utils/const';
+import { ABOUT_NOTEBOOK_IMAGES_LINK, CM_PATH, DEFAULT_IMAGE_PATH } from '../utils/const';
 import { ImageType, UserConfigMapType, UiConfigType } from '../utils/types';
-import { getDefaultTag, isImageBuildInProgress } from './imageUtils';
+import { useWatchImages } from '../utils/useWatchImages';
+import { getDefaultTag, isImageBuildInProgress, isImageTagBuildValid } from './imageUtils';
 import ImageSelector from './ImageSelector';
 
 import './ImageForm.scss';
 
-type ImageFormProps = {
-  uiConfig: UiConfigType;
+type ImageTag = {
+  image: string;
+  tag: string;
 };
 
-const getValuesFromImageName = (imageName: string): { image: string; tag: string } => {
+type ImageFormProps = {
+  uiConfig: UiConfigType;
+  userConfig: UserConfigMapType;
+  onValidImage?: () => void;
+};
+
+const getValuesFromImageName = (imageName: string): ImageTag | null => {
+  if (!imageName) {
+    return null;
+  }
+
   const index = imageName?.indexOf(':');
   return {
     image: index > 0 ? imageName.slice(0, index) : imageName || '',
@@ -26,44 +33,34 @@ const getValuesFromImageName = (imageName: string): { image: string; tag: string
   };
 };
 
-const ImageForm: React.FC<ImageFormProps> = () => {
-  const [selectedImageTag, setSelectedImageTag] = React.useState<{ image: string; tag: string }>();
-  const [imageList, setImageList] = React.useState<ImageType[]>();
+const ImageForm: React.FC<ImageFormProps> = ({ userConfig, onValidImage }) => {
+  const [selectedImageTag, setSelectedImageTag] = React.useState<ImageTag | null>();
+  const imageList = useWatchImages();
 
-  const postChange = (text) => {
-    const json = JSON.stringify({ last_selected_image: text });
-    APIPost(CM_PATH, json);
-  };
-
-  React.useEffect(() => {
-    let cancelled = false;
-    APIGet(CM_PATH).then((data: UserConfigMapType) => {
-      if (!cancelled) {
-        setSelectedImageTag(getValuesFromImageName(data['last_selected_image']));
-      }
-    });
-    APIGet(IMAGE_PATH).then((data: ImageType[]) => {
-      if (!cancelled) {
-        setImageList(data.sort((a, b) => a.order - b.order));
-      }
-    });
-    return () => {
-      cancelled = true;
-    };
-  }, []);
+  const postChange = React.useCallback(
+    (text) => {
+      const json = JSON.stringify({ last_selected_image: text });
+      APIPost(CM_PATH, json).then(() => onValidImage && onValidImage());
+    },
+    [onValidImage],
+  );
 
   React.useEffect(() => {
     let cancelled = false;
 
     // Wait until we have both
-    if (!imageList || selectedImageTag === undefined) {
+    if (!imageList || !userConfig) {
       return;
     }
 
+    const prevSelectedImageTag = getValuesFromImageName(userConfig.last_selected_image);
+
     // If the previous are valid, we are good
-    const currentImage = imageList.find((image) => image.name === selectedImageTag.image);
-    const currentTag = currentImage?.tags?.find((tag) => tag.name === selectedImageTag.tag);
+    const currentImage = imageList.find((image) => image.name === prevSelectedImageTag?.image);
+    const currentTag = currentImage?.tags?.find((tag) => tag.name === prevSelectedImageTag?.tag);
     if (currentImage && currentTag) {
+      setSelectedImageTag(prevSelectedImageTag);
+      onValidImage && onValidImage();
       return;
     }
 
@@ -74,7 +71,7 @@ const ImageForm: React.FC<ImageFormProps> = () => {
         const image = imageList?.[i++];
         if (image) {
           const tag = getDefaultTag(image);
-          if (tag) {
+          if (tag && isImageTagBuildValid(tag)) {
             const values = { image: image.name, tag: tag.name };
             setSelectedImageTag(values);
             postChange(`${values.image}:${values.tag}`);
@@ -91,7 +88,7 @@ const ImageForm: React.FC<ImageFormProps> = () => {
           if (data) {
             // Use the default image path set
             const values = getValuesFromImageName(data);
-            if (values.image && values.tag) {
+            if (values?.image && values.tag) {
               setSelectedImageTag(values);
               postChange(data);
               return;
@@ -123,7 +120,7 @@ const ImageForm: React.FC<ImageFormProps> = () => {
     return () => {
       cancelled = true;
     };
-  }, [selectedImageTag, imageList]);
+  }, [userConfig, imageList, onValidImage, postChange]);
 
   const handleSelection = (image: ImageType, tag: string, checked: boolean) => {
     if (checked) {

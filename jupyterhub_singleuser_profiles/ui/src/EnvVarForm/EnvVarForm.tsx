@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { Button, ButtonVariant, Form } from '@patternfly/react-core';
 import { PlusCircleIcon } from '@patternfly/react-icons';
-import { APIGet, APIPost } from '../utils/APICalls';
+import { APIPost } from '../utils/APICalls';
 import { CM_PATH } from '../utils/const';
 import { UserConfigMapType, EnvVarType, UiConfigType } from '../utils/types';
 import { CUSTOM_VARIABLE, EMPTY_KEY, VariableRow } from './types';
@@ -11,30 +11,23 @@ import './EnvVarForm.scss';
 
 type ImageFormProps = {
   uiConfig: UiConfigType;
+  userConfig: UserConfigMapType;
 };
 
-const EnvVarForm: React.FC<ImageFormProps> = ({ uiConfig }) => {
+const EnvVarForm: React.FC<ImageFormProps> = ({ uiConfig, userConfig }) => {
   const [variableRows, setVariableRows] = React.useState<VariableRow[]>([]);
   const [savedEnvJson, setSavedEnvJson] = React.useState<string>('');
 
   React.useEffect(() => {
-    let cancelled = false;
-    APIGet(CM_PATH).then((data: UserConfigMapType) => {
-      if (!cancelled) {
-        const env = data.env;
-        const rows: VariableRow[] = env.map((variable) => ({
-          variableType: CUSTOM_VARIABLE,
-          variables: [variable],
-          errors: {},
-        }));
-        setVariableRows(rows);
-        setSavedEnvJson(JSON.stringify({ env }));
-      }
-    });
-    return () => {
-      cancelled = true;
-    };
-  }, []);
+    const env = userConfig.env || [];
+    const rows: VariableRow[] = env.map((variable) => ({
+      variableType: CUSTOM_VARIABLE,
+      variables: [variable],
+      errors: {},
+    }));
+    setVariableRows(rows);
+    setSavedEnvJson(JSON.stringify({ env }));
+  }, [userConfig]);
 
   const postEnvChange = (updatedRows: VariableRow[]) => {
     const env = updatedRows.reduce((acc, row) => {

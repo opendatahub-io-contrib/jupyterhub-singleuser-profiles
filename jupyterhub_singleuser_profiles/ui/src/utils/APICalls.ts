@@ -1,3 +1,4 @@
+import * as _ from 'lodash';
 import { API_BASE_PATH, DEV_MODE, DEV_SERVER, MOCK_MODE } from './const';
 import { mockData } from '../__mock__/mockData';
 
@@ -29,7 +30,7 @@ export const APIGet = (target: string): Promise<any> => {
   }
 
   if (MOCK_MODE) {
-    return Promise.resolve(mockData[target]);
+    return Promise.resolve(_.cloneDeep(mockData[target]));
   }
 
   return new Promise((resolve, reject) => {
@@ -39,7 +40,7 @@ export const APIGet = (target: string): Promise<any> => {
         if (response.ok) {
           resolve(response.json());
         } else {
-          reject('Failed to fetch ' + target + response);
+          reject(`Failed to fetch ${target}: ${response.statusText}`);
         }
       })
       .catch((err) => {
@@ -69,7 +70,7 @@ export const APIPost = (target: string, json: string): Promise<void> => {
         if (response.ok) {
           resolve();
         } else {
-          reject('Failed to send ' + target);
+          reject(`Failed to send ${target}: ${response.statusText}`);
         }
       })
       .catch((err) => {
