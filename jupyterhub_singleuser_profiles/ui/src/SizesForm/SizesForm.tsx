@@ -10,9 +10,10 @@ const MAX_GPUS = 10;
 
 type ImageFormProps = {
   uiConfig: UiConfigType;
+  userConfig: UserConfigMapType;
 };
 
-const SizesForm: React.FC<ImageFormProps> = ({ uiConfig }) => {
+const SizesForm: React.FC<ImageFormProps> = ({ uiConfig, userConfig }) => {
   const [sizeDropdownOpen, setSizeDropdownOpen] = React.useState<boolean>(false);
   const [gpuDropdownOpen, setGpuDropdownOpen] = React.useState<boolean>(false);
   const [sizeList, setSizeList] = React.useState<string[]>();
@@ -36,12 +37,6 @@ const SizesForm: React.FC<ImageFormProps> = ({ uiConfig }) => {
 
   React.useEffect(() => {
     let cancelled = false;
-    APIGet(CM_PATH).then((data: UserConfigMapType) => {
-      if (!cancelled) {
-        setSelectedSize(data.last_selected_size);
-        setSelectedGpu(`${data.gpu}`);
-      }
-    });
     APIGet(SIZES_PATH).then((data: string[]) => {
       if (!cancelled) {
         setSizeList(data);
@@ -60,7 +55,7 @@ const SizesForm: React.FC<ImageFormProps> = ({ uiConfig }) => {
     const promises = sizeList.map((size) => APIGet(`${SINGLE_SIZE_PATH}/${size}`));
     Promise.all(promises).then((results: SizeDescription[]) => {
       if (!cancelled) {
-        setSizeDescriptions(results);
+        setSizeDescriptions(results.filter((desc) => desc.schedulable !== false));
       }
     });
     return () => {
@@ -69,20 +64,20 @@ const SizesForm: React.FC<ImageFormProps> = ({ uiConfig }) => {
   }, [sizeList]);
 
   React.useEffect(() => {
-    if (!sizeList) {
-      return;
-    }
-
-    for (let i = 0; i < sizeList.length; i++) {
-      if (sizeList[i] === selectedSize || selectedSize === 'Default') {
-        return;
+    if (userConfig && sizeDescriptions) {
+      const description = sizeDescriptions.find((sd) => sd.name === userConfig.last_selected_size);
+      if (description) {
+        setSelectedSize(userConfig.last_selected_size);
+      } else {
+        setSelectedSize('Default');
+        postSizeChange('Default');
       }
+      setSelectedGpu(`${userConfig.gpu}`);
     }
-    postSizeChange('Default');
-  }, [selectedSize, sizeList]);
+  }, [sizeDescriptions, userConfig]);
 
   const sizeOptions = React.useMemo(() => {
-    if (!sizeList?.length) {
+    if (!sizeList?.length || !sizeDescriptions?.length) {
       return null;
     }
 
@@ -96,30 +91,33 @@ const SizesForm: React.FC<ImageFormProps> = ({ uiConfig }) => {
       ['Default'],
     );
 
-    return sizes.reduce((acc, size) => {
-      const sizeDescription = sizeDescriptions?.find((desc) => desc?.name === size);
-      if (!sizeDescription) {
-        acc.push(
-          <SelectOption
-            key={size}
-            value={size}
-            description="Resources set based on administrator configurations"
-          />,
-        );
-      } else if (sizeDescription.schedulable !== false) {
-        acc.push(
-          <SelectOption
-            key={size}
-            value={size}
-            description={
-              `Limits: ${sizeDescription.resources.limits.cpu} CPU, ${sizeDescription.resources.limits.memory} Memory ` +
-              `Requests: ${sizeDescription.resources.requests.cpu} CPU, ${sizeDescription.resources.requests.memory} Memory`
-            }
-          />,
-        );
-      }
-      return acc;
-    }, [] as React.ReactElement[]);
+    const defaultSelection = (
+      <SelectOption
+        key="Default"
+        value="Default"
+        description="Resources set based on administrator configurations"
+      />
+    );
+
+    return sizes.reduce(
+      (acc, size) => {
+        const sizeDescription = sizeDescriptions.find((desc) => desc?.name === size);
+        if (sizeDescription) {
+          acc.push(
+            <SelectOption
+              key={size}
+              value={size}
+              description={
+                `Limits: ${sizeDescription.resources.limits.cpu} CPU, ${sizeDescription.resources.limits.memory} Memory ` +
+                `Requests: ${sizeDescription.resources.requests.cpu} CPU, ${sizeDescription.resources.requests.memory} Memory`
+              }
+            />,
+          );
+        }
+        return acc;
+      },
+      [defaultSelection],
+    );
   }, [sizeList, sizeDescriptions]);
 
   const gpuOptions = React.useMemo(() => {

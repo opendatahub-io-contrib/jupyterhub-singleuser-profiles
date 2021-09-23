@@ -24,7 +24,7 @@ export const mockData: MockDataType = {
     env: [],
     gpu: 0,
     last_selected_image: 's2i-generic-data-science-notebook:v0.0.24',
-    last_selected_size: 'Default',
+    last_selected_size: 'Large',
   },
   [DEFAULT_IMAGE_PATH]: 's2i-generic-data-science-notebook:v0.0.4',
   [SIZES_PATH]: ['Small', 'Medium', 'Large', 'Huge'],
@@ -419,6 +419,7 @@ export const mockData: MockDataType = {
         memory: '4Gi',
       },
     },
+    schedulable: false,
   },
   ['size/Huge']: {
     name: 'Huge',
