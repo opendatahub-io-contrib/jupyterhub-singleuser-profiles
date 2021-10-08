@@ -16,9 +16,6 @@
 </script>
 {% endif -%}
 <div>
-  {% if for_user and user.name != for_user.name -%}
-    <p>Spawning server for {{ for_user.name }}</p>
-  {% endif -%}
   {% if error_message -%}
     <p class="spawn-error-msg text-danger">
       Error: {{error_message}}

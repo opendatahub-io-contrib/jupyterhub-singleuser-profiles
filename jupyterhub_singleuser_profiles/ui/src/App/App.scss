@@ -3,6 +3,11 @@
 
   &__header {
     color: var(--pf-global--Color--100);
+    max-width: 768px;
+
+    .pf-c-alert {
+      margin-bottom: var(--pf-global--spacer--sm);
+    }
 
     &__title {
       font-size: var(--pf-global--FontSize--2xl);

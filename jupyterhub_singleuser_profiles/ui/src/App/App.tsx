@@ -1,6 +1,8 @@
 import React from 'react';
 import '@patternfly/patternfly/patternfly.min.css';
+import '@patternfly/patternfly/patternfly-addons.css';
 import {
+  Alert,
   Title,
   EmptyState,
   EmptyStateVariant,
@@ -13,7 +15,7 @@ import ImageForm from '../ImageForm/ImageForm';
 import SizesForm from '../SizesForm/SizesForm';
 import EnvVarForm from '../EnvVarForm/EnvVarForm';
 import { APIGet } from '../utils/APICalls';
-import { CM_PATH, UI_CONFIG_PATH } from '../utils/const';
+import { CM_PATH, FOR_USER, UI_CONFIG_PATH } from '../utils/const';
 import { UiConfigType, UserConfigMapType } from '../utils/types';
 
 import './App.scss';
@@ -96,6 +98,13 @@ const App: React.FC = () => {
   return (
     <div className="jsp-spawner">
       <div className="jsp-spawner__header">
+        {FOR_USER ? (
+          <Alert
+            isInline
+            variant="info"
+            title={`This notebook server is being created for ${FOR_USER}`}
+          />
+        ) : null}
         <div className="jsp-spawner__header__title">Start a notebook server</div>
         <div className="jsp-spawner__header__sub-title">
           Select options for your notebook server.
