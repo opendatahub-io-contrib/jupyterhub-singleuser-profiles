@@ -5,6 +5,9 @@
     gap: 20px;
   }
 
+  &__alert {
+    margin-top: var(--pf-global--spacer--md);
+  }
   &__group {
     min-width: 350px;
   }

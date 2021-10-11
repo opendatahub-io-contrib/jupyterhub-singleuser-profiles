@@ -1,10 +1,10 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import App from './App/Spawner';
+import Admin from './App/Admin';
 
 ReactDOM.render(
   <React.StrictMode>
-    <App />
+    <Admin />
   </React.StrictMode>,
   document.getElementById('root'),
 );

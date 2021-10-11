@@ -1,0 +1,29 @@
+{% extends "page.html" %}
+{% if announcement_spawn %}
+{% set announcement = announcement_spawn %}
+{% endif %}
+
+{% block main %}
+
+{% if for_user and user.name != for_user.name -%}
+<script type="text/javascript">
+  window.jhdata['for_user'] = '{{ for_user.name }}'
+</script>
+{% endif -%}
+<div>
+  <html lang="en-US">
+    <head>
+      <meta charset="utf-8" />
+      <meta name="viewport" content="width=device-width, initial-scale=1" />
+      <meta name="theme-color" content="#ffffff" />
+      <link rel="shortcut icon" href="images/favicon.svg">
+      <title>JupyterHub Admin Page</title>
+    </head>
+    <body>
+      <noscript>You need to enable JavaScript to run this app.</noscript>
+      <div id="root"></div>
+    </body>
+  </html>
+</div>
+
+{% endblock %}

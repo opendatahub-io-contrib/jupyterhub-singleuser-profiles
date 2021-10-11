@@ -20,7 +20,7 @@ import { UiConfigType, UserConfigMapType } from '../utils/types';
 
 import './App.scss';
 
-const App: React.FC = () => {
+const Spawner: React.FC = () => {
   const [uiConfig, setUiConfig] = React.useState<UiConfigType>();
   const [configError, setConfigError] = React.useState<string>();
   const [imageValid, setImageValid] = React.useState<boolean>(false);
@@ -42,7 +42,7 @@ const App: React.FC = () => {
         }
       })
       .catch((e) => {
-        console.dir(e);
+        console.error(e);
         setConfigError(e);
       });
 
@@ -96,8 +96,8 @@ const App: React.FC = () => {
   };
 
   return (
-    <div className="jsp-spawner">
-      <div className="jsp-spawner__header">
+    <div className="jsp-app jsp-spawner">
+      <div className="jsp-app__header">
         {FOR_USER ? (
           <Alert
             isInline
@@ -105,14 +105,12 @@ const App: React.FC = () => {
             title={`This notebook server is being created for ${FOR_USER}`}
           />
         ) : null}
-        <div className="jsp-spawner__header__title">Start a notebook server</div>
-        <div className="jsp-spawner__header__sub-title">
-          Select options for your notebook server.
-        </div>
+        <div className="jsp-app__header__title">Start a notebook server</div>
+        <div className="jsp-app__header__sub-title">Select options for your notebook server.</div>
       </div>
       {renderContent()}
     </div>
   );
 };
 
-export default App;
+export default Spawner;

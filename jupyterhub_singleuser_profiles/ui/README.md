@@ -53,3 +53,19 @@ Similarly, to test changes, it is neccessary to:
 2. push the changes to a repository
 3. rewrite the target repository in the `jupyterhub-img` build
 4. start the build and redeploy the pods. 
+
+## Running in Mock mode
+
+The UI can be run with mock data to make testing development changes easier.
+To run in mock mode:
+
+```
+npm run start:dev
+```
+This will start a webpack server and launch a browser at:
+
+`http://localhost:7000/`
+
+By default, the spawner page will be shown. To view the Admin page visit:
+
+`http://localhost:7000/admin.html`

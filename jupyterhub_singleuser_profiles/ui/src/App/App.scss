@@ -1,12 +1,16 @@
-.jsp-spawner {
-  margin: 0 var(--pf-global--spacer--2xl);
+.jsp-app {
+  position: relative;
+  padding: 20px var(--pf-global--spacer--2xl) !important;
+  margin-top: -20px !important;
 
   &__header {
     color: var(--pf-global--Color--100);
     max-width: 768px;
 
-    .pf-c-alert {
-      margin-bottom: var(--pf-global--spacer--sm);
+    &__title-line {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
     }
 
     &__title {
@@ -40,39 +44,34 @@
         margin-left: var(--pf-global--spacer--xs);
       }
     }
-    &__learn-more {
-      margin-top: var(--pf-global--spacer--sm);
-      svg {
-        margin-left: var(--pf-global--spacer--xs);
-      }
-    }
-    .pf-c-alert {
-      margin-top: var(--pf-global--spacer--md);
+  }
+
+  &__inline-link {
+    margin-left: var(--pf-global--spacer--sm);
+    svg {
+      margin-left: var(--pf-global--spacer--xs);
     }
   }
 
-  &__buttons-bar {
-    display: flex;
-    margin-top: var(--pf-global--spacer--xl);
-
-    .pf-c-button {
-      margin-left: var(--pf-global--spacer--xl);
-
-      &:first-of-type {
-        margin-left: 0;
-      }
-    }
+  .jsp-spawner__buttons-bar {
+    margin: var(--pf-global--spacer--lg) 0;
   }
 
-  &__submit-button {
-    margin-left: var(--pf-global--spacer--2xl);
-  }
-
+  //
   // add specificity to prevent bootstrap overrides
+  //
+
   .pf-c-check__input {
     margin-top: var(--pf-c-check__input--MarginTop);
   }
   .pf-c-radio__input {
     margin-top: var(--pf-c-radio__input--MarginTop);
+  }
+
+  .h1, .h2, .h3, .h4, .h5, .h6, h1, h2, h3, h4, h5, h6 {
+    line-height: var(--pf-global--LineHeight--md);
+  }
+  .pf-c-backdrop {
+    position: absolute;
   }
 }
