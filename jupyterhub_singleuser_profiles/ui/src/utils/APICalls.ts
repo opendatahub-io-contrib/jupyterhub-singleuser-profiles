@@ -1,5 +1,5 @@
 import * as _ from 'lodash';
-import { API_BASE_PATH, DEV_MODE, DEV_SERVER, MOCK_MODE } from './const';
+import { API_BASE_PATH, DEV_MODE, DEV_SERVER, MOCK_MODE, FOR_USER } from './const';
 import { mockData } from '../__mock__/mockData';
 
 const getRequestPath = (target: string) => {
@@ -9,24 +9,11 @@ const getRequestPath = (target: string) => {
   return API_BASE_PATH + target;
 };
 
-const getForUser = () => {
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore
-  const jhdata = window.jhdata;
-
-  if (jhdata?.['user']) {
-    return jhdata['user'];
-  }
-  return null;
-};
-
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const APIGet = (target: string): Promise<any> => {
-  const targetUser = getForUser();
   const headers = {};
-  if (targetUser) {
-    headers['For-User'] = targetUser;
+  if (FOR_USER) {
+    headers['For-User'] = FOR_USER;
   }
 
   if (MOCK_MODE) {
@@ -52,12 +39,11 @@ export const APIGet = (target: string): Promise<any> => {
 };
 
 export const APIPost = (target: string, json: string): Promise<void> => {
-  const targetUser = getForUser();
   const headers = {
     'Content-Type': 'application/json',
   };
-  if (targetUser) {
-    headers['For-User'] = targetUser;
+  if (FOR_USER) {
+    headers['For-User'] = FOR_USER;
   }
 
   if (MOCK_MODE) {

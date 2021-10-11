@@ -60,6 +60,7 @@ const ImageForm: React.FC<ImageFormProps> = ({ userConfig, onValidImage }) => {
     const currentTag = currentImage?.tags?.find((tag) => tag.name === prevSelectedImageTag?.tag);
     if (currentImage && currentTag) {
       setSelectedImageTag(prevSelectedImageTag);
+      postChange(userConfig.last_selected_image);
       onValidImage && onValidImage();
       return;
     }

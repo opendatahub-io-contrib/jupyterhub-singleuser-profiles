@@ -13,3 +13,9 @@ export const IMAGE_PATH = 'images';
 export const DEFAULT_IMAGE_PATH = 'images/default';
 export const UI_CONFIG_PATH = 'ui/config';
 export const SINGLE_SIZE_PATH = 'size';
+
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
+const jhData = window.jhdata as { user: string; for_user: string };
+export const USER = DEV_MODE ? 'DevUser' : jhData?.user ?? '';
+export const FOR_USER = DEV_MODE ? process.env.FOR_USER || '' : jhData?.for_user ?? '';
