@@ -139,8 +139,8 @@ const SizesForm: React.FC<ImageFormProps> = ({ uiConfig, userConfig }) => {
   }
 
   return (
-    <div className="jsp-spawner__option-section">
-      <div className="jsp-spawner__option-section__title">Deployment size</div>
+    <div className="jsp-app__option-section">
+      <div className="jsp-app__option-section__title">Deployment size</div>
       {sizeOptions && uiConfig.sizeConfig?.enabled !== false && (
         <>
           <div className="jsp-spawner__size_options__title" id="container-size">

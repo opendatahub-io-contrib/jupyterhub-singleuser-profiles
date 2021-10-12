@@ -1,10 +1,10 @@
 import * as React from 'react';
-import Spawner from '../Spawner';
+import Admin from '../Admin';
 import { shallow } from 'enzyme';
 
-describe('Spawner test', () => {
+describe('Admin test', () => {
   it('should render a basic component', () => {
-    const component = shallow(<Spawner />);
+    const component = shallow(<Admin />);
     expect(component.html()).toMatchSnapshot('basic');
   });
 });

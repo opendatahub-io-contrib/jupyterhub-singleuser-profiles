@@ -1,0 +1,45 @@
+.jsp-admin__users {
+  &__alert {
+    margin-bottom: var(--pf-global--spacer--md);
+  }
+  &__table-body {
+    max-height: 425px;
+    overflow-y: auto;
+    .pf-c-table__button-content {
+      align-items: center;
+    }
+  }
+  &__pagination {
+    align-items: center;
+    margin-top: var(--pf-global--spacer--sm);
+    padding-right: var(--pf-global--spacer--md);
+    .pf-c-pagination__nav {
+      align-items: center;
+    }
+  }
+  &__status-header.pf-c-table__sort {
+    .pf-c-table__button {
+      margin-left: var(--pf-global--spacer--sm);
+    }
+  }
+  &__status-message.pf-c-button.pf-m-disabled {
+    color: var(--pf-c-table--cell--Color);
+  }
+  &__server-button {
+    .pf-c-button {
+      margin-right: calc(-1 * var(--pf-global--spacer--md));
+      padding-top: 0;
+      padding-bottom: 0;
+      font-size: var(--pf-c-table--cell--FontSize);
+    }
+  }
+  &__loading {
+    align-items: center;
+    display: flex;
+    gap: var(--pf-global--spacer--md);
+    font-size: var(--pf-global--FontSize--md);
+    justify-content: center;
+    margin: var(--pf-global--spacer--md);
+  }
+}
+

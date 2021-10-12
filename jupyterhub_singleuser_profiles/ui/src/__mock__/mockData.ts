@@ -4,8 +4,15 @@ import {
   IMAGE_PATH,
   UI_CONFIG_PATH,
   DEFAULT_IMAGE_PATH,
+  USERS_PATH,
 } from '../utils/const';
-import { ImageType, SizeDescription, UiConfigType, UserConfigMapType } from '../utils/types';
+import {
+  ImageType,
+  JHUser,
+  SizeDescription,
+  UiConfigType,
+  UserConfigMapType,
+} from '../utils/types';
 
 type MockDataType = {
   [CM_PATH]: UserConfigMapType;
@@ -17,6 +24,18 @@ type MockDataType = {
   ['size/Huge']: SizeDescription;
   [UI_CONFIG_PATH]: UiConfigType;
   [DEFAULT_IMAGE_PATH]: string;
+  [USERS_PATH]: {
+    json: () => Promise<JHUser[]>;
+  };
+};
+
+const setFauxDate = (index: number): string | null => {
+  if (index % 12 === 0) {
+    return null;
+  }
+  const now = new Date();
+  now.setTime(now.getTime() - index * 90 * 1000);
+  return now.toISOString();
 };
 
 export const mockData: MockDataType = {
@@ -460,6 +479,22 @@ export const mockData: MockDataType = {
     },
     sizeConfig: {
       enabled: true,
+    },
+  },
+  [USERS_PATH]: {
+    json: (): Promise<JHUser[]> => {
+      const users: JHUser[] = [];
+      for (let i = 0; i < 100; i++) {
+        users.push({
+          admin: i % 4 === 0,
+          created: '2021-10-01T11:05:33.330975Z',
+          last_activity: setFauxDate(i),
+          name: `User ${i}`,
+          pending: i % 13 === 0 ? (i % 2 === 0 ? 'spawn' : 'stop') : '',
+          server: i % 3 === 0 ? 'default' : '',
+        });
+      }
+      return Promise.resolve(users);
     },
   },
 };

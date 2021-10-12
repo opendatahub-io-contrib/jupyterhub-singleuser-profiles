@@ -131,19 +131,23 @@ const ImageForm: React.FC<ImageFormProps> = ({ userConfig, onValidImage }) => {
   };
 
   return (
-    <div className="jsp-spawner__option-section m-is-top">
-      <div className="jsp-spawner__option-section__title">Notebook image</div>
+    <div className="jsp-app__option-section m-is-top">
+      <div className="jsp-app__option-section__title">Notebook image</div>
       {imageList?.find((image) => isImageBuildInProgress(image)) ? (
-        <Alert isInline title="Additional Notebook images installing">
+        <Alert
+          className="jsp-spawner__image-options__alert"
+          isInline
+          title="Additional Notebook images installing"
+        >
           Installation of all Notebook images can take up to 40 minutes. Each image becomes
           available to select once its installation completes.
           {ABOUT_NOTEBOOK_IMAGES_LINK ? (
-            <div className="jsp-spawner__option-section__learn-more">
+            <span className="jsp-app__inline-link">
               <a href={ABOUT_NOTEBOOK_IMAGES_LINK} target="_blank" rel="noopener noreferrer">
                 Learn more about predefined Notebook images
                 <ExternalLinkAltIcon />
               </a>
-            </div>
+            </span>
           ) : null}
         </Alert>
       ) : null}

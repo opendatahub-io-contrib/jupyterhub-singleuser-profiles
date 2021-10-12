@@ -20,7 +20,8 @@ if (OUTPUT_ONLY !== true) {
 module.exports = env => {
   return {
     entry: {
-      app: path.join(SRC_DIR, 'index.tsx')
+      app: path.join(SRC_DIR, 'index.tsx'),
+      admin: path.join(SRC_DIR, 'admin.tsx')
     },
     module: {
       rules: [
@@ -155,7 +156,13 @@ module.exports = env => {
     plugins: [
       ...setupWebpackDotenvFilesForEnv({ directory: RELATIVE_DIRNAME }),
       new HtmlWebpackPlugin({
-        template: path.join(SRC_DIR, 'index.html')
+        template: path.join(SRC_DIR, 'index.html'),
+        chunks: ['app'],
+      }),
+      new HtmlWebpackPlugin({
+        template: path.join(SRC_DIR, 'admin.html'),
+        filename: 'admin.html',
+        chunks: ['admin'],
       }),
       new CopyPlugin({
         patterns: [
