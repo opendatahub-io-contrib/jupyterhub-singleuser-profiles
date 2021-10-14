@@ -1,4 +1,24 @@
-<!DOCTYPE html>
+{% extends "page.html" %}
+{% if announcement_spawn %}
+  {% set announcement = announcement_spawn %}
+{% endif %}
+
+{% block main %}
+
+<script type="text/javascript">
+  window.jhdata['spawn-url'] = '{{ url }}'
+</script>
+
+{% if for_user and user.name != for_user.name -%}
+<script type="text/javascript">
+  window.jhdata['for_user'] = '{{ for_user.name }}'
+</script>
+{% endif -%}
+{% if error_message -%}
+  <script type="text/javascript">
+    window.jhdata['error_message'] = '{{ error_message }}'
+  </script>
+{% endif %}
 <html lang="en-US">
   <head>
     <meta charset="utf-8" />
@@ -12,3 +32,5 @@
     <div id="root"></div>
   </body>
 </html>
+
+{% endblock %}

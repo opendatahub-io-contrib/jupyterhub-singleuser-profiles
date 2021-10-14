@@ -18,7 +18,7 @@ type ImageTag = {
 type ImageFormProps = {
   uiConfig: UiConfigType;
   userConfig: UserConfigMapType;
-  onValidImage?: () => void;
+  onValidImage?: (valid: boolean) => void;
 };
 
 const getValuesFromImageName = (imageName: string): ImageTag | null => {
@@ -40,7 +40,7 @@ const ImageForm: React.FC<ImageFormProps> = ({ userConfig, onValidImage }) => {
   const postChange = React.useCallback(
     (text) => {
       const json = JSON.stringify({ last_selected_image: text });
-      APIPost(CM_PATH, json).then(() => onValidImage && onValidImage());
+      APIPost(CM_PATH, json).then(() => onValidImage && onValidImage(true));
     },
     [onValidImage],
   );
@@ -61,7 +61,6 @@ const ImageForm: React.FC<ImageFormProps> = ({ userConfig, onValidImage }) => {
     if (currentImage && currentTag) {
       setSelectedImageTag(prevSelectedImageTag);
       postChange(userConfig.last_selected_image);
-      onValidImage && onValidImage();
       return;
     }
 

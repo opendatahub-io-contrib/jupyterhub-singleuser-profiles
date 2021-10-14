@@ -1,4 +1,15 @@
+html {
+  height: 100%;
+}
+
+body, #root {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+}
+
 .jsp-app {
+  flex: 1;
   position: relative;
   padding: 20px var(--pf-global--spacer--2xl) !important;
   margin-top: -20px !important;
