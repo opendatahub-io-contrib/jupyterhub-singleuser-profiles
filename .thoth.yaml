@@ -3,6 +3,7 @@ managers:
     configuration:
       maintainers:
         - vpavlin
+        - maroroman
       assignees:
         - sesheta
       labels: [bot]
