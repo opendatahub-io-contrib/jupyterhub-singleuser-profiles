@@ -13,13 +13,12 @@ class User(object):
 
   _USER_CONFIG_MAP_TEMPLATE = "jupyterhub-singleuser-profile-%s"
   _USER_ENVS_TEMPLATE = "jupyterhub-singleuser-profile-%s-envs"
-  _DEFAULT_IMAGE = ""
   _TYPE_SECRET = "password"
   _TYPE_ENV = "text"
 
-  def __init__(self, openshift, default_image, notebook_namespace=None):
+  def __init__(self, openshift, images, notebook_namespace=None):
       self.openshift = openshift
-      self._DEFAULT_IMAGE = default_image
+      self.images = images
       self.notebook_namespace = notebook_namespace
 
   # THis method is going to be removed in the future
@@ -111,6 +110,6 @@ class User(object):
     presets['env'] = cm_env + secret_env
 
     if not presets.get('last_selected_image'):
-      presets['last_selected_image'] = self._DEFAULT_IMAGE
+      presets['last_selected_image'] = self.images.get_default()
 
     return presets

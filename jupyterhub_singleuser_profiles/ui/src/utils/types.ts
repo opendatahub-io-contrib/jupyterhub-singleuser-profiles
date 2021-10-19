@@ -78,3 +78,18 @@ export type SizeDescription = {
   };
   schedulable?: boolean;
 };
+
+export type JHUser = {
+  admin: boolean;
+  created: string;
+  last_activity: string | null;
+  name: string;
+  pending: string;
+  server: string;
+};
+
+export type UsersResults = {
+  users: JHUser[];
+  loaded: boolean;
+  error?: string;
+};

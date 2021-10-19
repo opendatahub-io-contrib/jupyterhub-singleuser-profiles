@@ -1,6 +1,8 @@
 import React from 'react';
 import '@patternfly/patternfly/patternfly.min.css';
+import '@patternfly/patternfly/patternfly-addons.css';
 import {
+  Alert,
   Title,
   EmptyState,
   EmptyStateVariant,
@@ -13,16 +15,25 @@ import ImageForm from '../ImageForm/ImageForm';
 import SizesForm from '../SizesForm/SizesForm';
 import EnvVarForm from '../EnvVarForm/EnvVarForm';
 import { APIGet } from '../utils/APICalls';
-import { UI_CONFIG_PATH } from '../utils/const';
-import { UiConfigType } from '../utils/types';
+import { CM_PATH, FOR_USER, UI_CONFIG_PATH } from '../utils/const';
+import { UiConfigType, UserConfigMapType } from '../utils/types';
 
 import './App.scss';
 
-const App: React.FC = () => {
+const Spawner: React.FC = () => {
   const [uiConfig, setUiConfig] = React.useState<UiConfigType>();
   const [configError, setConfigError] = React.useState<string>();
+  const [imageValid, setImageValid] = React.useState<boolean>(false);
+  const [userConfig, setUserConfig] = React.useState<UserConfigMapType>();
+
   React.useEffect(() => {
     let cancelled = false;
+
+    APIGet(CM_PATH).then((data: UserConfigMapType) => {
+      if (!cancelled) {
+        setUserConfig(data);
+      }
+    });
 
     APIGet(UI_CONFIG_PATH)
       .then((data: UiConfigType) => {
@@ -31,7 +42,7 @@ const App: React.FC = () => {
         }
       })
       .catch((e) => {
-        console.dir(e);
+        console.error(e);
         setConfigError(e);
       });
 
@@ -53,7 +64,7 @@ const App: React.FC = () => {
       );
     }
 
-    if (!uiConfig) {
+    if (!uiConfig || !userConfig) {
       return (
         <EmptyState variant={EmptyStateVariant.full}>
           <Spinner isSVG size="xl" />
@@ -63,12 +74,19 @@ const App: React.FC = () => {
 
     return (
       <>
-        <ImageForm uiConfig={uiConfig} />
-        <SizesForm uiConfig={uiConfig} />
-        {uiConfig.envVarConfig?.enabled !== false && <EnvVarForm uiConfig={uiConfig} />}
+        <ImageForm
+          uiConfig={uiConfig}
+          userConfig={userConfig}
+          onValidImage={() => setImageValid(true)}
+        />
+        <SizesForm uiConfig={uiConfig} userConfig={userConfig} />
+        {uiConfig.envVarConfig?.enabled !== false && (
+          <EnvVarForm uiConfig={uiConfig} userConfig={userConfig} />
+        )}
         <div className="jsp-spawner__buttons-bar">
           <input
             type="submit"
+            disabled={!imageValid}
             value="Start server"
             className="jsp-spawner__submit-button pf-c-button pf-m-primary"
           />
@@ -78,16 +96,21 @@ const App: React.FC = () => {
   };
 
   return (
-    <div className="jsp-spawner">
-      <div className="jsp-spawner__header">
-        <div className="jsp-spawner__header__title">Start a notebook server</div>
-        <div className="jsp-spawner__header__sub-title">
-          Select options for your notebook server.
-        </div>
+    <div className="jsp-app jsp-spawner">
+      <div className="jsp-app__header">
+        {FOR_USER ? (
+          <Alert
+            isInline
+            variant="info"
+            title={`This notebook server is being created for ${FOR_USER}`}
+          />
+        ) : null}
+        <div className="jsp-app__header__title">Start a notebook server</div>
+        <div className="jsp-app__header__sub-title">Select options for your notebook server.</div>
       </div>
       {renderContent()}
     </div>
   );
 };
 
-export default App;
+export default Spawner;

@@ -36,7 +36,7 @@ class SingleuserProfiles(object):
 
     self.service = Service(self.openshift, self.namespace)
     self.images = Images(self.openshift, namespace=namespace)
-    self.user = User(self.openshift, default_image=self.images.get_default(), notebook_namespace=notebook_namespace)
+    self.user = User(self.openshift, images=self.images, notebook_namespace=notebook_namespace)
 
   @property
   def gpu_mode(self):
@@ -239,11 +239,9 @@ class SingleuserProfiles(object):
     return None
   
   @classmethod
-  def apply_size_config(self, selected_size_name, pod):
-    s = Sizes(self.sizes, self.openshift)
-    selected_size = s.get_size(selected_size_name)
+  def apply_size_config(self, selected_size, pod):
     node_tolerations = selected_size.get('node_tolerations', [])
-    node_affinity = {}
+    node_affinity = selected_size.get('node_affinity', [])
 
     self.apply_pod_schedulers(node_tolerations, node_affinity, pod)
     

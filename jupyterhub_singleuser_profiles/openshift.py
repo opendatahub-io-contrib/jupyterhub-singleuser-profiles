@@ -154,6 +154,11 @@ class OpenShift(object):
       memory = float(memory_str[:-2])/1000
     elif memory_str[-2:] == 'Gi':
       memory = float(memory_str[:-2])
+    elif memory_str[-1:] == 'm':
+      memory = float(memory_str[:-1])/1000000000000
+    else:
+      # Memory unit is bytes
+      memory = float(memory_str)/1000000000
     return memory
 
   def get_gpu_number(self):

@@ -49,10 +49,11 @@ def authenticated(f):
                 user = auth.user_for_token(token, use_cache=False)
         else:
             user = None
-        if for_user and user.get('admin'):
-            user['name'] = for_user
-            user['admin'] = False
+
         if user:
+            if for_user and user.get('admin'):
+                user['name'] = for_user
+                user['admin'] = False
             return f(user=user, *args, **kwargs)
         else:
             # redirect to login url on failed auth
