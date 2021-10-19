@@ -1,4 +1,14 @@
 
+## Release 0.6.4 (2021-10-19T14:51:45)
+* Add maroroman to maintainers
+* Add millibyte check (#201)
+* Add a case for when node memory allocatable is in bytes
+* Add admin page (#199)
+* Fix to save settings and spawn servers for other users correctly (#198)
+* api.py: Add check for initialization user object
+* Watch available images, don't enable Start until one is selected (#197)
+* Fix how default image is loaded and decided (#195)
+
 ## Release 0.6.3 (2021-09-07T17:03:03)
 ### Features
 * Correct swagger api
