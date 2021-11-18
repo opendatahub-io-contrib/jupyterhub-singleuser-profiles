@@ -18,6 +18,10 @@
     width: 100%;
   }
 
+  .jsp-spawner__start-modal__accordion {
+    margin-top: var(--pf-global--spacer--md);
+  }
+
   .jsp-spawner__start-modal__accordion-toggle {
     margin-left: calc(var(--pf-c-accordion__toggle--PaddingLeft) * -1);
     margin-right: calc(var(--pf-c-accordion__toggle--PaddingRight) * -1);

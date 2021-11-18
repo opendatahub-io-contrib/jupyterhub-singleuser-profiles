@@ -16,7 +16,7 @@ import { WarningTriangleIcon } from '@patternfly/react-icons';
 import ImageForm from '../ImageForm/ImageForm';
 import SizesForm from '../SizesForm/SizesForm';
 import EnvVarForm from '../EnvVarForm/EnvVarForm';
-import { HubUserRequest } from '../utils/HubCalls';
+import { getUserHubPath, HubUserRequest } from '../utils/HubCalls';
 import { APIGet } from '../utils/APICalls';
 import { CM_PATH, FOR_USER, UI_CONFIG_PATH } from '../utils/const';
 import { UiConfigType, UserConfigMapType } from '../utils/types';
@@ -34,11 +34,18 @@ const Spawner: React.FC = () => {
 
   React.useEffect(() => {
     let cancelled = false;
-    HubUserRequest('GET', 'server/progress').then((response) => {
-      if (response?.status !== 400) {
-        setStartShown(true);
-      }
-    });
+    HubUserRequest('GET')
+      .then((response) => {
+        return response?.json();
+      })
+      .then((results) => {
+        if (results.pending) {
+          setStartShown(true);
+        }
+      })
+      .catch((e) => {
+        console.error(e);
+      });
 
     APIGet(CM_PATH).then((data: UserConfigMapType) => {
       if (!cancelled) {

@@ -22,12 +22,12 @@ export const getHubPath = (request: string): string => {
   return hubPath;
 };
 
-export const getUserHubPath = (request: string): string =>
-  getHubPath(`users/${FOR_USER || USER}/${request}`);
+export const getUserHubPath = (request?: string): string =>
+  getHubPath(`users/${FOR_USER || USER}${request ? `/${request}` : ''}`);
 
 export const HubUserRequest = (
   method: 'GET' | 'POST' | 'DELETE',
-  target: string,
+  target?: string,
   json?: string,
 ): Promise<Response | null> => {
   const headers = {
@@ -47,7 +47,7 @@ export const HubUserRequest = (
       });
     }
     return doSleep(2000).then(() => {
-      return mockData[target];
+      return mockData[target || 'user'];
     });
   }
   return new Promise((resolve, reject) => {

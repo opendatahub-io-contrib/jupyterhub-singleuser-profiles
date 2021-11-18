@@ -202,6 +202,7 @@ const StartServerModal: React.FC<StartServerModalProps> = ({ shown, onClose, pag
     return (
       <div className="jsp-spawner__start-modal__progress">
         <Progress
+          id="progress-bar"
           value={spawnProgress?.percentComplete ?? 0}
           title={
             spawnProgress.messages.length
