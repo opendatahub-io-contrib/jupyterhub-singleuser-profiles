@@ -18,7 +18,7 @@
   },
   "scripts": {
     "build": "run-s build:prod",
-    "postbuild": "cp build/admin.html templates/admin.html",
+    "postbuild": "mkdir -p templates; cp build/index.html templates/spawn.html; cp build/index.html templates/spawn_pending.html; cp build/admin.html templates/admin.html",
     "build:analyze": "export _JSP_OUTPUT_ONLY=true; run-s build build:bundle-profile build:bundle-analyze",
     "build:bundle-profile": "webpack --config ./config/webpack.prod.js --json ./bundle.stats.json",
     "build:bundle-analyze": "webpack-bundle-analyzer ./bundle.stats.json",

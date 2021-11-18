@@ -24,6 +24,7 @@ type MockDataType = {
   ['size/Huge']: SizeDescription;
   [UI_CONFIG_PATH]: UiConfigType;
   [DEFAULT_IMAGE_PATH]: string;
+  ['server/progress']: { status: number };
   [USERS_PATH]: {
     json: () => Promise<JHUser[]>;
   };
@@ -481,6 +482,9 @@ export const mockData: MockDataType = {
       enabled: true,
     },
   },
+  ['server/progress']: {
+    status: 400,
+  },
   [USERS_PATH]: {
     json: (): Promise<JHUser[]> => {
       const users: JHUser[] = [];
@@ -497,4 +501,108 @@ export const mockData: MockDataType = {
       return Promise.resolve(users);
     },
   },
+};
+
+type SpawnUpdate = {
+  progress: number;
+  message: string;
+  failed: boolean;
+  ready: boolean;
+};
+
+export const MOCK_SPAWN_MESSAGES: SpawnUpdate[] = [
+  {
+    progress: 0,
+    message: 'Server requested',
+    failed: false,
+    ready: false,
+  },
+  {
+    progress: 10,
+    message:
+      '2021-07-29T14:17:15.651297Z [Normal] Successfully assigned redhat-ods-applications/jupyterhub-nb-rhodsadmin to ip-10-0-208-112.ec2.internal',
+    failed: false,
+    ready: false,
+  },
+  {
+    progress: 20,
+    message:
+      '2021-07-29T14:17:20Z [Normal] AttachVolume.Attach succeeded for volume "pvc-e7d9d2f6-2036-4c6b-a760-9c1d60010996"',
+    failed: false,
+    ready: false,
+  },
+  {
+    progress: 30,
+    message:
+      '2021-07-29T14:17:20Z [Normal] AttachVolume.Attach succeeded for volume "pvc-e7d9d2f6-2036-4c6b-a760-9c1d60010996"',
+    failed: false,
+    ready: false,
+  },
+  {
+    progress: 40,
+    message:
+      '2021-07-29T14:17:20Z [Normal] AttachVolume.Attach succeeded for volume "pvc-e7d9d2f6-2036-4c6b-a760-9c1d60010996"',
+    failed: false,
+    ready: false,
+  },
+  {
+    progress: 50,
+    message:
+      '2021-07-29T14:17:20Z [Normal] AttachVolume.Attach succeeded for volume "pvc-e7d9d2f6-2036-4c6b-a760-9c1d60010996"',
+    failed: false,
+    ready: false,
+  },
+  {
+    progress: 60,
+    message:
+      '2021-07-29T14:17:20Z [Normal] AttachVolume.Attach succeeded for volume "pvc-e7d9d2f6-2036-4c6b-a760-9c1d60010996"',
+    failed: false,
+    ready: false,
+  },
+  {
+    progress: 70,
+    message:
+      '2021-07-29T14:17:20Z [Normal] AttachVolume.Attach succeeded for volume "pvc-e7d9d2f6-2036-4c6b-a760-9c1d60010996"',
+    failed: false,
+    ready: false,
+  },
+  {
+    progress: 80,
+    message:
+      '2021-07-29T14:17:20Z [Normal] AttachVolume.Attach succeeded for volume "pvc-e7d9d2f6-2036-4c6b-a760-9c1d60010996"',
+    failed: false,
+    ready: false,
+  },
+  {
+    progress: 90,
+    message:
+      '2021-07-29T14:17:20Z [Normal] AttachVolume.Attach succeeded for volume "pvc-e7d9d2f6-2036-4c6b-a760-9c1d60010996"',
+    failed: false,
+    ready: false,
+  },
+  {
+    progress: 100,
+    message: 'Server request failed.',
+    failed: true,
+    ready: false,
+  },
+];
+
+export const getMockProgress = (): EventSource => {
+  // eslint-disable-next-line prefer-const
+  let handle;
+  let count = 0;
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const MockSource: any = {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars,@typescript-eslint/no-empty-function
+    onmessage: (event: { data: string }) => {},
+    close: () => clearTimeout(handle),
+  };
+
+  handle = setInterval(() => {
+    MockSource.onmessage({ data: JSON.stringify(MOCK_SPAWN_MESSAGES[count++]) });
+  }, 3000);
+
+  return MockSource as EventSource;
 };
