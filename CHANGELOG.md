@@ -1,4 +1,7 @@
 
+## Release 0.7.0 (2021-11-29T11:17:59)
+* Add spawn progress watch modal, replace spawn_pending page (#207)
+
 ## Release 0.6.4 (2021-10-19T14:51:45)
 * Add maroroman to maintainers
 * Add millibyte check (#201)
