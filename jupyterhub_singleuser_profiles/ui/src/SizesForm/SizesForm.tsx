@@ -64,7 +64,7 @@ const SizesForm: React.FC<ImageFormProps> = ({ uiConfig, userConfig }) => {
   }, [sizeList]);
 
   React.useEffect(() => {
-    if (userConfig && sizeDescriptions) {
+    if (userConfig && sizeDescriptions?.length) {
       const description = sizeDescriptions.find((sd) => sd.name === userConfig.last_selected_size);
       if (description) {
         setSelectedSize(userConfig.last_selected_size);
