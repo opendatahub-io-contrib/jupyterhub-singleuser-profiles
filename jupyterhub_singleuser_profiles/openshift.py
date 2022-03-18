@@ -161,12 +161,16 @@ class OpenShift(object):
       memory = float(memory_str)/1000000000
     return memory
 
+# get_gpu_number returns maximum GPUs available in a node.
   def get_gpu_number(self):
     result = 0
+    max_available_gpu = 0
     node_list = self.get_nodes()
     for node in node_list.items:
-      result += int(node.metadata.labels.get('nvidia.com/gpu.count', 0))
-    return result
+      result = int(node.metadata.labels.get('nvidia.com/gpu.count', 0))
+      if result > max_available_gpu:
+        max_available_gpu = result
+    return max_available_gpu      
 
   def get_node_capacity(self):
     cpu = 0
@@ -192,6 +196,7 @@ class OpenShift(object):
                                             cap_dict['memory'],
                                             cap_dict['cpu']))
     return node_cap_list
+
     
   def get_imagestreams(self, label=None):
     imagestreams = self.oapi_client.resources.get(kind='ImageStream', api_version='image.openshift.io/v1')
