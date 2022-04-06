@@ -62,6 +62,7 @@ export type ImageType = {
   name: string;
   order: number;
   tags?: ImageTagType[];
+  created_by: string | null;
 };
 
 export type SizeDescription = {

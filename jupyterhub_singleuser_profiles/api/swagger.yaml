@@ -347,6 +347,9 @@ components:
         build_status:
           title: Build Status
           type: string
+        created_by:
+          title: Created By
+          type: string
       required:
       - name
       - tags

@@ -16,6 +16,7 @@ SOFTWARE_ANNOTATION = 'opendatahub.io/notebook-software'
 DEPENDENCIES_ANNOTATION = 'opendatahub.io/notebook-python-dependencies'
 IMAGE_ORDER_ANNOTATION = 'opendatahub.io/notebook-image-order'
 RECOMMENDED_ANNOTATION = 'opendatahub.io/notebook-image-recommended' #Used by UI to pick the right tag if user only selected an image, not image+tag
+CREATED_BY_LABEL = 'app.kubernetes.io/created-by'
 
 BUILD_NUMBER = 'openshift.io/build.number'
 
@@ -41,6 +42,7 @@ class ImageInfo(BaseModel):
     url: Optional[str]
     display_name: Optional[str]
     order: int = 100
+    created_by: Optional[str]
     
 class Images(object):
     def __init__(self, openshift, namespace):
@@ -107,8 +109,11 @@ class Images(object):
         for i in imagestream_list.items:
             tag_list = []
             annotations = {}
+            labels = {}
             if i.metadata.annotations:
                 annotations = i.metadata.annotations
+            if i.metadata.labels:
+                labels = i.metadata.labels
             imagestream_tags = []
             if i.spec.tags:
                 imagestream_tags = i.spec.tags
@@ -144,6 +149,7 @@ class Images(object):
                                 name=i.metadata.name,
                                 tags=tag_list,
                                 order=int(annotations.get(IMAGE_ORDER_ANNOTATION, 100)),
+                                created_by=labels.get(CREATED_BY_LABEL),
                                 ))
 
         result.sort(key=self.check_place)

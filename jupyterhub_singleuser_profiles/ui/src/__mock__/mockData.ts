@@ -138,6 +138,7 @@ export const mockData: MockDataType = {
         },
       ],
       url: 'https://github.com/thoth-station/s2i-generic-data-science-notebook',
+      created_by: null,
     },
     {
       description: 'Jupyter notebook image with Elyra-AI installed',
@@ -162,6 +163,7 @@ export const mockData: MockDataType = {
         },
       ],
       url: 'https://github.com/thoth-station/s2i-lab-elyra',
+      created_by: null,
     },
     {
       description:
@@ -244,6 +246,7 @@ export const mockData: MockDataType = {
         },
       ],
       url: 'https://github.com/thoth-station/s2i-minimal-notebook',
+      created_by: null,
     },
     {
       description:
@@ -269,6 +272,7 @@ export const mockData: MockDataType = {
         },
       ],
       url: 'https://github.com/thoth-station/s2i-minimal-notebook',
+      created_by: null,
     },
     {
       description: null,
@@ -288,6 +292,7 @@ export const mockData: MockDataType = {
         },
       ],
       url: null,
+      created_by: null,
     },
     {
       description: null,
@@ -322,6 +327,7 @@ export const mockData: MockDataType = {
         },
       ],
       url: null,
+      created_by: null,
     },
     {
       description: 'Jupyter notebook image containing dependencies for training Tensorflow models.',
@@ -350,6 +356,7 @@ export const mockData: MockDataType = {
         },
       ],
       url: 'https://github.com/thoth-station/s2i-tensorflow-notebook',
+      created_by: null,
     },
     {
       description: 'Jupyter notebook image containing dependencies for training Tensorflow models.',
@@ -390,6 +397,7 @@ export const mockData: MockDataType = {
         },
       ],
       url: 'https://github.com/thoth-station/s2i-tensorflow-notebook',
+      created_by: null,
     },
     {
       description: 'Jupyter notebook image containing dependencies for training Tensorflow models.',
@@ -397,6 +405,7 @@ export const mockData: MockDataType = {
       name: 'no-tags-notebook',
       order: 100,
       url: 'https://github.com/thoth-station/s2i-tensorflow-notebook',
+      created_by: null,
     },
   ],
   ['size/Small']: {

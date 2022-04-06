@@ -80,7 +80,7 @@ const SizesForm: React.FC<ImageFormProps> = ({ uiConfig, userConfig }) => {
     if (!uiConfig.gpuConfig?.enabled) {
       postGPUChange(0);
     }
-  }, [uiConfig])
+  }, [uiConfig]);
 
   const sizeOptions = React.useMemo(() => {
     if (!sizeList?.length || !sizeDescriptions?.length) {

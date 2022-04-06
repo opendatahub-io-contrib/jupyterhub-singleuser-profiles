@@ -49,7 +49,7 @@ const ImageForm: React.FC<ImageFormProps> = ({ userConfig, onValidImage }) => {
     let cancelled = false;
 
     // Wait until we have both
-    if (!imageList || !userConfig) {
+    if (!imageList || imageList.length === 0 || !userConfig) {
       return;
     }
 
@@ -68,7 +68,7 @@ const ImageForm: React.FC<ImageFormProps> = ({ userConfig, onValidImage }) => {
       let found = false;
       let i = 0;
       while (!found && i < imageList.length) {
-        const image = imageList?.[i++];
+        const image = imageList[i++];
         if (image) {
           const tag = getDefaultTag(image);
           if (tag && isImageTagBuildValid(tag)) {
@@ -129,10 +129,57 @@ const ImageForm: React.FC<ImageFormProps> = ({ userConfig, onValidImage }) => {
     }
   };
 
+  const imageGroup = (imageList: ImageType[], isDefault: boolean) => (
+    <>
+      <div className="jsp-spawner__image-options__subtitle">
+        {isDefault ? 'Red Hat Maintained' : 'Custom Images'}
+      </div>
+      <div className="jsp-spawner__image-options">
+        <div className="jsp-spawner__image-options__group">
+          {imageList.map((image, index) =>
+            index < Math.ceil(imageList.length / 2) ? (
+              <ImageSelector
+                key={image.name}
+                image={image}
+                selectedImage={selectedImageTag?.image}
+                selectedTag={selectedImageTag?.tag}
+                handleSelection={handleSelection}
+              />
+            ) : null,
+          )}
+        </div>
+        <div className="jsp-spawner__image-options__group">
+          {imageList.map((image, index) =>
+            index >= Math.ceil(imageList.length / 2) ? (
+              <ImageSelector
+                key={image.name}
+                image={image}
+                selectedImage={selectedImageTag?.image}
+                selectedTag={selectedImageTag?.tag}
+                handleSelection={handleSelection}
+              />
+            ) : null,
+          )}
+        </div>
+      </div>
+    </>
+  );
+
+  const imageGroups = () => {
+    const defaultImageList = imageList.filter((image) => !image.created_by);
+    const customImageList = imageList.filter((image) => image.created_by === 'byon');
+    return (
+      <>
+        {defaultImageList.length ? imageGroup(defaultImageList, true) : null}
+        {customImageList.length ? imageGroup(customImageList, false) : null}
+      </>
+    );
+  };
+
   return (
     <div className="jsp-app__option-section m-is-top">
       <div className="jsp-app__option-section__title">Notebook image</div>
-      {imageList?.find((image) => isImageBuildInProgress(image)) ? (
+      {imageList.find((image) => isImageBuildInProgress(image)) ? (
         <Alert
           className="jsp-spawner__image-options__alert"
           isInline
@@ -150,38 +197,7 @@ const ImageForm: React.FC<ImageFormProps> = ({ userConfig, onValidImage }) => {
           ) : null}
         </Alert>
       ) : null}
-      <div className="jsp-spawner__image-options">
-        <div className="jsp-spawner__image-options__group">
-          {imageList
-            ? imageList?.map((image, index) =>
-                index < Math.ceil(imageList.length / 2) ? (
-                  <ImageSelector
-                    key={image.name}
-                    image={image}
-                    selectedImage={selectedImageTag?.image}
-                    selectedTag={selectedImageTag?.tag}
-                    handleSelection={handleSelection}
-                  />
-                ) : null,
-              )
-            : null}
-        </div>
-        <div className="jsp-spawner__image-options__group">
-          {imageList
-            ? imageList?.map((image, index) =>
-                index >= Math.ceil(imageList.length / 2) ? (
-                  <ImageSelector
-                    key={image.name}
-                    image={image}
-                    selectedImage={selectedImageTag?.image}
-                    selectedTag={selectedImageTag?.tag}
-                    handleSelection={handleSelection}
-                  />
-                ) : null,
-              )
-            : null}
-        </div>
-      </div>
+      {imageGroups()}
     </div>
   );
 };
