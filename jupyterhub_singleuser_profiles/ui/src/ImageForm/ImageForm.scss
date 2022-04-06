@@ -4,12 +4,11 @@
     flex-direction: row;
     gap: 20px;
   }
-
   &__alert {
     margin-top: var(--pf-global--spacer--md);
   }
   &__group {
-    min-width: 350px;
+    min-width: 400px;
   }
   &__image {
     margin-top: var(--pf-global--spacer--md);
@@ -18,6 +17,11 @@
     .pf-c-radio__label {
       white-space: nowrap;
     }
+  }
+  &__subtitle {
+    font-size: var(--pf-global--FontSize--md);
+    color: var(--pf-global--Color--200);
+    margin-top: var(--pf-global--spacer--md);
   }
   &__title {
     &-version {
