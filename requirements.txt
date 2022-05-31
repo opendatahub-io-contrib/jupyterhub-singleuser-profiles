@@ -9,3 +9,4 @@ jinja2
 escapism
 tornado
 jupyterhub
+prometheus-api-client

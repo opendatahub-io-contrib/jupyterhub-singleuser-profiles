@@ -1,6 +1,8 @@
 import os
 import sys
 import base64
+
+import requests
 import yaml
 import kubernetes
 import logging
@@ -8,6 +10,8 @@ from kubernetes.client.rest import ApiException
 from openshift.dynamic import DynamicClient
 from kubernetes.client import V1ObjectMeta, V1ConfigMap, V1Secret, V1EnvVar, V1SecretKeySelector, V1ConfigMapKeySelector, V1EnvVarSource
 import urllib3
+from prometheus_api_client import PrometheusConnect
+
 urllib3.disable_warnings()
 
 _LOGGER = logging.getLogger(__name__)
@@ -161,16 +165,60 @@ class OpenShift(object):
       memory = float(memory_str)/1000000000
     return memory
 
+  def get_openshift_prometheus_token(self):
+    service_account = self.api_client.read_namespaced_service_account("prometheus-k8s", "openshift-monitoring")
+    token_secret_name = [s for s in service_account.secrets if 'token' in s.name][0].name
+    secret = self.api_client.read_namespaced_secret(token_secret_name, "openshift-monitoring")
+    # get base64 encoded Prometheus token from the secret
+    prometheus_token = secret.data.get('token')
+    prometheus_token_str = str(base64.b64decode(prometheus_token.strip()), 'utf-8')
+
+    return prometheus_token_str
+
+  def get_prometheus_url(self):
+    prom_service = self.api_client.read_namespaced_service("prometheus-k8s", "openshift-monitoring")
+    prom_port = ""
+    for pport in prom_service.spec.ports:
+      if pport.name == "web":
+        prom_port = str(pport.port)
+    url = "https://" + prom_service.spec.cluster_ip + ":" + prom_port
+    return url
+
 # get_gpu_number returns maximum GPUs available in a node.
+# It uses metrics exposed by the dcgm_exporter when gpu operator is installed
+# Example Usecase: 2 GPU nodes with 1 GPU in each:
+#   When all GPUs are available: returns 1 (max value in any given node)
+#   When 1 GPU is in use: returns 1 (max available value in other node)
+#   When both GPUs are in use: returns 0
   def get_gpu_number(self):
-    result = 0
     max_available_gpu = 0
-    node_list = self.get_nodes()
-    for node in node_list.items:
-      result = int(node.metadata.labels.get('nvidia.com/gpu.count', 0))
-      if result > max_available_gpu:
-        max_available_gpu = result
-    return max_available_gpu      
+    pod_list = []
+    ## Verify if dcgm-exporter is deployed
+    try:
+      pod_list = self.api_client.list_pod_for_all_namespaces(label_selector="app=nvidia-dcgm-exporter")
+    except ApiException as e:
+      if e.status != 404:
+        _LOGGER.error("Exception when calling DCGM exporter pods: %s\n" % e)
+
+    if len(pod_list.items) != 0:
+      prom = PrometheusConnect(
+        url=self.get_prometheus_url(),
+        headers={"Authorization": "Bearer " + self.get_openshift_prometheus_token()},
+        disable_ssl=True)
+
+      for pod in pod_list.items:
+        pod_IP = pod.status.pod_ip
+        gpu_query = 'count (count by (UUID,GPU_I_ID) (DCGM_FI_PROF_GR_ENGINE_ACTIVE{instance="' + pod_IP +\
+                    ':9400"}) or vector(0)) - count(count by (UUID,GPU_I_ID) (DCGM_FI_PROF_GR_ENGINE_ACTIVE{instance="'\
+                    + pod_IP + ':9400", exported_pod=~".+"}) or vector(0))'
+
+        get_available_gpu_in_node_data = prom.custom_query(query=gpu_query)
+
+        get_available_gpu_in_node = int(get_available_gpu_in_node_data[0]['value'][1])
+
+        if get_available_gpu_in_node > max_available_gpu:
+            max_available_gpu = get_available_gpu_in_node
+    return max_available_gpu
 
   def get_node_capacity(self):
     cpu = 0
@@ -184,7 +232,7 @@ class OpenShift(object):
       cpu_alloc = self.calc_cpu(node.status.allocatable.get('cpu'))
       memory = self.calc_memory(node.status.capacity.get('memory'))
       memory_alloc = self.calc_memory(node.status.allocatable.get('memory'))
-      
+
       node_cap_list.append({
       'cpu': cpu,
       'allocatable_cpu': cpu_alloc,
@@ -197,12 +245,12 @@ class OpenShift(object):
                                             cap_dict['cpu']))
     return node_cap_list
 
-    
+
   def get_imagestreams(self, label=None):
     imagestreams = self.oapi_client.resources.get(kind='ImageStream', api_version='image.openshift.io/v1')
     imagestream_list = imagestreams.get(namespace=self.namespace, label_selector=label)
     return imagestream_list
-  
+
   def get_cluster_version(self, name):
     cluster_versions = self.oapi_client.resources.get(kind='ClusterVersion', api_version='config.openshift.io/v1')
     cluster_version =  cluster_versions.get(name=name, namespace=self.namespace)
