@@ -29,6 +29,7 @@ class SingleuserProfiles(object):
     self.profiles = []
     self.namespace = None
     self.gpu_types = []
+    self.cpu_types = []
     self.gpu_mode = gpu_mode
 
     self.openshift = OpenShift(namespace=namespace, verify_ssl=verify_ssl)
@@ -53,6 +54,7 @@ class SingleuserProfiles(object):
   
   def load_profiles(self, secret_name="jupyter-singleuser-profiles", filename=None, key_name="jupyterhub-singleuser-profiles.yaml", username=None):
     self.gpu_types = []
+    self.cpu_types = []
     self.profiles = []
     self.sizes = []
     self.ui = {}
@@ -65,11 +67,12 @@ class SingleuserProfiles(object):
           if type(config_map_yaml) != dict:
             message = '''
             ConfigMap %s is incorrect - content must be object, not list.
-            Please review configuration documentation for the 
+            Please review configuration documentation for the
             jupyterhub-singleuser-profiles library.
             '''%cm_name
             raise TypeError(message)
           self.gpu_types.extend(config_map_yaml.get("gpuTypes", []))
+          self.cpu_types.extend(config_map_yaml.get("cpuTypes", []))
           self.sizes.extend(config_map_yaml.get("sizes", []))
           self.profiles.extend(config_map_yaml.get("profiles", [self.empty_profile()]))
           self.ui = {**self.ui, **config_map_yaml.get("ui", {})}
@@ -175,6 +178,9 @@ class SingleuserProfiles(object):
   def get_gpu_types(self):
     return self.gpu_types
 
+  def get_cpu_types(self):
+    return self.cpu_types
+
   @classmethod
   def empty_profile(self):
     return {
@@ -273,6 +279,23 @@ class SingleuserProfiles(object):
     return None
 
   @classmethod
+  def apply_cpu_config(self, profile, cpu_types, pod):
+    gpu_count = profile.get('gpu', 0)
+    node_tolerations = []
+    node_affinity = {}
+    notebook_container = [container for container in pod.spec.containers if container.name == 'notebook'][0]
+
+    # If there are no GPUs in the cluster, or the user isn't requesting one, apply the cpu_type soft affinity
+    if (int(gpu_count) == 0) or (_GPU_KEY not in notebook_container.resources.requests):
+        # There may be multiple cpu_type options, apply them all the same way it's done for gpu_types
+        for cpu_type in cpu_types:
+            node_affinity = {**cpu_type.get('node_affinity', {}), **node_affinity}
+
+    self.apply_pod_schedulers(node_tolerations, node_affinity, pod)
+
+    return None
+
+  @classmethod
   def generate_volume_path(self, mountPath, default_mount_path, volume_name):
     if (mountPath):
       if (os.path.isabs(mountPath)):
@@ -295,7 +318,7 @@ class SingleuserProfiles(object):
     
 
   @classmethod
-  def apply_pod_profile(self, username, pod, profile, gpu_types, default_mount_path, gpu_mode=None, selected_gpu_type="ALL"):
+  def apply_pod_profile(self, username, pod, profile, gpu_types, cpu_types, default_mount_path, gpu_mode=None, selected_gpu_type="ALL"):
     api_client = kubernetes.client.ApiClient()
 
     pod.metadata.labels['jupyterhub.opendatahub.io/user'] = escape(username)
@@ -367,6 +390,7 @@ class SingleuserProfiles(object):
         env.append(V1EnvVar(_JUPYTERHUB_USER_NAME_ENV, username))
 
     self.apply_gpu_config(gpu_mode, profile, gpu_types, pod, selected_gpu_type)
+    self.apply_cpu_config(profile, cpu_types, pod)
 
     node_tolerations = profile.get('node_tolerations', [])
     node_affinity = profile.get('node_affinity', {})
