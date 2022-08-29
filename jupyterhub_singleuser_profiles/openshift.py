@@ -166,13 +166,15 @@ class OpenShift(object):
     return memory
 
   def get_openshift_prometheus_token(self):
-    service_account = self.api_client.read_namespaced_service_account("prometheus-k8s", "openshift-monitoring")
-    token_secret_name = [s for s in service_account.secrets if 'token' in s.name][0].name
-    secret = self.api_client.read_namespaced_secret(token_secret_name, "openshift-monitoring")
-    # get base64 encoded Prometheus token from the secret
-    prometheus_token = secret.data.get('token')
-    prometheus_token_str = str(base64.b64decode(prometheus_token.strip()), 'utf-8')
+    file_path = '/var/run/secrets/kubernetes.io/serviceaccount/token'
+    prometheus_token_str = ""
 
+    # check if file is present
+    if os.path.isfile(file_path):
+       with open(file_path) as file:
+           prometheus_token_str = file.read().replace('\n', '')
+    else:
+       _LOGGER.error("Unable to get token for Prometheus")
     return prometheus_token_str
 
   def get_prometheus_url(self):
