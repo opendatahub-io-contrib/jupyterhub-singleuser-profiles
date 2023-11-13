@@ -48,7 +48,7 @@
     "lodash-es": "^4.17.15",
     "moment": "^2.29.1",
     "node-gyp": "^7.1.2",
-    "node-sass": "^4.14.1",
+    "node-sass": "^7.0.0",
     "react": "^16.13.1",
     "react-dom": "^16.13.1"
   },
